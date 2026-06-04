@@ -1,30 +1,58 @@
-// This is a basic Flutter widget test.
+// Role-based routing tests.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+// These exercise the GoRouter redirect in lib/app/router.dart by overriding
+// `authStateProvider` with a fixed auth state — no Firebase required. They are
+// the foundation's proof that "routing works".
+import 'package:agri_platform/app/app.dart';
+import 'package:agri_platform/core/models/app_user.dart';
+import 'package:agri_platform/core/providers/auth_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:agri_platform/main.dart';
+Future<void> _pumpApp(WidgetTester tester, AppUser? user) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        authStateProvider.overrideWith((ref) => Stream<AppUser?>.value(user)),
+      ],
+      child: const AgriApp(),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+AppUser _userWithRole(UserRole role) =>
+    AppUser(uid: 'u1', phoneNumber: '+910000000000', role: role);
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('signed-out user lands on the login screen', (tester) async {
+    await _pumpApp(tester, null);
+    expect(find.text('Send OTP'), findsOneWidget);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('signed-in user with no role lands on the role gate',
+      (tester) async {
+    await _pumpApp(tester, const AppUser(uid: 'u1', phoneNumber: '+910'));
+    expect(find.text('Choose your role'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('homeowner routes to the homeowner app', (tester) async {
+    await _pumpApp(tester, _userWithRole(UserRole.homeowner));
+    expect(find.text('Homeowner App'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('worker routes to the worker app', (tester) async {
+    await _pumpApp(tester, _userWithRole(UserRole.worker));
+    expect(find.text('Worker App'), findsOneWidget);
+  });
+
+  testWidgets('site manager routes to the site manager app', (tester) async {
+    await _pumpApp(tester, _userWithRole(UserRole.siteManager));
+    expect(find.text('Site Manager App'), findsOneWidget);
+  });
+
+  testWidgets('b2b buyer routes to the b2b portal', (tester) async {
+    await _pumpApp(tester, _userWithRole(UserRole.b2b));
+    expect(find.text('B2B Portal'), findsOneWidget);
   });
 }
