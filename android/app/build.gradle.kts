@@ -3,6 +3,8 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Firebase google-services plugin (reads src/<flavor>/google-services.json)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -35,6 +37,31 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    // Three Firebase environments map to three Flutter flavors.
+    // Run with:  flutter run --flavor dev    -t lib/main_dev.dart
+    //            flutter run --flavor staging -t lib/main_staging.dart
+    //            flutter run --flavor prod    -t lib/main_prod.dart
+    // Each flavor reads its own google-services.json from
+    // android/app/src/<flavor>/google-services.json
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            resValue("string", "app_name", "Agri Dev")
+        }
+        create("staging") {
+            dimension = "env"
+            applicationIdSuffix = ".staging"
+            resValue("string", "app_name", "Agri Staging")
+        }
+        create("prod") {
+            dimension = "env"
+            // No suffix — prod uses the base applicationId.
+            resValue("string", "app_name", "Agri Marketplace")
         }
     }
 }
