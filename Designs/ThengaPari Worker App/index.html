@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ThengaPari · Worker App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@500;600;700;800&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/colors_and_type.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: var(--font-text);
+    background:
+      radial-gradient(1100px 700px at 50% -10%, #0c322d 0%, rgba(12,50,45,0) 60%),
+      linear-gradient(180deg, #11161a 0%, #0a0e10 100%);
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 16px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ---- Worker app dark-teal theme scope ---- */
+  .worker {
+    --w-bg: #08332F;            /* teal-900 base canvas */
+    --w-bg-2: #0A3C36;          /* slightly raised canvas */
+    --w-bg-deep: #062925;       /* deepest base (flow gradients) */
+    --w-glow-top: #0F5C52;      /* top glow of flow gradients */
+    --w-surface: #0E5249;       /* teal-700 cards */
+    --w-surface-2: #0C463F;     /* inset / secondary card */
+    --w-teal-500: #15786B;
+    --w-teal-300: #6FB6AB;
+    --w-teal-100: #D6ECE7;
+    --w-line: rgba(214,236,231,0.13);
+    --w-line-strong: rgba(214,236,231,0.26);
+    --w-fg1: #FFFFFF;
+    --w-fg2: #BDDDD5;
+    --w-fg3: #7FB4AB;
+    --w-accent: #F4A52A;        /* amber */
+    --w-accent-2: #FBBA4D;
+    --w-accent-press: #DD8413;
+    --w-accent-glow: 0.30;
+    --w-good: #57C98B;
+    --w-warn: #F4A52A;
+    --w-bad: #F08A6A;
+    color: var(--w-fg1);
+  }
+  .worker .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .worker .disp { font-family: var(--font-display); }
+  .ml { font-family: "Noto Sans Malayalam", var(--font-text); }
+  .worker button { font-family: var(--font-text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .worker ::-webkit-scrollbar { width: 0; height: 0; }
+  .worker { scrollbar-width: none; }
+
+  /* stage caption */
+  .stage-note {
+    position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%);
+    font: 500 12px/1.4 var(--font-text); color: rgba(255,255,255,0.32);
+    letter-spacing: .04em; text-align: center; pointer-events: none;
+  }
+
+  /* ---- animations ---- */
+  @keyframes pulse-dot { 0% { transform: scale(1); opacity: .55; } 70%,100% { transform: scale(2.6); opacity: 0; } }
+  .pulse-dot { animation: pulse-dot 1.8s ease-out infinite; }
+
+  @keyframes radar-spin { to { transform: rotate(360deg); } }
+  @keyframes sonar { 0% { transform: scale(.18); opacity: .7; } 100% { transform: scale(1); opacity: 0; } }
+  @keyframes job-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+  @keyframes job-ring { 0% { transform: scale(.7); opacity: .8; } 100% { transform: scale(2.4); opacity: 0; } }
+  @keyframes ping-in { from { transform: translateY(16px); } to { transform: translateY(0); } }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes sheet-up { from { transform: translateY(40px); } to { transform: translateY(0); } }
+  @keyframes pop-in { from { transform: scale(.55); } to { transform: scale(1); } }
+  @keyframes dash-move { to { stroke-dashoffset: -28; } }
+  @keyframes truck { 0% { offset-distance: 0%; } 100% { offset-distance: 100%; } }
+  .ping-in { animation: ping-in .5s cubic-bezier(.22,1,.36,1) both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <div class="stage-note">ThengaPari Worker · prototype — tap through the flow</div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="android-frame.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="ui.jsx"></script>
+  <script type="text/babel" src="i18n.jsx"></script>
+  <script type="text/babel" src="screen-home.jsx"></script>
+  <script type="text/babel" src="screen-jobs.jsx"></script>
+  <script type="text/babel" src="screen-wallet.jsx"></script>
+  <script type="text/babel" src="screen-profile.jsx"></script>
+  <script type="text/babel" src="screen-ping.jsx"></script>
+  <script type="text/babel" src="screen-navigate.jsx"></script>
+  <script type="text/babel" src="screen-complete.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
