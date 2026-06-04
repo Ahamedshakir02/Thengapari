@@ -1,0 +1,30 @@
+{
+  "_comment": "PLACEHOLDER — replace with the real google-services.json from the Firebase console for project agri-marketplace-staging. The android_client_info.package_name MUST stay com.agrimarketplace.agri_platform.staging (staging flavor applicationId).",
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "agri-marketplace-staging",
+    "storage_bucket": "agri-marketplace-staging.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "android_client_info": {
+          "package_name": "com.agrimarketplace.agri_platform.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "PLACEHOLDER_API_KEY_STAGING"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
