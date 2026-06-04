@@ -1,14 +1,13 @@
 {
-  "_comment": "PLACEHOLDER — replace with the real google-services.json from the Firebase console for project agri-marketplace-dev. The android_client_info.package_name MUST stay com.agrimarketplace.agri_platform.dev (dev flavor applicationId).",
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "agri-marketplace-dev",
-    "storage_bucket": "agri-marketplace-dev.appspot.com"
+    "project_number": "120551817733",
+    "project_id": "thengapari-dev",
+    "storage_bucket": "thengapari-dev.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:120551817733:android:ddca02805c4a9b0d1b126c",
         "android_client_info": {
           "package_name": "com.agrimarketplace.agri_platform.dev"
         }
@@ -16,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "PLACEHOLDER_API_KEY_DEV"
+          "current_key": "AIzaSyBos1BeM3Q7ihpnshkjWLy_lKHzm-uRJes"
         }
       ],
       "services": {
