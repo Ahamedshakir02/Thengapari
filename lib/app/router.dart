@@ -60,7 +60,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return loc == AppRoutes.splash ? null : AppRoutes.splash;
       }
 
-      final user = authState.valueOrNull;
+      final user = authState.value;
       final atAuthScreen = loc == AppRoutes.login || loc == AppRoutes.otp;
 
       // 2. Signed out -> only login/otp are reachable.
@@ -86,11 +86,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (_, __) => const SplashScreen(),
+        builder: (_, _) => const SplashScreen(),
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (_, __) => const LoginScreen(),
+        builder: (_, _) => const LoginScreen(),
       ),
       GoRoute(
         path: AppRoutes.otp,
@@ -105,23 +105,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.selectRole,
-        builder: (_, __) => const RoleGateScreen(),
+        builder: (_, _) => const RoleGateScreen(),
       ),
       GoRoute(
         path: AppRoutes.homeownerHome,
-        builder: (_, __) => const HomeownerHomeScreen(),
+        builder: (_, _) => const HomeownerHomeScreen(),
       ),
       GoRoute(
         path: AppRoutes.workerHome,
-        builder: (_, __) => const WorkerHomeScreen(),
+        builder: (_, _) => const WorkerHomeScreen(),
       ),
       GoRoute(
         path: AppRoutes.managerHome,
-        builder: (_, __) => const SiteManagerHomeScreen(),
+        builder: (_, _) => const SiteManagerHomeScreen(),
       ),
       GoRoute(
         path: AppRoutes.b2bHome,
-        builder: (_, __) => const B2BHomeScreen(),
+        builder: (_, _) => const B2BHomeScreen(),
       ),
     ],
   );

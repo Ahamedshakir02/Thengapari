@@ -12,7 +12,7 @@ class B2BHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('B2B Portal'),
+        title: const Text('B2B'),
         actions: [
           IconButton(
             tooltip: 'Sign out',
