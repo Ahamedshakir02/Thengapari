@@ -14,6 +14,7 @@ import 'core/providers/auth_provider.dart';
 import 'core/providers/homeowner_providers.dart';
 import 'features/homeowner/screens/book_harvest_screen.dart';
 import 'features/homeowner/screens/home_screen.dart';
+import 'features/homeowner/screens/live_job_tracker_screen.dart';
 import 'features/homeowner/screens/profile_setup_screen.dart';
 import 'features/homeowner/screens/tree_inventory_setup_screen.dart';
 
@@ -86,7 +87,8 @@ const _sampleJob = HarvestJob(
   cropTypes: ['coconut', 'mango'],
   status: 'in_progress',
   district: '2.1 km away',
-  estimatedYieldKg: 47,
+  estimatedYieldKg: 23,
+  actualYieldKg: 14.2,
 );
 
 /// Standalone harness app routing to the homeowner screens built so far.
@@ -123,7 +125,7 @@ class HomeownerDevApp extends StatelessWidget {
         ),
         GoRoute(
           path: AppRoutes.homeownerTracker,
-          builder: (_, _) => const _ComingSoon(title: 'Live job tracker (step 4)'),
+          builder: (_, _) => const LiveJobTrackerScreen(),
         ),
       ],
     );
@@ -193,6 +195,11 @@ class _DevMenu extends StatelessWidget {
             onTap: () => context.go(AppRoutes.homeownerBook),
           ),
           _MenuItem(
+            label: '4 · Live job tracker',
+            subtitle: 'Stepper, grove map, live weight, photos',
+            onTap: () => context.go(AppRoutes.homeownerTracker),
+          ),
+          _MenuItem(
             label: '1 · Profile setup',
             subtitle: 'Writes /users/{uid} + /homeowners/{uid}',
             onTap: () => context.go(AppRoutes.homeownerProfileSetup),
@@ -230,37 +237,6 @@ class _MenuItem extends StatelessWidget {
         subtitle: Text(subtitle, style: const TextStyle(fontSize: 11)),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
-      ),
-    );
-  }
-}
-
-/// Placeholder for screens not yet built.
-class _ComingSoon extends StatelessWidget {
-  final String title;
-  const _ComingSoon({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.construction_outlined,
-                color: AgriColors.amber600, size: 48),
-            const SizedBox(height: 12),
-            Text(title,
-                style: const TextStyle(
-                    fontSize: 15, color: Color(0xFF4A4840))),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => context.go(AppRoutes.homeownerHome),
-              child: const Text('Back to Home'),
-            ),
-          ],
-        ),
       ),
     );
   }
