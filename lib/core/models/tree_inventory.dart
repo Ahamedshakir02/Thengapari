@@ -28,6 +28,25 @@ enum CropType {
 
   String get firestoreValue => name; // 'coconut', 'mango', ...
 
+  /// Rough average harvest yield per tree (kg) — used for the local yield
+  /// estimate fallback when the Cloud Function is unavailable.
+  double get kgPerTree => switch (this) {
+        CropType.coconut => 15,
+        CropType.mango => 40,
+        CropType.jackfruit => 60,
+        CropType.pepper => 2,
+        CropType.areca => 5,
+      };
+
+  /// Indicative market rate (₹/kg) for the local estimate fallback.
+  double get ratePerKg => switch (this) {
+        CropType.coconut => 30,
+        CropType.mango => 60,
+        CropType.jackfruit => 25,
+        CropType.pepper => 600,
+        CropType.areca => 400,
+      };
+
   static CropType? fromString(String? value) {
     for (final t in CropType.values) {
       if (t.name == value) return t;
