@@ -40,6 +40,7 @@ class HomeownerHomeScreen extends ConsumerWidget {
           HeroLandscapeWidget(
             greeting: '$greeting,',
             subtitle: firstName,
+            topInset: MediaQuery.of(context).padding.top,
           ),
           const SizedBox(height: 16),
 
