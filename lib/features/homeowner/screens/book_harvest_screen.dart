@@ -142,7 +142,8 @@ class _BookHarvestScreenState extends ConsumerState<BookHarvestScreen> {
     final uid = user?.uid ?? '';
     final district = user?.district ?? '';
     final treesAsync = ref.watch(treeInventoryProvider(uid));
-    final trees = treesAsync.maybeWhen(data: (t) => t, orElse: () => const []);
+    final trees = treesAsync.maybeWhen(
+        data: (t) => t, orElse: () => const <TreeInventory>[]);
     final counts = _countsFor(trees);
 
     // Preselect the first owned crop once.
