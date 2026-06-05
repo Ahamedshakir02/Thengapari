@@ -9,6 +9,7 @@ import '../features/auth/screens/otp_verify_screen.dart';
 import '../features/auth/screens/role_gate_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/b2b/screens/home_screen.dart';
+import '../features/homeowner/screens/book_harvest_screen.dart';
 import '../features/homeowner/screens/home_screen.dart';
 import '../features/homeowner/screens/profile_setup_screen.dart';
 import '../features/homeowner/screens/tree_inventory_setup_screen.dart';
@@ -137,6 +138,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.homeownerHome,
         builder: (_, _) => const HomeownerHomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.homeownerBook,
+        builder: (_, _) => const BookHarvestScreen(),
       ),
       GoRoute(
         path: AppRoutes.workerHome,
