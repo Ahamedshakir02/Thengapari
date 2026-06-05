@@ -164,11 +164,11 @@ class HomeownerService {
     } catch (_) {
       // Local fallback.
       double kg = 0, earning = 0;
-      treeCounts.forEach((crop, count) {
-        final cropKg = count * crop.kgPerTree * factor;
+      for (final entry in treeCounts.entries) {
+        final cropKg = entry.value * entry.key.kgPerTree * factor;
         kg += cropKg;
-        earning += cropKg * crop.ratePerKg;
-      });
+        earning += cropKg * entry.key.ratePerKg;
+      }
       return YieldEstimate(
         estimatedKg: kg,
         estimatedEarning: earning,
