@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/harvest_job.dart';
+import '../models/job_status_update.dart';
 import '../models/tree_inventory.dart';
 import '../services/homeowner_service.dart';
 
@@ -32,6 +34,19 @@ final activeJobProvider =
   });
 });
 
+/// Real-time on-site checklist events for a job — `/jobs/{jobId}/statusUpdates`
+/// ordered by time (drives the live tracker timeline).
+final statusUpdatesProvider =
+    StreamProvider.family<List<JobStatusUpdate>, String>((ref, jobId) {
+  return FirebaseFirestore.instance
+      .collection('jobs/$jobId/statusUpdates')
+      .orderBy('createdAt')
+      .snapshots()
+      .map((s) => s.docs
+          .map((d) => JobStatusUpdate.fromFirestore(d.id, d.data()))
+          .toList());
+});
+
 /// Sum of completed-job earnings in the last 30 days.
 final monthlyEarningsProvider =
     FutureProvider.family<double, String>((ref, uid) async {
@@ -42,7 +57,7 @@ final monthlyEarningsProvider =
           j.isComplete &&
           j.earningsAmount != null &&
           (j.completedAt?.isAfter(cutoff) ?? false))
-      .fold<double>(0, (sum, j) => sum + (j.earningsAmount ?? 0));
+      .fold<double>(0, (acc, j) => acc + (j.earningsAmount ?? 0));
 });
 
 /// Completed-job earnings bucketed into the last 6 weeks (oldest → newest) for
