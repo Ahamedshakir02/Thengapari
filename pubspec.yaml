@@ -71,6 +71,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   google_fonts: ^8.1.0
+  cloud_functions: ^6.3.2
 
 dev_dependencies:
   flutter_test:

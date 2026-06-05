@@ -100,7 +100,7 @@ class _CropChips extends ConsumerWidget {
           );
         }
         return SizedBox(
-          height: 50,
+          height: 56,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.fromLTRB(AppSpace.gutter, 0, AppSpace.gutter, 0),
@@ -110,13 +110,13 @@ class _CropChips extends ConsumerWidget {
               final t = list[i];
               final count =
                   t.type == CropType.pepper ? '~${t.count} kg' : '×${t.count}';
-              return HomeCropChip(type: t.type, count: count);
+              return Center(child: HomeCropChip(type: t.type, count: count));
             },
           ),
         );
       },
       loading: () => const SizedBox(
-          height: 50,
+          height: 56,
           child: Center(
               child: SizedBox(
                   width: 18,
