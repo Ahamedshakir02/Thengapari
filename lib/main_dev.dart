@@ -128,7 +128,7 @@ class HomeownerDevApp extends StatelessWidget {
     );
 
     return MaterialApp.router(
-      title: 'Homeowner Dev Harness',
+      title: 'ThengaPari (dev)',
       debugShowCheckedModeBanner: false,
       theme: buildAgriTheme(),
       routerConfig: router,
