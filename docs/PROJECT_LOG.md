@@ -5,6 +5,61 @@
 
 ---
 
+## 2026-06-05 — Session 2: Shared widget library + Homeowner steps 1–2
+
+**Goal:** Build the shared widget/painter library, then start the Homeowner app screen-by-screen (pausing after each for hot-reload testing).
+
+### Done
+
+**1. Custom painters** (`lib/core/widgets/painters/`)
+- `KeralaLandscapePainter`, `WeeklyEarningsChartPainter`, `RadarMapPainter` (animated via `pingAnimValue`), `YieldDonutPainter`, `SavingsBarChartPainter` — built from the implementation-plan specs.
+
+**2. Shared widget library** (`lib/core/widgets/`)
+- Primitives: `StatCard`, `JobStatusBadge` (+ `JobStatus` enum), `WorkerJobDetailRow`, `CountdownTimerWidget`, `SavingsBandWidget`, `WorkerAvailabilityToggle`.
+- Composites: `HeroLandscapeWidget` (now takes `topInset` for edge-to-edge under the status bar), `CropInventoryRow`, `JobStatusCard`, `LiveInventoryTile`.
+- Shared UI: `AppButton` (primary/secondary/ghost + icon/loading/disabled), `AppTextField`, `UserAvatarWidget`, `ShimmerJobCard` (+ `ShimmerText`).
+- `role_nav_bars.dart`: `HomeownerBottomNav`, `WorkerBottomNav` (dark teal), `SiteManagerBottomNav`, `B2BBottomNav`.
+- View-model classes: `CropSummary`, `CropListing` (hand-written, matching plan field signatures).
+- **Widget gallery** (`lib/features/dev/widget_gallery_screen.dart`) renders every widget + painter on one scrollable page. Verified rendering on a Pixel 7.
+
+**3. Homeowner — Step 1: Profile + Tree inventory setup**
+- Models: `TreeInventory` (+ `CropType` enum). `AppUser` gained `isProfileComplete`.
+- `HomeownerService` — Firestore writes to `/users/{uid}`, `/homeowners/{uid}`, `/homeowners/{uid}/trees` (paths per `00_shared_architecture.md`).
+- `homeowner_providers.dart` — `homeownerServiceProvider`, `treeInventoryProvider(uid)`.
+- Screens: `ProfileSetupScreen` (name, 14-district dropdown, address) and `TreeInventorySetupScreen` (per-crop count/age steppers, batch write).
+- `RoleGateScreen` upgraded to a real 4-role selector that writes the chosen role.
+- Router: added `/homeowner/profile-setup` + `/homeowner/tree-setup` routes and an onboarding redirect (homeowner with incomplete profile → profile setup).
+
+**4. Homeowner — Step 2: HomeScreen**
+- Model: `HarvestJob` (central `/jobs` doc, with `badgeStatus`/`progress`/`isActive` helpers).
+- Providers: `activeJobProvider(uid)` (real-time stream), `homeownerJobsProvider`, `monthlyEarningsProvider`, `weeklyEarningsProvider` — all filter/aggregate client-side to avoid composite indexes.
+- `HomeownerHomeScreen` — hero greeting, live crop chips (`treeInventoryProvider`), stat cards, weekly-earnings chart, real-time active-job card (`activeJobProvider`), Book CTA, bottom nav. Matches `app-screens-home.jsx` layout.
+
+**5. Dev harness** (`lib/main_dev.dart`)
+- Boots Firebase, signs in anonymously (falls back to a placeholder uid), overrides `authStateProvider` with a dev user, and seeds the homeowner data providers with sample data so screens render without live Firestore. Menu jumps to each built screen. (The real app uses `bootstrap(Flavor.dev)` with the live providers.)
+
+### Verification
+- `flutter analyze lib` → No issues found.
+- Ran on Pixel 7: gallery, dev menu, Profile setup, and HomeScreen all render correctly.
+
+### Notes / deviations
+- **Anonymous auth is disabled** in the dev Firebase project, so real Firestore writes are rejected by security rules until it's enabled (Authentication → Anonymous). The harness seeds sample data so UI is still testable.
+- **Wireless `flutter run` is flaky** on the VM-service handshake (build/install succeed; hot-reload attach sometimes drops). USB is more reliable for hot reload.
+- Used the existing `AgriColors` theme for colors (consistency with the verified gallery), matching the designs' **layout/spacing**.
+
+### Design-fidelity requirement (raised 2026-06-05) — TO DO
+User wants the apps to match the **Designs/** folder exactly (real assets, colors, fonts, components), not theme approximations. Concretely:
+- **Real assets** to bundle: `Designs/ThengaPari HomeOwner App (1)/assets/illustration-kerala-landscape.svg`, `logo-mark.svg`, `logo-mark-light.svg` (use `flutter_svg`).
+- **Design tokens** from `colors_and_type.css` / `design-system.css`: warm paper bg `#FBF8F1`, forest green brand `#1E4D2B`, amber accent `#F4A52A`, warm ink neutrals — differ from the current `AgriColors`.
+- **Fonts**: Baloo Chettan 2 (display) + Noto Sans / Noto Sans Malayalam (text).
+- **Components** to match exactly (`app.css` + `app-icons.jsx`): brand chip + EN/മല language toggle, richer `CropChip` (tinted glyph + ready count), stat cards with icon + trend pill, job card with crop thumb + worker avatar + Track button, day-based weekly bar chart.
+
+### Next up
+- Align Flutter to the design folder: bundle SVGs/logos, port design tokens + fonts, rework Homeowner screens (and shared widgets) to match `app.css` exactly.
+- Then continue Homeowner steps 3–7 (Book harvest, Live tracker, Yield report, Payment, AMC).
+
+---
+
 ## 2026-06-04 — Session 1: Foundation setup
 
 **Goal:** Stand up the project foundation only — no feature screens, no painters.
