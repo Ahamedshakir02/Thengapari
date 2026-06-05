@@ -15,7 +15,7 @@ class AgriApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Agri Marketplace',
+      title: 'ThengaPari',
       debugShowCheckedModeBanner: false,
       theme: buildAgriTheme(),
       routerConfig: router,
