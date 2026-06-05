@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
+import '../../app/design_tokens.dart';
 
 /// Shared text input. Renders an optional [label] above a themed field
 /// (filled surface, rounded, green focus border — see [buildAgriTheme]'s
@@ -41,8 +41,8 @@ class AppTextField extends StatelessWidget {
           Text(label!,
               style: const TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF3B6D11))),
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.fg2)),
           const SizedBox(height: 6),
         ],
         TextField(
@@ -51,15 +51,15 @@ class AppTextField extends StatelessWidget {
           keyboardType: keyboardType,
           onChanged: onChanged,
           maxLength: maxLength,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF173404)),
+          style: const TextStyle(fontSize: 15, color: AppColors.fg1),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle:
-                const TextStyle(fontSize: 14, color: Color(0xFF908C7E)),
+                const TextStyle(fontSize: 15, color: AppColors.ink400),
             errorText: errorText,
             counterText: '',
             prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, size: 18, color: AgriColors.green600)
+                ? Icon(prefixIcon, size: 18, color: AppColors.brand)
                 : null,
             suffixIcon: suffix,
             isDense: true,
