@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../models/harvest_job.dart';
 import '../models/tree_inventory.dart';
 
 /// A single tree group the user is about to save during setup (no id yet).
@@ -55,7 +56,7 @@ class HomeownerService {
         if (lastName != null && lastName.isNotEmpty) 'lastName': lastName,
         'district': district,
         'role': 'homeowner',
-        if (phoneNumber != null) 'phoneNumber': phoneNumber,
+        'phoneNumber': ?phoneNumber,
         'createdAt': FieldValue.serverTimestamp(),
       },
       SetOptions(merge: true),
@@ -105,5 +106,29 @@ class HomeownerService {
         .map((snap) => snap.docs
             .map((d) => TreeInventory.fromFirestore(d.id, d.data()))
             .toList());
+  }
+
+  /// Live stream of every job for this homeowner. We filter/aggregate
+  /// client-side (active job, earnings) to avoid composite-index requirements
+  /// on `/jobs`.
+  Stream<List<HarvestJob>> watchHomeownerJobs(String uid) {
+    return _db
+        .collection('jobs')
+        .where('homeownerId', isEqualTo: uid)
+        .snapshots()
+        .map((snap) => snap.docs
+            .map((d) => HarvestJob.fromFirestore(d.id, d.data()))
+            .toList());
+  }
+
+  /// One-shot fetch of this homeowner's jobs (for earnings aggregation).
+  Future<List<HarvestJob>> fetchHomeownerJobs(String uid) async {
+    final snap = await _db
+        .collection('jobs')
+        .where('homeownerId', isEqualTo: uid)
+        .get();
+    return snap.docs
+        .map((d) => HarvestJob.fromFirestore(d.id, d.data()))
+        .toList();
   }
 }

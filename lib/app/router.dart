@@ -10,6 +10,8 @@ import '../features/auth/screens/role_gate_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/b2b/screens/home_screen.dart';
 import '../features/homeowner/screens/home_screen.dart';
+import '../features/homeowner/screens/profile_setup_screen.dart';
+import '../features/homeowner/screens/tree_inventory_setup_screen.dart';
 import '../features/site_manager/screens/home_screen.dart';
 import '../features/worker/screens/home_screen.dart';
 
@@ -23,6 +25,8 @@ abstract final class AppRoutes {
   static const homeownerProfileSetup = '/homeowner/profile-setup';
   static const homeownerTreeSetup = '/homeowner/tree-setup';
   static const homeownerHome = '/homeowner/home';
+  static const homeownerBook = '/homeowner/book';
+  static const homeownerTracker = '/homeowner/tracker';
   static const workerHome = '/worker/home';
   static const managerHome = '/manager/home';
   static const b2bHome = '/b2b/home';
@@ -75,6 +79,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         return loc == AppRoutes.selectRole ? null : AppRoutes.selectRole;
       }
 
+      // 3b. Homeowner who hasn't finished profile setup -> onboarding.
+      //     Setup routes are freely reachable; everything else funnels back
+      //     to profile setup until name + district are saved.
+      if (user.role == UserRole.homeowner && !user.isProfileComplete) {
+        const setupRoutes = {
+          AppRoutes.homeownerProfileSetup,
+          AppRoutes.homeownerTreeSetup,
+        };
+        return setupRoutes.contains(loc)
+            ? null
+            : AppRoutes.homeownerProfileSetup;
+      }
+
       // 4. Signed in with a role -> push out of any pre-home screen.
       final home = AppRoutes.homeForRole(user.role!);
       const preHome = {
@@ -108,6 +125,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.selectRole,
         builder: (_, _) => const RoleGateScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.homeownerProfileSetup,
+        builder: (_, _) => const ProfileSetupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.homeownerTreeSetup,
+        builder: (_, _) => const TreeInventorySetupScreen(),
       ),
       GoRoute(
         path: AppRoutes.homeownerHome,

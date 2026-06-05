@@ -75,5 +75,20 @@ class AuthService {
     return _auth.signInWithCredential(credential);
   }
 
+  /// Persists the chosen [role] to `/users/{uid}`. The auth stream re-emits the
+  /// updated [AppUser], which re-runs router redirects (homeowner → profile
+  /// setup; other roles → their home).
+  Future<void> setRole(UserRole role) async {
+    final uid = currentUserId;
+    if (uid == null) return;
+    await _firestore.collection('users').doc(uid).set(
+      {
+        'role': role.asFirestoreValue,
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+
   Future<void> signOut() => _auth.signOut();
 }
