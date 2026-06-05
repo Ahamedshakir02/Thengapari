@@ -5,6 +5,43 @@
 
 ---
 
+## 2026-06-05 — Session 3: Design-system alignment + rename to ThengaPari
+
+**Goal:** Make the homeowner screens match the `Designs/` folder exactly (real assets, colors, fonts, components), and rename the app to ThengaPari.
+
+### Done
+
+**1. Design foundation**
+- Bundled real SVG assets into `assets/images/` (`illustration-kerala-landscape.svg`, `logo-mark.svg`, `logo-mark-light.svg`); registered in `pubspec.yaml`; rendered via `flutter_svg`.
+- Added `google_fonts`; theme now uses **Baloo Chettan 2** (display) + **Noto Sans** (text).
+- New `lib/app/design_tokens.dart` — faithful port of `colors_and_type.css` / `design-system.css`: `AppColors` (forest green `#1E4D2B`, amber `#F4A52A`, warm paper `#FBF8F1`, warm-ink neutrals, status colors), `AppRadii`, `AppSpace`, `AppShadows`, `AppText`.
+- Rewrote `buildAgriTheme()` to build from the design tokens (paper bg, forest-green brand, amber accent, pill buttons, md-radius inputs).
+- `lib/core/widgets/app_icon.dart` — `AppIcon` (stroke UI icons) + `CropGlyph` (filled crop motifs) ported from `app-icons.jsx` as real SVG, plus `CropPalette` (per-crop tint/fg).
+
+**2. Reskinned screens to match `app.css`**
+- `lib/features/homeowner/widgets/home_widgets.dart` — bespoke `HomeHero` (real landscape SVG + scrim + brand chip + EN/മല toggle + greeting), `HomeCropChip`, `HomeStatCard` (icon + value + trend pill), `WeeklyBarChart` (amber peak), `ActiveJobCard` (crop thumb + gradient progress + worker avatar + Track btn), `HomeBottomNav` (bubble style), `SectionHead`.
+- Rewrote `HomeownerHomeScreen` using these (live providers unchanged).
+- Restyled `ProfileSetupScreen` + `TreeInventorySetupScreen` to design tokens; tree setup now uses `CropGlyph`.
+- Migrated shared `AppButton` (pill, forest green) + `AppTextField` to design tokens.
+
+**3. Renamed app → ThengaPari**
+- `pubspec.yaml` package name `agri_platform` → `thengapari` (updated `test/widget_test.dart` imports).
+- Launcher label: `AndroidManifest.xml` now `@string/app_name`; flavor `app_name` resValues → `ThengaPari Dev` / `ThengaPari Staging` / `ThengaPari`.
+- `MaterialApp` titles + splash label → ThengaPari.
+- **Left `applicationId`/namespace `com.agrimarketplace.agri_platform` unchanged** (tied to Firebase `google-services.json`).
+
+### Verification
+- `flutter analyze lib test` → No issues found.
+- `flutter build apk --debug --flavor dev` → built OK (fonts/SVGs/assets bundle correctly).
+- `flutter test` → 6/6 pass (homeowner routing test updated: incomplete-profile homeowner → profile setup).
+- Not yet screenshotted on device — Pixel 7 wireless link dropped mid-session; pending visual confirmation on next run.
+
+### Next up
+- Visually confirm the redesigned Home/setup on device.
+- Continue Homeowner steps 3–7 (Book, Tracker, Report, Payment, AMC) on the new design foundation.
+
+---
+
 ## 2026-06-05 — Session 2: Shared widget library + Homeowner steps 1–2
 
 **Goal:** Build the shared widget/painter library, then start the Homeowner app screen-by-screen (pausing after each for hot-reload testing).
