@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/design_tokens.dart';
 import '../../../app/router.dart';
-import '../../../app/theme.dart';
 import '../../../core/models/tree_inventory.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/homeowner_providers.dart';
 import '../../../core/services/homeowner_service.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_icon.dart';
 
 /// First-time tree inventory: the homeowner logs how many of each tree type
 /// they own. Batch-writes `/homeowners/{uid}/trees`, then enters the app.
@@ -86,19 +87,12 @@ class _TreeInventorySetupScreenState
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                 children: [
-                  const Text(
-                    'What do you grow?',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: AgriColors.green900,
-                    ),
-                  ),
+                  Text('What do you grow?', style: AppText.h2()),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Add the trees on your property so we can suggest harvests '
                     'at the right time. You can change these later.',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF6E6B60)),
+                    style: AppText.bodySm().copyWith(color: AppColors.fg3),
                   ),
                   const SizedBox(height: 20),
                   for (final type in CropType.values) ...[
@@ -155,10 +149,10 @@ class _CropCountCard extends StatelessWidget {
       duration: const Duration(milliseconds: 180),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: active ? AgriColors.green50 : Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: active ? AppColors.surfaceSunk : AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.md),
         border: Border.all(
-          color: active ? AgriColors.green100 : AgriColors.border,
+          color: active ? AppColors.brand : AppColors.border,
           width: active ? 1 : 0.5,
         ),
       ),
@@ -171,20 +165,19 @@ class _CropCountCard extends StatelessWidget {
                 height: 40,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AgriColors.border, width: 0.5),
+                  color: CropPalette.tint(type),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-                child: Text(type.emoji, style: const TextStyle(fontSize: 20)),
+                child: CropGlyph(type, size: 24, color: CropPalette.fg(type)),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   type.label,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF173404),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.fg1,
                   ),
                 ),
               ),
@@ -200,10 +193,10 @@ class _CropCountCard extends StatelessWidget {
             Row(
               children: [
                 const Icon(Icons.eco_outlined,
-                    size: 15, color: AgriColors.green600),
+                    size: 15, color: AppColors.brand),
                 const SizedBox(width: 6),
                 const Text('Avg age',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF3B6D11))),
+                    style: TextStyle(fontSize: 12, color: AppColors.fg2)),
                 const Spacer(),
                 _Stepper(
                   value: ageYears,
@@ -249,9 +242,9 @@ class _Stepper extends StatelessWidget {
           child: Text(
             suffix == null ? '$value' : '$value $suffix',
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF173404),
+              color: AppColors.fg1,
             ),
           ),
         ),
@@ -278,11 +271,11 @@ class _StepBtn extends StatelessWidget {
         height: 30,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: enabled ? AgriColors.green400 : const Color(0xFFE6E4DC),
+          color: enabled ? AppColors.brand : AppColors.mist200,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon,
-            size: 16, color: enabled ? Colors.white : const Color(0xFFB4B2A9)),
+            size: 16, color: enabled ? Colors.white : AppColors.ink400),
       ),
     );
   }

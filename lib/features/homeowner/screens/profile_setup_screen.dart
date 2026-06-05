@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/design_tokens.dart';
 import '../../../app/router.dart';
-import '../../../app/theme.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/homeowner_providers.dart';
 import '../../../core/widgets/app_button.dart';
@@ -100,19 +100,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                 children: [
-                  const Text(
-                    'Tell us about you',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: AgriColors.green900,
-                    ),
-                  ),
+                  Text('Tell us about you', style: AppText.h2()),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'We use this to match you with a nearby site manager '
                     'when you book a harvest.',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF6E6B60)),
+                    style: AppText.bodySm().copyWith(color: AppColors.fg3),
                   ),
                   const SizedBox(height: 24),
                   AppTextField(
@@ -179,24 +172,24 @@ class _DistrictDropdown extends StatelessWidget {
         const Text('District',
             style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF3B6D11))),
+                fontWeight: FontWeight.w600,
+                color: AppColors.fg2)),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
           initialValue: value,
           isExpanded: true,
-          icon: const Icon(Icons.expand_more, color: AgriColors.green600),
+          icon: const Icon(Icons.expand_more, color: AppColors.brand),
           hint: const Text('Select your district',
-              style: TextStyle(fontSize: 14, color: Color(0xFF908C7E))),
+              style: TextStyle(fontSize: 15, color: AppColors.ink400)),
           decoration: InputDecoration(
             errorText: errorText,
             isDense: true,
-            prefixIcon:
-                const Icon(Icons.place_outlined, size: 18, color: AgriColors.green600),
+            prefixIcon: const Icon(Icons.place_outlined,
+                size: 18, color: AppColors.brand),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           ),
-          style: const TextStyle(fontSize: 14, color: Color(0xFF173404)),
+          style: const TextStyle(fontSize: 15, color: AppColors.fg1),
           items: [
             for (final d in _keralaDistricts)
               DropdownMenuItem(value: d, child: Text(d)),

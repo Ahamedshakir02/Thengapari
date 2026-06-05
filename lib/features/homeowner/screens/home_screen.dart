@@ -2,23 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/design_tokens.dart';
 import '../../../app/router.dart';
-import '../../../app/theme.dart';
-import '../../../core/models/crop_summary.dart';
 import '../../../core/models/tree_inventory.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/homeowner_providers.dart';
-import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/crop_inventory_row.dart';
-import '../../../core/widgets/hero_landscape_widget.dart';
-import '../../../core/widgets/job_status_card.dart';
-import '../../../core/widgets/painters/weekly_earnings_chart_painter.dart';
-import '../../../core/widgets/role_nav_bars.dart';
-import '../../../core/widgets/shimmer_job_card.dart';
-import '../../../core/widgets/stat_card.dart';
+import '../../../core/widgets/app_icon.dart';
+import '../widgets/home_widgets.dart';
 
-/// Homeowner dashboard. Hero greeting, live crop chips, earnings stats, weekly
-/// chart, and the real-time active-job card. Matches app-screens-home.jsx.
+/// Homeowner dashboard, matched to `app-screens-home.jsx` / `app.css`:
+/// landscape hero + greeting, live crop chips, two stat cards, weekly-earnings
+/// bar chart, real-time active-job card, and the Book CTA.
 class HomeownerHomeScreen extends ConsumerWidget {
   const HomeownerHomeScreen({super.key});
 
@@ -26,60 +20,62 @@ class HomeownerHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).value;
     final uid = user?.uid ?? '';
-    final greeting = _greetingForNow();
     final firstName = (user?.firstName?.trim().isNotEmpty ?? false)
         ? user!.firstName!
         : 'there';
 
     return Scaffold(
-      backgroundColor: AgriColors.surface,
-      bottomNavigationBar: const HomeownerBottomNav(currentIndex: 0),
+      backgroundColor: AppColors.bg,
+      bottomNavigationBar: const HomeBottomNav(currentIndex: 0),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          HeroLandscapeWidget(
-            greeting: '$greeting,',
-            subtitle: firstName,
+          HomeHero(
+            greetingSmall: '${_greeting()},',
+            name: firstName,
+            sub: 'Your grove is looking healthy',
             topInset: MediaQuery.of(context).padding.top,
           ),
           const SizedBox(height: 16),
 
-          // ---- Your crops ----
-          _SectionLabel('Your crops'),
-          const SizedBox(height: 8),
+          const SectionHead('Your crops'),
+          const SizedBox(height: 10),
           _CropChips(uid: uid),
           const SizedBox(height: 16),
 
-          // ---- Stats ----
           _StatsRow(uid: uid),
           const SizedBox(height: 14),
 
-          // ---- Weekly earnings ----
-          _WeeklyEarningsCard(uid: uid),
+          _WeeklyEarnings(uid: uid),
           const SizedBox(height: 14),
 
-          // ---- Active job ----
-          _SectionLabel('Active job'),
+          const SectionHead('Active job'),
           const SizedBox(height: 8),
           _ActiveJob(uid: uid),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
-          // ---- Book CTA ----
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: AppButton(
-              label: 'Book a harvest',
-              icon: Icons.add,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+            child: FilledButton(
               onPressed: () => context.push(AppRoutes.homeownerBook),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppIcon('plus',
+                      size: 20, color: AppColors.onBrand, strokeWidth: 2.2),
+                  const SizedBox(width: 9),
+                  Text('Book a harvest', style: AppText.button()),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
         ],
       ),
     );
   }
 
-  String _greetingForNow() {
+  String _greeting() {
     final h = DateTime.now().hour;
     if (h < 12) return 'Good morning';
     if (h < 17) return 'Good afternoon';
@@ -87,31 +83,6 @@ class HomeownerHomeScreen extends ConsumerWidget {
   }
 }
 
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Color(0xFF6E6B60),
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Live crop chips from the tree inventory stream.
 class _CropChips extends ConsumerWidget {
   final String uid;
   const _CropChips({required this.uid});
@@ -122,33 +93,38 @@ class _CropChips extends ConsumerWidget {
     return trees.when(
       data: (list) {
         if (list.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
             child: Text('No trees yet — add them from your profile.',
-                style: TextStyle(fontSize: 12, color: Color(0xFF908C7E))),
+                style: AppText.caption()),
           );
         }
-        final crops = [
-          for (final t in list)
-            CropSummary(
-              name: t.type.label,
-              icon: t.type.emoji,
-              quantity: t.type == CropType.pepper ? '~${t.count} kg' : '×${t.count}',
-            ),
-        ];
-        return CropInventoryRow(crops: crops);
+        return SizedBox(
+          height: 50,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(AppSpace.gutter, 0, AppSpace.gutter, 0),
+            itemCount: list.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (_, i) {
+              final t = list[i];
+              final count =
+                  t.type == CropType.pepper ? '~${t.count} kg' : '×${t.count}';
+              return HomeCropChip(type: t.type, count: count);
+            },
+          ),
+        );
       },
       loading: () => const SizedBox(
-          height: 40,
+          height: 50,
           child: Center(
               child: SizedBox(
                   width: 18,
                   height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2)))),
-      error: (_, _) => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 14),
-        child: Text('Could not load your crops.',
-            style: TextStyle(fontSize: 12, color: Color(0xFF908C7E))),
+      error: (_, _) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+        child: Text('Could not load your crops.', style: AppText.caption()),
       ),
     );
   }
@@ -162,25 +138,38 @@ class _StatsRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final earnings = ref.watch(monthlyEarningsProvider(uid));
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
       child: Row(
         children: [
           Expanded(
-            child: StatCard(
+            child: HomeStatCard(
+              iconName: 'rupee',
+              iconBg: AppColors.greenLeaf100,
+              iconFg: AppColors.brand,
               value: earnings.when(
                 data: (v) => '₹${v.toStringAsFixed(0)}',
                 loading: () => '…',
                 error: (_, _) => '--',
               ),
               label: 'Yield earned',
+              trend: '+12% this season',
+              trendIcon: Icons.trending_up,
+              trendBg: AppColors.statusCompleteBg,
+              trendFg: AppColors.statusCompleteFg,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           const Expanded(
-            child: StatCard(
+            child: HomeStatCard(
+              iconName: 'feather',
+              iconBg: AppColors.amber100,
+              iconFg: AppColors.statusInprogressFg,
               value: '0.8 kg',
-              label: 'Weight saved vs before',
-              valueColor: AgriColors.amber600,
+              label: 'Weight saved',
+              trend: 'vs market',
+              trendIcon: Icons.straighten,
+              trendBg: AppColors.amber100,
+              trendFg: AppColors.statusInprogressFg,
             ),
           ),
         ],
@@ -189,55 +178,52 @@ class _StatsRow extends ConsumerWidget {
   }
 }
 
-class _WeeklyEarningsCard extends ConsumerWidget {
+class _WeeklyEarnings extends ConsumerWidget {
   final String uid;
-  const _WeeklyEarningsCard({required this.uid});
+  const _WeeklyEarnings({required this.uid});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weekly = ref.watch(weeklyEarningsProvider(uid));
-    final data = weekly.maybeWhen(
+    final values = weekly.maybeWhen(
       data: (list) =>
           list.any((v) => v > 0) ? list : const <double>[0, 0, 0, 0, 0, 0],
       orElse: () => const <double>[0, 0, 0, 0, 0, 0],
     );
-    final total = data.fold<double>(0, (a, b) => a + b);
+    final labels = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6'];
+    final data = <(String, double)>[
+      for (int i = 0; i < values.length && i < labels.length; i++)
+        (labels[i], values[i]),
+    ];
+    final total = values.fold<double>(0, (a, b) => a + b);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AgriColors.border, width: 0.5),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadii.lg),
+          border: Border.all(color: AppColors.border),
+          boxShadow: AppShadows.sm,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
-                const Text('Weekly earnings',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF173404))),
-                const Spacer(),
+                Expanded(child: Text('Weekly earnings', style: AppText.h3())),
                 Text('₹${total.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                        fontSize: 13,
+                    style: AppText.caption().copyWith(
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: AgriColors.green800)),
+                        color: AppColors.brandInk)),
               ],
             ),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 85,
-              child: CustomPaint(
-                painter: WeeklyEarningsChartPainter(weeklyEarnings: data),
-                child: const SizedBox(width: double.infinity),
-              ),
-            ),
+            const SizedBox(height: 14),
+            WeeklyBarChart(data: data),
           ],
         ),
       ),
@@ -252,25 +238,51 @@ class _ActiveJob extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final job = ref.watch(activeJobProvider(uid));
-    return job.when(
-      data: (j) {
-        if (j == null) return const _NoActiveJob();
-        return GestureDetector(
-          onTap: () =>
-              context.push('${AppRoutes.homeownerTracker}?jobId=${j.id}'),
-          child: JobStatusCard(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+      child: job.when(
+        data: (j) {
+          if (j == null) return const _NoActiveJob();
+          final crop =
+              CropType.fromString(j.cropTypes.isEmpty ? null : j.cropTypes.first) ??
+                  CropType.coconut;
+          return ActiveJobCard(
+            thumbCrop: crop,
             title: j.title,
-            status: j.badgeStatus,
-            detail: j.siteManagerId != null
+            meta: j.siteManagerId != null
                 ? 'Site Manager assigned'
                 : 'Finding a site manager…',
-            rightDetail: j.district ?? '',
-            progress: j.progress,
-          ),
-        );
-      },
-      loading: () => const ShimmerJobCard(),
-      error: (_, _) => const _NoActiveJob(),
+            progress: j.progress ?? 0.1,
+            etaText: 'Site Manager · ${j.district ?? 'nearby'}',
+            managerInitials: 'SM',
+            onTrack: () =>
+                context.push('${AppRoutes.homeownerTracker}?jobId=${j.id}'),
+          );
+        },
+        loading: () => const _JobSkeleton(),
+        error: (_, _) => const _NoActiveJob(),
+      ),
+    );
+  }
+}
+
+class _JobSkeleton extends StatelessWidget {
+  const _JobSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 120,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: const Center(
+          child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2))),
     );
   }
 }
@@ -281,30 +293,29 @@ class _NoActiveJob extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AgriColors.border, width: 0.5),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        border: Border.all(color: AppColors.border),
+        boxShadow: AppShadows.sm,
       ),
       child: Row(
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 42,
+            height: 42,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AgriColors.green50,
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.surfaceSunk,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.eco_outlined,
-                color: AgriColors.green600, size: 20),
+            child: AppIcon('leaf', size: 20, color: AppColors.brand),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text('No active harvest. Book one to get started.',
-                style: TextStyle(fontSize: 13, color: Color(0xFF4A4840))),
+                style: AppText.bodySm().copyWith(color: AppColors.fg2)),
           ),
         ],
       ),
