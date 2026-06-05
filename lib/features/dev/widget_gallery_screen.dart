@@ -175,7 +175,7 @@ class _WidgetGalleryScreenState extends State<WidgetGalleryScreen>
               ),
               child: AnimatedBuilder(
                 animation: _pulse,
-                builder: (_, __) => CustomPaint(
+                builder: (_, _) => CustomPaint(
                   painter: RadarMapPainter(pingAnimValue: _pulse.value),
                   child: const SizedBox.expand(),
                 ),
