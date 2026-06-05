@@ -178,7 +178,7 @@ class _BookHarvestScreenState extends ConsumerState<BookHarvestScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      mainAxisExtent: 116,
+                      mainAxisExtent: 134,
                     ),
                     itemCount: cropTypes.length,
                     itemBuilder: (_, i) {
@@ -200,7 +200,7 @@ class _BookHarvestScreenState extends ConsumerState<BookHarvestScreen> {
                   Text('When', style: AppText.h3()),
                   const SizedBox(height: 12),
                   SizedBox(
-                    height: 88,
+                    height: 102,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: _days.length,
@@ -337,8 +337,8 @@ class _DayCell extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 58,
-        padding: const EdgeInsets.symmetric(vertical: 11),
+        width: 62,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
         decoration: BoxDecoration(
           color: selected ? AppColors.brand : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadii.md),
@@ -351,8 +351,11 @@ class _DayCell extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(day.dow,
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+                softWrap: false,
                 style: AppText.caption().copyWith(
-                    fontSize: 11,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                     color: selected ? Colors.white : AppColors.fg3)),
             const SizedBox(height: 7),
