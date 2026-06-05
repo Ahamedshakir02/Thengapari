@@ -20,6 +20,8 @@ abstract final class AppRoutes {
   static const otp = '/otp';
   static const selectRole = '/select-role';
 
+  static const homeownerProfileSetup = '/homeowner/profile-setup';
+  static const homeownerTreeSetup = '/homeowner/tree-setup';
   static const homeownerHome = '/homeowner/home';
   static const workerHome = '/worker/home';
   static const managerHome = '/manager/home';

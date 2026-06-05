@@ -46,6 +46,11 @@ class AppUser {
   /// True once the user has been assigned a role (set at first login).
   bool get hasRole => role != null;
 
+  /// True once the homeowner has completed profile setup (name + district
+  /// written to `/users/{uid}`). Drives the onboarding redirect in the router.
+  bool get isProfileComplete =>
+      firstName != null && firstName!.isNotEmpty && district != null;
+
   factory AppUser.fromFirestore(String uid, Map<String, dynamic> data) {
     return AppUser(
       uid: uid,
