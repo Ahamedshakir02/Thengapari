@@ -3,9 +3,9 @@
 // These exercise the GoRouter redirect in lib/app/router.dart by overriding
 // `authStateProvider` with a fixed auth state — no Firebase required. They are
 // the foundation's proof that "routing works".
-import 'package:agri_platform/app/app.dart';
-import 'package:agri_platform/core/models/app_user.dart';
-import 'package:agri_platform/core/providers/auth_provider.dart';
+import 'package:thengapari/app/app.dart';
+import 'package:thengapari/core/models/app_user.dart';
+import 'package:thengapari/core/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -36,9 +36,12 @@ void main() {
     expect(find.text('Choose your role'), findsOneWidget);
   });
 
-  testWidgets('homeowner routes to the homeowner app', (tester) async {
+  testWidgets('homeowner without a profile routes to profile setup',
+      (tester) async {
+    // A homeowner whose profile is incomplete (no name/district) is funnelled
+    // into onboarding before reaching the home dashboard.
     await _pumpApp(tester, _userWithRole(UserRole.homeowner));
-    expect(find.text('Homeowner App'), findsOneWidget);
+    expect(find.text('Set up your profile'), findsOneWidget);
   });
 
   testWidgets('worker routes to the worker app', (tester) async {

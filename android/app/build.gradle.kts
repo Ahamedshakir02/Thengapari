@@ -52,17 +52,17 @@ android {
         create("dev") {
             dimension = "env"
             applicationIdSuffix = ".dev"
-            resValue("string", "app_name", "Agri Dev")
+            resValue("string", "app_name", "ThengaPari Dev")
         }
         create("staging") {
             dimension = "env"
             applicationIdSuffix = ".staging"
-            resValue("string", "app_name", "Agri Staging")
+            resValue("string", "app_name", "ThengaPari Staging")
         }
         create("prod") {
             dimension = "env"
             // No suffix — prod uses the base applicationId.
-            resValue("string", "app_name", "Agri Marketplace")
+            resValue("string", "app_name", "ThengaPari")
         }
     }
 }

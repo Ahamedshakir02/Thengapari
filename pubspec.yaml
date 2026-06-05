@@ -1,5 +1,5 @@
-name: agri_platform
-description: "A new Flutter project."
+name: thengapari
+description: "ThengaPari — hyperlocal agri-harvest marketplace (Kerala)."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -70,6 +70,8 @@ dependencies:
   flutter_dotenv: ^6.0.1
   flutter_localizations:
     sdk: flutter
+  google_fonts: ^8.1.0
+  cloud_functions: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -98,6 +100,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/images/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

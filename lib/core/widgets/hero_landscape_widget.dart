@@ -9,9 +9,15 @@ class HeroLandscapeWidget extends StatelessWidget {
   final String greeting;
   final String subtitle;
 
+  /// Extra height added above the 140px scene so the illustration can run
+  /// edge-to-edge under the status bar. Pass `MediaQuery.padding.top` when this
+  /// sits at the very top of a screen; leave 0 elsewhere (e.g. the gallery).
+  final double topInset;
+
   const HeroLandscapeWidget({
     required this.greeting,
     required this.subtitle,
+    this.topInset = 0,
     super.key,
   });
 
@@ -19,13 +25,13 @@ class HeroLandscapeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const CustomPaint(
-          painter: KeralaLandscapePainter(),
-          child: SizedBox(width: double.infinity, height: 140),
+        CustomPaint(
+          painter: const KeralaLandscapePainter(),
+          child: SizedBox(width: double.infinity, height: 140 + topInset),
         ),
         Positioned(
           left: 16,
-          top: 18,
+          top: 18 + topInset,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

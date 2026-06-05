@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import 'design_tokens.dart';
 
 /// Design tokens shared across all four app roles.
 ///
@@ -37,56 +40,67 @@ class AgriColors {
   static const border = Color(0xFFEEEEEE);
 }
 
-/// App-wide [ThemeData] seeded from [AgriColors.green400].
-///
-/// NOTE: `fontFamily: 'Poppins'` is declared per the plan but the Poppins
-/// font is not yet bundled — Flutter falls back to the platform sans font
-/// until the font asset (or the google_fonts package) is added.
+/// App-wide [ThemeData] built from the ThengaPari design system
+/// ([AppColors] / [AppText] in `design_tokens.dart`): warm-paper background,
+/// forest-green brand, amber accent, Baloo Chettan 2 (display) + Noto Sans
+/// (text) via `google_fonts`.
 ThemeData buildAgriTheme() {
+  final base = ThemeData(useMaterial3: true, brightness: Brightness.light);
+
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: AgriColors.green400,
+    seedColor: AppColors.brand,
     brightness: Brightness.light,
-    primary: AgriColors.green400,
-    secondary: AgriColors.teal400,
-    surface: Colors.white,
+    primary: AppColors.brand,
+    onPrimary: AppColors.onBrand,
+    secondary: AppColors.accent,
+    onSecondary: AppColors.onAccent,
+    surface: AppColors.surface,
+    onSurface: AppColors.fg1,
+    error: AppColors.statusErrorFg,
   );
 
-  return ThemeData(
-    useMaterial3: true,
+  final textTheme = GoogleFonts.notoSansTextTheme(base.textTheme).apply(
+    bodyColor: AppColors.fg1,
+    displayColor: AppColors.fg1,
+  );
+
+  return base.copyWith(
     colorScheme: colorScheme,
-    fontFamily: 'Poppins',
-    scaffoldBackgroundColor: Colors.white,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.white,
-      foregroundColor: AgriColors.green900,
+    textTheme: textTheme,
+    scaffoldBackgroundColor: AppColors.bg,
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppColors.bg,
+      foregroundColor: AppColors.fg1,
       elevation: 0,
       centerTitle: false,
+      titleTextStyle: AppText.h3(),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: AgriColors.green400,
-        foregroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(50),
+        backgroundColor: AppColors.brand,
+        foregroundColor: AppColors.onBrand,
+        minimumSize: const Size.fromHeight(52),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadii.pill),
         ),
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+        textStyle: AppText.button(),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AgriColors.surface,
+      fillColor: AppColors.surface,
+      hintStyle: AppText.body().copyWith(color: AppColors.ink400),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AgriColors.border),
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderSide: const BorderSide(color: AppColors.border),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AgriColors.border),
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderSide: const BorderSide(color: AppColors.border),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AgriColors.green400, width: 1.5),
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderSide: const BorderSide(color: AppColors.brand, width: 1.5),
       ),
     ),
   );

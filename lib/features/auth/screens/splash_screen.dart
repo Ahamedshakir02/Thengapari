@@ -18,7 +18,7 @@ class SplashScreen extends StatelessWidget {
             Icon(Icons.eco, color: Colors.white, size: 56),
             SizedBox(height: 16),
             Text(
-              'Agri Marketplace',
+              'ThengaPari',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
