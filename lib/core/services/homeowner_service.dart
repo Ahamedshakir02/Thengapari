@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import '../models/harvest_job.dart';
 import '../models/tree_inventory.dart';
+import '../models/yield_estimate.dart';
 
 /// A single tree group the user is about to save during setup (no id yet).
 class TreeDraft {
@@ -24,10 +26,12 @@ class TreeDraft {
 ///   /homeowners/{uid}                homeowner-specific doc (address)
 ///   /homeowners/{uid}/trees/{id}     tree inventory
 class HomeownerService {
-  HomeownerService({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+  HomeownerService({FirebaseFirestore? firestore, FirebaseFunctions? functions})
+      : _db = firestore ?? FirebaseFirestore.instance,
+        _functions = functions ?? FirebaseFunctions.instance;
 
   final FirebaseFirestore _db;
+  final FirebaseFunctions _functions;
 
   /// Writes the shared `/users/{uid}` profile and the homeowner doc.
   ///
@@ -130,5 +134,74 @@ class HomeownerService {
     return snap.docs
         .map((d) => HarvestJob.fromFirestore(d.id, d.data()))
         .toList();
+  }
+
+  /// Pre-booking price preview. Calls the `calculateYieldEstimate` Cloud
+  /// Function; if it isn't deployed/reachable, falls back to a local estimate
+  /// from the per-crop yield/rate constants so booking still works.
+  Future<YieldEstimate> calculateYieldEstimate({
+    required Map<CropType, int> treeCounts,
+    required String district,
+    required bool ripeOnly,
+  }) async {
+    final factor = ripeOnly ? 0.6 : 1.0;
+    try {
+      final res =
+          await _functions.httpsCallable('calculateYieldEstimate').call({
+        'cropTypes': treeCounts.keys.map((c) => c.firestoreValue).toList(),
+        'treeCounts': {
+          for (final e in treeCounts.entries) e.key.firestoreValue: e.value
+        },
+        'district': district,
+        'ripeOnly': ripeOnly,
+      });
+      final data = Map<String, dynamic>.from(res.data as Map);
+      return YieldEstimate(
+        estimatedKg: (data['estimatedKg'] as num).toDouble(),
+        estimatedEarning: (data['estimatedEarning'] as num).toDouble(),
+        marketRate: (data['marketRate'] as num?)?.toDouble() ?? 0,
+      );
+    } catch (_) {
+      // Local fallback.
+      double kg = 0, earning = 0;
+      for (final entry in treeCounts.entries) {
+        final cropKg = entry.value * entry.key.kgPerTree * factor;
+        kg += cropKg;
+        earning += cropKg * entry.key.ratePerKg;
+      }
+      return YieldEstimate(
+        estimatedKg: kg,
+        estimatedEarning: earning,
+        marketRate: kg == 0 ? 0 : earning / kg,
+      );
+    }
+  }
+
+  /// Creates a `/jobs/{id}` document and returns its id. Status starts at
+  /// `pending`; the `onJobCreate` Cloud Function assigns a site manager.
+  Future<String> createJob({
+    required String uid,
+    required List<CropType> crops,
+    required DateTime scheduledAt,
+    required double estimatedYieldKg,
+    required String district,
+    String notes = '',
+    GeoPoint? location,
+  }) async {
+    final doc = _db.collection('jobs').doc();
+    await doc.set({
+      'homeownerId': uid,
+      'cropTypes': crops.map((c) => c.firestoreValue).toList(),
+      'status': 'pending',
+      'scheduledAt': Timestamp.fromDate(scheduledAt),
+      'estimatedYieldKg': estimatedYieldKg,
+      'district': district,
+      'notes': notes,
+      'location': ?location,
+      'workerIds': <String>[],
+      'paymentStatus': 'unpaid',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+    return doc.id;
   }
 }

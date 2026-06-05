@@ -12,6 +12,7 @@ import 'core/models/harvest_job.dart';
 import 'core/models/tree_inventory.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/homeowner_providers.dart';
+import 'features/homeowner/screens/book_harvest_screen.dart';
 import 'features/homeowner/screens/home_screen.dart';
 import 'features/homeowner/screens/profile_setup_screen.dart';
 import 'features/homeowner/screens/tree_inventory_setup_screen.dart';
@@ -118,7 +119,7 @@ class HomeownerDevApp extends StatelessWidget {
         ),
         GoRoute(
           path: AppRoutes.homeownerBook,
-          builder: (_, _) => const _ComingSoon(title: 'Book a harvest (step 3)'),
+          builder: (_, _) => const BookHarvestScreen(),
         ),
         GoRoute(
           path: AppRoutes.homeownerTracker,
@@ -185,6 +186,11 @@ class _DevMenu extends StatelessWidget {
             label: '2 · Home dashboard',
             subtitle: 'Hero, crops, stats, chart, active job',
             onTap: () => context.go(AppRoutes.homeownerHome),
+          ),
+          _MenuItem(
+            label: '3 · Book a harvest',
+            subtitle: 'Crop grid, date, estimate, creates /jobs',
+            onTap: () => context.go(AppRoutes.homeownerBook),
           ),
           _MenuItem(
             label: '1 · Profile setup',
