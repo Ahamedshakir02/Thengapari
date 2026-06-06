@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-06-06 — Session 5: Homeowner steps 5–7 + LICENSE; full app verified
+
+**Goal:** Finish the Homeowner app (Yield report, Payment, AMC) and add a license.
+
+### Done
+- **Step 5 — YieldReportScreen**: grade-breakdown donut + legend, byproduct routing card, earnings breakdown (net payout), WhatsApp share (`share_plus`). `HarvestJob.byproductCredit`, `latestCompletedJobProvider`.
+- **Step 6 — PaymentScreen**: itemised invoice, UPI option cards, Razorpay checkout (`createRazorpayOrder` Cloud Function + `RazorpayOrder` model), animated success state.
+- **Step 7 — AmcScreen**: plan cards (Basic/Standard/Premium), auto-dispatch calendar, savings note, active-plan card; `AmcContract` model, `subscribeAmc` + `amcContractProvider` (writes `/amc_contracts/{uid}`).
+- All routes wired into the router + dev harness (menu items 5–7, with sample data).
+- Added **MIT LICENSE** + README license section.
+
+### Verification
+- `flutter analyze lib` → No issues found.
+- On Pixel 7: **all 7 Homeowner screens verified** (Profile setup, Home, Book, Tracker, Report, Payment, AMC).
+
+### Workflow
+- Per user request, now committing + pushing every change automatically on the `design-fixes-rename` branch (clear messages, matching the repo's PR-merge flow).
+
+### Next up
+- Merge `design-fixes-rename` → master. Then Worker / Site Manager / B2B apps.
+
+---
+
 ## 2026-06-06 — Session 4: Homeowner steps 3–4 + design fixes + name propagation
 
 **Goal:** Build BookHarvest + LiveJobTracker on the design foundation; fix UI issues found on device; finish propagating the ThengaPari name; update docs.
