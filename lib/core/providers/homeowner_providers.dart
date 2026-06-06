@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/amc_contract.dart';
 import '../models/harvest_job.dart';
 import '../models/job_status_update.dart';
 import '../models/tree_inventory.dart';
@@ -32,6 +33,12 @@ final activeJobProvider =
     }
     return null;
   });
+});
+
+/// Live AMC subscription for a homeowner, or null if not subscribed.
+final amcContractProvider =
+    StreamProvider.family<AmcContract?, String>((ref, uid) {
+  return ref.watch(homeownerServiceProvider).watchAmcContract(uid);
 });
 
 /// The most recent completed job for a homeowner (drives the yield report).

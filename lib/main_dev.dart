@@ -12,9 +12,11 @@ import 'core/models/harvest_job.dart';
 import 'core/models/tree_inventory.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/homeowner_providers.dart';
+import 'features/homeowner/screens/amc_screen.dart';
 import 'features/homeowner/screens/book_harvest_screen.dart';
 import 'features/homeowner/screens/home_screen.dart';
 import 'features/homeowner/screens/live_job_tracker_screen.dart';
+import 'features/homeowner/screens/payment_screen.dart';
 import 'features/homeowner/screens/yield_report_screen.dart';
 import 'features/homeowner/screens/profile_setup_screen.dart';
 import 'features/homeowner/screens/tree_inventory_setup_screen.dart';
@@ -149,6 +151,14 @@ class HomeownerDevApp extends StatelessWidget {
           path: AppRoutes.homeownerReport,
           builder: (_, _) => const YieldReportScreen(),
         ),
+        GoRoute(
+          path: AppRoutes.homeownerPayment,
+          builder: (_, _) => const PaymentScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.homeownerAmc,
+          builder: (_, _) => const AmcScreen(),
+        ),
       ],
     );
 
@@ -225,6 +235,16 @@ class _DevMenu extends StatelessWidget {
             label: '5 · Yield report',
             subtitle: 'Grade donut, byproduct, earnings, share',
             onTap: () => context.go(AppRoutes.homeownerReport),
+          ),
+          _MenuItem(
+            label: '6 · Payment',
+            subtitle: 'Invoice, UPI options, Razorpay checkout',
+            onTap: () => context.go(AppRoutes.homeownerPayment),
+          ),
+          _MenuItem(
+            label: '7 · AMC subscription',
+            subtitle: 'Plans, seasonal calendar, subscribe',
+            onTap: () => context.go(AppRoutes.homeownerAmc),
           ),
           _MenuItem(
             label: '1 · Profile setup',
