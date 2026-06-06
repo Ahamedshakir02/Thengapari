@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/i18n/app_strings.dart';
+
 /// Faithful port of the ThengaPari design system
 /// (`Designs/.../colors_and_type.css` + `design-system.css`).
 ///
@@ -121,6 +123,27 @@ class AppShadows {
 class AppText {
   AppText._();
 
+  /// Body/UI font — Noto Sans for English, Noto Sans Malayalam when the active
+  /// language is Malayalam (so Malayalam glyphs render). Display styles use
+  /// Baloo Chettan 2, which already covers Malayalam.
+  static TextStyle _sans({
+    double? fontSize,
+    double? height,
+    FontWeight? fontWeight,
+    Color? color,
+    double? letterSpacing,
+  }) {
+    final family =
+        gAppLang == AppLang.ml ? GoogleFonts.notoSansMalayalam : GoogleFonts.notoSans;
+    return family(
+      fontSize: fontSize,
+      height: height,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+    );
+  }
+
   static TextStyle display() => GoogleFonts.balooChettan2(
       fontSize: 40, height: 1.15, fontWeight: FontWeight.w700, color: AppColors.fg1, letterSpacing: -0.4);
   static TextStyle h1() => GoogleFonts.balooChettan2(
@@ -130,19 +153,19 @@ class AppText {
   static TextStyle h3() => GoogleFonts.balooChettan2(
       fontSize: 20, height: 1.4, fontWeight: FontWeight.w600, color: AppColors.fg1);
 
-  static TextStyle title() => GoogleFonts.notoSans(
+  static TextStyle title() => _sans(
       fontSize: 18, height: 1.44, fontWeight: FontWeight.w600, color: AppColors.fg1);
-  static TextStyle bodyLg() => GoogleFonts.notoSans(
+  static TextStyle bodyLg() => _sans(
       fontSize: 17, height: 1.53, fontWeight: FontWeight.w400, color: AppColors.fg2);
-  static TextStyle body() => GoogleFonts.notoSans(
+  static TextStyle body() => _sans(
       fontSize: 16, height: 1.5, fontWeight: FontWeight.w400, color: AppColors.fg2);
-  static TextStyle bodySm() => GoogleFonts.notoSans(
+  static TextStyle bodySm() => _sans(
       fontSize: 14, height: 1.43, fontWeight: FontWeight.w400, color: AppColors.fg2);
-  static TextStyle caption() => GoogleFonts.notoSans(
+  static TextStyle caption() => _sans(
       fontSize: 12, height: 1.33, fontWeight: FontWeight.w500, color: AppColors.fg3);
-  static TextStyle overline() => GoogleFonts.notoSans(
+  static TextStyle overline() => _sans(
       fontSize: 12, height: 1.33, fontWeight: FontWeight.w600, color: AppColors.fg3, letterSpacing: 0.96);
-  static TextStyle button() => GoogleFonts.notoSans(
+  static TextStyle button() => _sans(
       fontSize: 16, height: 1.25, fontWeight: FontWeight.w600);
 
   /// Numeric/display font used for big values (e.g. ₹4,280).
