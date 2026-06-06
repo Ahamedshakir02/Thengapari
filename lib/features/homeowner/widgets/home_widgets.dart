@@ -227,7 +227,7 @@ class SectionHead extends StatelessWidget {
 
 // ─────────────────────────── Crop chip ───────────────────────────
 
-class HomeCropChip extends StatelessWidget {
+class HomeCropChip extends ConsumerWidget {
   final CropType type;
   final String count;
   final VoidCallback? onTap;
@@ -236,7 +236,8 @@ class HomeCropChip extends StatelessWidget {
       {required this.type, required this.count, this.onTap, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -265,7 +266,7 @@ class HomeCropChip extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(type.label,
+                Text(cropName(type, lang),
                     style: AppText.bodySm().copyWith(
                         fontWeight: FontWeight.w600, color: AppColors.fg1)),
                 const SizedBox(height: 1),
