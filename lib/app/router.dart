@@ -12,6 +12,7 @@ import '../features/b2b/screens/home_screen.dart';
 import '../features/homeowner/screens/book_harvest_screen.dart';
 import '../features/homeowner/screens/home_screen.dart';
 import '../features/homeowner/screens/live_job_tracker_screen.dart';
+import '../features/homeowner/screens/yield_report_screen.dart';
 import '../features/homeowner/screens/profile_setup_screen.dart';
 import '../features/homeowner/screens/tree_inventory_setup_screen.dart';
 import '../features/site_manager/screens/home_screen.dart';
@@ -29,6 +30,7 @@ abstract final class AppRoutes {
   static const homeownerHome = '/homeowner/home';
   static const homeownerBook = '/homeowner/book';
   static const homeownerTracker = '/homeowner/tracker';
+  static const homeownerReport = '/homeowner/report';
   static const workerHome = '/worker/home';
   static const managerHome = '/manager/home';
   static const b2bHome = '/b2b/home';
@@ -147,6 +149,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.homeownerTracker,
         builder: (_, _) => const LiveJobTrackerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.homeownerReport,
+        builder: (_, _) => const YieldReportScreen(),
       ),
       GoRoute(
         path: AppRoutes.workerHome,

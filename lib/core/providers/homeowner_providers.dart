@@ -34,6 +34,23 @@ final activeJobProvider =
   });
 });
 
+/// The most recent completed job for a homeowner (drives the yield report).
+final latestCompletedJobProvider =
+    StreamProvider.family<HarvestJob?, String>((ref, uid) {
+  return ref.watch(homeownerServiceProvider).watchHomeownerJobs(uid).map((jobs) {
+    HarvestJob? latest;
+    for (final job in jobs) {
+      if (!job.isComplete) continue;
+      if (latest == null ||
+          (job.completedAt ?? DateTime(0))
+              .isAfter(latest.completedAt ?? DateTime(0))) {
+        latest = job;
+      }
+    }
+    return latest;
+  });
+});
+
 /// Real-time on-site checklist events for a job — `/jobs/{jobId}/statusUpdates`
 /// ordered by time (drives the live tracker timeline).
 final statusUpdatesProvider =

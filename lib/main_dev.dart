@@ -15,6 +15,7 @@ import 'core/providers/homeowner_providers.dart';
 import 'features/homeowner/screens/book_harvest_screen.dart';
 import 'features/homeowner/screens/home_screen.dart';
 import 'features/homeowner/screens/live_job_tracker_screen.dart';
+import 'features/homeowner/screens/yield_report_screen.dart';
 import 'features/homeowner/screens/profile_setup_screen.dart';
 import 'features/homeowner/screens/tree_inventory_setup_screen.dart';
 
@@ -64,6 +65,8 @@ Future<void> main() async {
         // Seed homeowner data so HomeScreen renders without live Firestore.
         treeInventoryProvider.overrideWith((ref, _) => Stream.value(_sampleTrees)),
         activeJobProvider.overrideWith((ref, _) => Stream.value(_sampleJob)),
+        latestCompletedJobProvider
+            .overrideWith((ref, _) => Stream.value(_sampleCompletedJob)),
         monthlyEarningsProvider.overrideWith((ref, _) async => 4280),
         weeklyEarningsProvider
             .overrideWith((ref, _) async => const [2100, 2800, 1900, 3200, 4100, 4280]),
@@ -89,6 +92,21 @@ const _sampleJob = HarvestJob(
   district: '2.1 km away',
   estimatedYieldKg: 23,
   actualYieldKg: 14.2,
+);
+
+final _sampleCompletedJob = HarvestJob(
+  id: 'demo-done',
+  homeownerId: 'dev-homeowner-uid',
+  siteManagerId: 'sm-1',
+  cropTypes: const ['coconut'],
+  status: 'complete',
+  completedAt: DateTime(2026, 6, 4),
+  gradeA: 14,
+  gradeB: 7,
+  tender: 3,
+  earningsAmount: 4180,
+  feeAmount: 340,
+  byproductCredit: 440,
 );
 
 /// Standalone harness app routing to the homeowner screens built so far.
@@ -126,6 +144,10 @@ class HomeownerDevApp extends StatelessWidget {
         GoRoute(
           path: AppRoutes.homeownerTracker,
           builder: (_, _) => const LiveJobTrackerScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.homeownerReport,
+          builder: (_, _) => const YieldReportScreen(),
         ),
       ],
     );
@@ -198,6 +220,11 @@ class _DevMenu extends StatelessWidget {
             label: '4 · Live job tracker',
             subtitle: 'Stepper, grove map, live weight, photos',
             onTap: () => context.go(AppRoutes.homeownerTracker),
+          ),
+          _MenuItem(
+            label: '5 · Yield report',
+            subtitle: 'Grade donut, byproduct, earnings, share',
+            onTap: () => context.go(AppRoutes.homeownerReport),
           ),
           _MenuItem(
             label: '1 · Profile setup',

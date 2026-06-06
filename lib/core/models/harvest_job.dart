@@ -26,6 +26,7 @@ class HarvestJob {
   final int? tender;
   final double? earningsAmount;
   final double? feeAmount;
+  final double? byproductCredit;
   final String paymentStatus;
   final String? reportUrl;
   final List<String> photos;
@@ -51,6 +52,7 @@ class HarvestJob {
     this.tender,
     this.earningsAmount,
     this.feeAmount,
+    this.byproductCredit,
     this.paymentStatus = 'unpaid',
     this.reportUrl,
     this.photos = const [],
@@ -80,6 +82,7 @@ class HarvestJob {
       tender: (data['tender'] as num?)?.toInt(),
       earningsAmount: (data['earningsAmount'] as num?)?.toDouble(),
       feeAmount: (data['feeAmount'] as num?)?.toDouble(),
+      byproductCredit: (data['byproductCredit'] as num?)?.toDouble(),
       paymentStatus: data['paymentStatus'] as String? ?? 'unpaid',
       reportUrl: data['reportUrl'] as String?,
       photos: strList(data['photos']),
