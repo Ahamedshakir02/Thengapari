@@ -91,14 +91,14 @@ class _CropChips extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     final trees = ref.watch(treeInventoryProvider(uid));
     return trees.when(
       data: (list) {
         if (list.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-            child: Text('No trees yet — add them from your profile.',
-                style: AppText.caption()),
+            child: Text(tr('no_trees', lang), style: AppText.caption()),
           );
         }
         return SizedBox(
@@ -138,6 +138,7 @@ class _StatsRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     final earnings = ref.watch(monthlyEarningsProvider(uid));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
@@ -153,22 +154,22 @@ class _StatsRow extends ConsumerWidget {
                 loading: () => '…',
                 error: (_, _) => '--',
               ),
-              label: 'Yield earned',
-              trend: '+12% this season',
+              label: tr('yield_earned', lang),
+              trend: tr('this_season', lang),
               trendIcon: Icons.trending_up,
               trendBg: AppColors.statusCompleteBg,
               trendFg: AppColors.statusCompleteFg,
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: HomeStatCard(
               iconName: 'feather',
               iconBg: AppColors.amber100,
               iconFg: AppColors.statusInprogressFg,
               value: '0.8 kg',
-              label: 'Weight saved',
-              trend: 'vs market',
+              label: tr('weight_saved', lang),
+              trend: tr('vs_market', lang),
               trendIcon: Icons.straighten,
               trendBg: AppColors.amber100,
               trendFg: AppColors.statusInprogressFg,
@@ -186,6 +187,7 @@ class _WeeklyEarnings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     final weekly = ref.watch(weeklyEarningsProvider(uid));
     final values = weekly.maybeWhen(
       data: (list) =>
@@ -216,7 +218,7 @@ class _WeeklyEarnings extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Expanded(child: Text('Weekly earnings', style: AppText.h3())),
+                Expanded(child: Text(tr('weekly_earnings', lang), style: AppText.h3())),
                 Text('₹${total.toStringAsFixed(0)}',
                     style: AppText.caption().copyWith(
                         fontSize: 14,
