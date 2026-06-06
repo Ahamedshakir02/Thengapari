@@ -60,6 +60,17 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             jobId: job.id,
             amount: amount,
           );
+      // Demo mode (dev harness): no real Razorpay keys — simulate success so
+      // the flow is reviewable. Real builds get a live order id.
+      if (order.keyId == 'demo') {
+        await Future<void>.delayed(const Duration(milliseconds: 400));
+        if (!mounted) return;
+        setState(() {
+          _processing = false;
+          _success = true;
+        });
+        return;
+      }
       _razorpay.open({
         'key': order.keyId,
         'order_id': order.orderId,
