@@ -110,3 +110,7 @@ forest-green brand, amber accent, Baloo Chettan 2 / Noto Sans) ported into
 - [Flutter documentation](https://docs.flutter.dev/)
 - [Riverpod](https://riverpod.dev/)
 - [FlutterFire (Firebase for Flutter)](https://firebase.flutter.dev/)
+
+## License
+
+Released under the [MIT License](LICENSE) © 2026 Ahamed Shakir.
