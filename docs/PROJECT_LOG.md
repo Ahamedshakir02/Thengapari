@@ -5,6 +5,42 @@
 
 ---
 
+## 2026-06-06 — Session 4: Homeowner steps 3–4 + design fixes + name propagation
+
+**Goal:** Build BookHarvest + LiveJobTracker on the design foundation; fix UI issues found on device; finish propagating the ThengaPari name; update docs.
+
+### Done
+
+**Step 3 — BookHarvestScreen** (`book_harvest_screen.dart`)
+- Crop grid (multi-select cells with glyphs + check), date strip, ripe/all segment, gradient estimate preview, sticky amber confirm bar, success bottom sheet.
+- `cloud_functions` added; `HomeownerService.calculateYieldEstimate` (Cloud Function + local fallback) and `createJob` (writes `/jobs/{id}`, status `pending`). Crop economics (`kgPerTree`, `ratePerKg`) on `CropType`; `YieldEstimate` model.
+
+**Step 4 — LiveJobTrackerScreen** (`live_job_tracker_screen.dart`)
+- Progress stepper (derived from job status), stylised grove map (`CustomPainter` + SM pin + badge — no Google Maps key needed), contact row (tap-to-call via `url_launcher`), live-weight dial, site photos.
+- `JobStatusUpdate` model + `statusUpdatesProvider` (`/jobs/{id}/statusUpdates`). Wired into router + dev harness. Verified on Pixel 7.
+
+**Design fixes (from on-device review)**
+- Home hero: darker top scrim + dark translucent backgrounds on the brand chip + EN/മല toggle so the white text is legible over the light sky.
+- Book screen: fixed crop-cell + date-cell vertical overflow (taller extents, non-wrapping day label).
+
+**Name propagation (ThengaPari)**
+- iOS `Info.plist`: `CFBundleDisplayName` → ThengaPari, `CFBundleName` → thengapari.
+- README rewritten for ThengaPari (corrected: no code-gen required; documented the dev harness + first-run font fetch).
+- `flutter_implementation_plan.md` structure diagram → `thengapari/`.
+- **Intentionally unchanged:** Android `applicationId`/namespace + iOS bundle id `com.agrimarketplace.agri_platform*` and `google-services.json` (Firebase-bound).
+
+### Verification
+- `flutter analyze lib` → No issues found; `flutter build apk --debug --flavor dev` → builds.
+- On Pixel 7: Home (redesign + contrast fix), Book, and Tracker all verified.
+
+### Notes
+- An automated PR workflow commits/merges branches into `master`; uncommitted edits made between cycles were lost twice this session (home-contrast fix, README, iOS name). Re-applied and committed on a branch to persist.
+
+### Next up
+- Homeowner steps 5–7 (Yield report, Payment, AMC).
+
+---
+
 ## 2026-06-05 — Session 3: Design-system alignment + rename to ThengaPari
 
 **Goal:** Make the homeowner screens match the `Designs/` folder exactly (real assets, colors, fonts, components), and rename the app to ThengaPari.
