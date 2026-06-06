@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../app/design_tokens.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/models/tree_inventory.dart';
+import '../../../core/providers/locale_provider.dart';
 import '../../../core/widgets/app_icon.dart';
 
 const _gut = AppSpace.gutter;
@@ -146,19 +149,14 @@ class _BrandChip extends StatelessWidget {
   }
 }
 
-/// Language toggle (EN / മല). Visual only for now — localisation comes later.
-class _LangToggle extends StatefulWidget {
+/// Language toggle (EN / മല) — switches the app language via [localeProvider].
+class _LangToggle extends ConsumerWidget {
   const _LangToggle();
 
   @override
-  State<_LangToggle> createState() => _LangToggleState();
-}
-
-class _LangToggleState extends State<_LangToggle> {
-  bool _en = true;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
+    final notifier = ref.read(localeProvider.notifier);
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
@@ -169,8 +167,8 @@ class _LangToggleState extends State<_LangToggle> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _seg('EN', _en, () => setState(() => _en = true)),
-          _seg('മല', !_en, () => setState(() => _en = false)),
+          _seg('EN', lang == AppLang.en, () => notifier.set(AppLang.en)),
+          _seg('മല', lang == AppLang.ml, () => notifier.set(AppLang.ml)),
         ],
       ),
     );
@@ -623,21 +621,22 @@ class _TrackButton extends StatelessWidget {
 
 // ─────────────────────────── Bottom nav ───────────────────────────
 
-class HomeBottomNav extends StatelessWidget {
+class HomeBottomNav extends ConsumerWidget {
   final int currentIndex;
   final ValueChanged<int>? onTap;
 
   const HomeBottomNav({this.currentIndex = 0, this.onTap, super.key});
 
   static const _items = [
-    ('home', 'Home'),
-    ('calendar', 'Schedule'),
-    ('report', 'Reports'),
-    ('profile', 'Profile'),
+    ('home', 'nav_home'),
+    ('calendar', 'nav_schedule'),
+    ('report', 'nav_reports'),
+    ('profile', 'nav_profile'),
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.surface,
@@ -653,7 +652,7 @@ class HomeBottomNav extends StatelessWidget {
                 Expanded(
                   child: _NavItem(
                     icon: _items[i].$1,
-                    label: _items[i].$2,
+                    label: tr(_items[i].$2, lang),
                     on: i == currentIndex,
                     onTap: onTap == null ? null : () => onTap!(i),
                   ),
