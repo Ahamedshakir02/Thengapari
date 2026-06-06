@@ -11,7 +11,7 @@ import '../features/auth/screens/splash_screen.dart';
 import '../features/b2b/screens/home_screen.dart';
 import '../features/homeowner/screens/amc_screen.dart';
 import '../features/homeowner/screens/book_harvest_screen.dart';
-import '../features/homeowner/screens/home_screen.dart';
+import '../features/homeowner/screens/homeowner_shell.dart';
 import '../features/homeowner/screens/live_job_tracker_screen.dart';
 import '../features/homeowner/screens/payment_screen.dart';
 import '../features/homeowner/screens/yield_report_screen.dart';
@@ -144,7 +144,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.homeownerHome,
-        builder: (_, _) => const HomeownerHomeScreen(),
+        builder: (_, _) => const HomeownerShell(),
       ),
       GoRoute(
         path: AppRoutes.homeownerBook,
