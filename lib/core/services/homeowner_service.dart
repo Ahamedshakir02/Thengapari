@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../models/amc_contract.dart';
 import '../models/harvest_job.dart';
 import '../models/tree_inventory.dart';
 import '../models/yield_estimate.dart';
@@ -204,4 +205,61 @@ class HomeownerService {
     });
     return doc.id;
   }
+
+  /// Live AMC subscription for a homeowner — `/amc_contracts/{uid}`.
+  Stream<AmcContract?> watchAmcContract(String uid) {
+    return _db.collection('amc_contracts').doc(uid).snapshots().map(
+        (doc) => doc.exists && doc.data() != null
+            ? AmcContract.fromFirestore(doc.data()!)
+            : null);
+  }
+
+  /// Subscribes the homeowner to an AMC plan — writes `/amc_contracts/{uid}`.
+  Future<void> subscribeAmc({
+    required String uid,
+    required AmcPlan plan,
+    DateTime? nextDispatch,
+  }) async {
+    await _db.collection('amc_contracts').doc(uid).set({
+      'plan': plan.name,
+      'crops': plan.crops,
+      'annualFee': plan.annualFee,
+      'autoRenew': true,
+      'startDate': FieldValue.serverTimestamp(),
+      'nextDispatch':
+          nextDispatch == null ? null : Timestamp.fromDate(nextDispatch),
+    }, SetOptions(merge: true));
+  }
+
+  /// Server-side Razorpay order creation (the secret key never reaches the
+  /// client). Throws if the `createRazorpayOrder` Cloud Function isn't
+  /// deployed/reachable — the Payment screen surfaces that to the user.
+  Future<RazorpayOrder> createRazorpayOrder({
+    required String jobId,
+    required double amount,
+  }) async {
+    final res = await _functions.httpsCallable('createRazorpayOrder').call({
+      'jobId': jobId,
+      'amount': amount,
+    });
+    final d = Map<String, dynamic>.from(res.data as Map);
+    return RazorpayOrder(
+      keyId: d['keyId'] as String,
+      orderId: d['orderId'] as String,
+      amountPaise: (d['amountPaise'] as num).toInt(),
+    );
+  }
+}
+
+/// A Razorpay order returned by the `createRazorpayOrder` Cloud Function.
+class RazorpayOrder {
+  final String keyId;
+  final String orderId;
+  final int amountPaise;
+
+  const RazorpayOrder({
+    required this.keyId,
+    required this.orderId,
+    required this.amountPaise,
+  });
 }

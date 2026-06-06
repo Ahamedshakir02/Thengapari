@@ -39,7 +39,7 @@ All four are served from one Flutter project using role-based navigation after l
 ## Repository Structure
 
 ```
-agri_platform/
+thengapari/
 ├── lib/
 │   ├── main.dart
 │   ├── app/

@@ -43,18 +43,19 @@ class HomeHero extends StatelessWidget {
               fit: BoxFit.cover,
               alignment: const Alignment(0, 0.24), // object-position 50% 62%
             ),
-            // scrim
+            // scrim — darker at the top so the white brand chip + language
+            // toggle stay legible over the light sky.
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0, 0.32, 0.62, 1],
+                  stops: [0, 0.28, 0.6, 1],
                   colors: [
-                    Color(0x6B15331F),
+                    Color(0xB315331F),
                     Color(0x0015331F),
                     Color(0x1415331F),
-                    Color(0xA815331F),
+                    Color(0xAD15331F),
                   ],
                 ),
               ),
@@ -123,9 +124,9 @@ class _BrandChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(7, 6, 12, 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.16),
+        color: const Color(0x4D15331F),
         borderRadius: BorderRadius.circular(AppRadii.pill),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -161,9 +162,9 @@ class _LangToggleState extends State<_LangToggle> {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
+        color: const Color(0x4D15331F),
         borderRadius: BorderRadius.circular(AppRadii.pill),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
