@@ -26,7 +26,6 @@ class HomeownerHomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.bg,
-      bottomNavigationBar: const HomeBottomNav(currentIndex: 0),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
