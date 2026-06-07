@@ -5,6 +5,40 @@
 
 ---
 
+## 2026-06-07 — Session 5: Worker app start (setup + home dashboard)
+
+**Goal:** Begin the Worker app (dark-teal theme). Build first-time setup, then the home dashboard, on a dedicated worker dev harness. One screen at a time, pausing for on-device hot-reload.
+
+### Done
+
+**Worker data layer**
+- `worker_profile.dart` — `WorkerProfile` (`/workers/{uid}`) + `WorkerSkill` enum (climber/husker/pepper picker/jackfruit processor/general labour) with stable `firestoreValue` snake_case, labels, and icons.
+- `worker_service.dart` — `WorkerService`: `saveWorkerSetup` (batched `/users/{uid}` role:worker + `/workers/{uid}` with skills, UPI VPA, FCM token, starting stats), `watchWorker` stream, `setOnline` toggle.
+- `worker_providers.dart` — `workerServiceProvider`, `workerProfileProvider(uid)`, `workerAvailabilityProvider` (Riverpod 3 `Notifier<bool>`, optimistic, seeds from profile), plus `workerDayStatsProvider`, `workerConfirmedJobsProvider`, `workerWeeklyEarningsProvider` (+ `WorkerDayStats` / `WorkerConfirmedJob` view models). Names per `02_worker_app_plan.md`.
+
+**Screen 1 — WorkerSetupScreen** (`worker_setup_screen.dart`)
+- Single-flow setup: full name, 14-district dropdown, multi-select skill chips, validated UPI VPA. Dark-teal palette, amber CTA. Writes via `saveWorkerSetup` → `/worker/home`. Wired into router with a worker onboarding redirect (incomplete profile → `/worker/setup`).
+
+**Screen 2 — WorkerHomeScreen** (`home_screen.dart`)
+- Rebuilt from the stub to match `Designs/ThengaPari Worker App/screen-home.jsx`: time-aware greeting header + avatar with live online dot; animated online/offline **BigToggle** (pulsing dot, sliding switch) writing `isOnline`; two stat cards (today's earnings amber-accent + jobs completed); **reliability card** with a `CustomPaint` score ring (green/amber/red banded); "Today's confirmed jobs" list (time · place·distance · payout · Up next/Scheduled tags + empty state); **weekly earnings bar chart** (Mon–Sun, today highlighted); worker bottom nav (Home·Jobs·Wallet·You — last three are themed "Coming next" placeholders).
+
+**Worker dev harness** (`main_worker_dev.dart`, new)
+- `main_dev.dart` is homeowner-only, so added a parallel worker harness: boots Firebase, anon sign-in, overrides `authStateProvider` with a worker user, seeds the worker providers with sample data, and a `_DemoWorkerService` so setup + toggle writes no-op without live Firestore. Menu jumps to Setup + Home. Run: `flutter run --flavor dev -t lib/main_worker_dev.dart`.
+
+### Verification
+- `flutter analyze` on the worker files → No issues found.
+- Not yet run on device — pending hot-reload visual check against `screen-home.jsx`.
+
+### Notes / deviations
+- Static strings carried over from the design (not yet provider-driven): "47/50 on time", "Top 8% of climbers", "+₹380 last job", "2 climbs · 2 husks". Worker home has no bilingual (EN/മല) toggle yet.
+- Reliability ring + weekly chart drawn inline in `home_screen.dart` (not the shared `painters/` library) to keep the worker palette self-contained.
+
+### Next up
+- Wire the static stat sub-labels to real provider data + bilingual toggle (optional polish).
+- Screen 3 — **JobPingScreen** (full-screen ping takeover, radar painter, 45s countdown, accept/decline) — the most critical screen.
+
+---
+
 ## 2026-06-06 — Session 4: Homeowner steps 3–4 + design fixes + name propagation
 
 **Goal:** Build BookHarvest + LiveJobTracker on the design foundation; fix UI issues found on device; finish propagating the ThengaPari name; update docs.

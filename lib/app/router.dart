@@ -11,7 +11,7 @@ import '../features/auth/screens/splash_screen.dart';
 import '../features/b2b/screens/home_screen.dart';
 import '../features/homeowner/screens/amc_screen.dart';
 import '../features/homeowner/screens/book_harvest_screen.dart';
-import '../features/homeowner/screens/home_screen.dart';
+import '../features/homeowner/screens/homeowner_shell.dart';
 import '../features/homeowner/screens/live_job_tracker_screen.dart';
 import '../features/homeowner/screens/payment_screen.dart';
 import '../features/homeowner/screens/yield_report_screen.dart';
@@ -19,6 +19,7 @@ import '../features/homeowner/screens/profile_setup_screen.dart';
 import '../features/homeowner/screens/tree_inventory_setup_screen.dart';
 import '../features/site_manager/screens/home_screen.dart';
 import '../features/worker/screens/home_screen.dart';
+import '../features/worker/screens/worker_setup_screen.dart';
 
 /// Route paths, centralised so screens can navigate without magic strings.
 abstract final class AppRoutes {
@@ -35,6 +36,7 @@ abstract final class AppRoutes {
   static const homeownerReport = '/homeowner/report';
   static const homeownerPayment = '/homeowner/payment';
   static const homeownerAmc = '/homeowner/amc';
+  static const workerSetup = '/worker/setup';
   static const workerHome = '/worker/home';
   static const managerHome = '/manager/home';
   static const b2bHome = '/b2b/home';
@@ -100,6 +102,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             : AppRoutes.homeownerProfileSetup;
       }
 
+      // 3c. Worker who hasn't finished setup (no name/district yet) -> setup.
+      if (user.role == UserRole.worker && !user.isProfileComplete) {
+        return loc == AppRoutes.workerSetup ? null : AppRoutes.workerSetup;
+      }
+
       // 4. Signed in with a role -> push out of any pre-home screen.
       final home = AppRoutes.homeForRole(user.role!);
       const preHome = {
@@ -144,7 +151,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.homeownerHome,
-        builder: (_, _) => const HomeownerHomeScreen(),
+        builder: (_, _) => const HomeownerShell(),
       ),
       GoRoute(
         path: AppRoutes.homeownerBook,
@@ -165,6 +172,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.homeownerAmc,
         builder: (_, _) => const AmcScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.workerSetup,
+        builder: (_, _) => const WorkerSetupScreen(),
       ),
       GoRoute(
         path: AppRoutes.workerHome,

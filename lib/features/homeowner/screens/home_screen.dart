@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/design_tokens.dart';
 import '../../../app/router.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/models/tree_inventory.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/homeowner_providers.dart';
+import '../../../core/providers/locale_provider.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../widgets/home_widgets.dart';
 
@@ -19,6 +21,7 @@ class HomeownerHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).value;
+    final lang = ref.watch(localeProvider);
     final uid = user?.uid ?? '';
     final firstName = (user?.firstName?.trim().isNotEmpty ?? false)
         ? user!.firstName!
@@ -26,19 +29,18 @@ class HomeownerHomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.bg,
-      bottomNavigationBar: const HomeBottomNav(currentIndex: 0),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
           HomeHero(
-            greetingSmall: '${_greeting()},',
+            greetingSmall: '${tr(_greetingKey(), lang)},',
             name: firstName,
-            sub: 'Your grove is looking healthy',
+            sub: tr('greet_sub', lang),
             topInset: MediaQuery.of(context).padding.top,
           ),
           const SizedBox(height: 16),
 
-          const SectionHead('Your crops'),
+          SectionHead(tr('your_crops', lang)),
           const SizedBox(height: 10),
           _CropChips(uid: uid),
           const SizedBox(height: 16),
@@ -49,7 +51,7 @@ class HomeownerHomeScreen extends ConsumerWidget {
           _WeeklyEarnings(uid: uid),
           const SizedBox(height: 14),
 
-          const SectionHead('Active job'),
+          SectionHead(tr('active_job', lang)),
           const SizedBox(height: 8),
           _ActiveJob(uid: uid),
           const SizedBox(height: 18),
@@ -64,7 +66,7 @@ class HomeownerHomeScreen extends ConsumerWidget {
                   AppIcon('plus',
                       size: 20, color: AppColors.onBrand, strokeWidth: 2.2),
                   const SizedBox(width: 9),
-                  Text('Book a harvest', style: AppText.button()),
+                  Text(tr('book_harvest', lang), style: AppText.button()),
                 ],
               ),
             ),
@@ -75,11 +77,11 @@ class HomeownerHomeScreen extends ConsumerWidget {
     );
   }
 
-  String _greeting() {
+  String _greetingKey() {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Good morning';
-    if (h < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (h < 12) return 'greet_morning';
+    if (h < 17) return 'greet_afternoon';
+    return 'greet_evening';
   }
 }
 
@@ -89,14 +91,14 @@ class _CropChips extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     final trees = ref.watch(treeInventoryProvider(uid));
     return trees.when(
       data: (list) {
         if (list.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-            child: Text('No trees yet — add them from your profile.',
-                style: AppText.caption()),
+            child: Text(tr('no_trees', lang), style: AppText.caption()),
           );
         }
         return SizedBox(
@@ -136,6 +138,7 @@ class _StatsRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     final earnings = ref.watch(monthlyEarningsProvider(uid));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
@@ -151,22 +154,22 @@ class _StatsRow extends ConsumerWidget {
                 loading: () => '…',
                 error: (_, _) => '--',
               ),
-              label: 'Yield earned',
-              trend: '+12% this season',
+              label: tr('yield_earned', lang),
+              trend: tr('this_season', lang),
               trendIcon: Icons.trending_up,
               trendBg: AppColors.statusCompleteBg,
               trendFg: AppColors.statusCompleteFg,
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: HomeStatCard(
               iconName: 'feather',
               iconBg: AppColors.amber100,
               iconFg: AppColors.statusInprogressFg,
               value: '0.8 kg',
-              label: 'Weight saved',
-              trend: 'vs market',
+              label: tr('weight_saved', lang),
+              trend: tr('vs_market', lang),
               trendIcon: Icons.straighten,
               trendBg: AppColors.amber100,
               trendFg: AppColors.statusInprogressFg,
@@ -184,6 +187,7 @@ class _WeeklyEarnings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     final weekly = ref.watch(weeklyEarningsProvider(uid));
     final values = weekly.maybeWhen(
       data: (list) =>
@@ -214,7 +218,7 @@ class _WeeklyEarnings extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Expanded(child: Text('Weekly earnings', style: AppText.h3())),
+                Expanded(child: Text(tr('weekly_earnings', lang), style: AppText.h3())),
                 Text('₹${total.toStringAsFixed(0)}',
                     style: AppText.caption().copyWith(
                         fontSize: 14,

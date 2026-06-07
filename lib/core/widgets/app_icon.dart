@@ -56,6 +56,12 @@ class AppIcon extends StatelessWidget {
         '<path d="M6.5 4h3l1.5 4-2 1.5a11 11 0 0 0 5 5l1.5-2 4 1.5v3a2 2 0 0 1-2 2A15 15 0 0 1 4.5 6a2 2 0 0 1 2-2Z"/>',
     'home-place':
         '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10.5V20h12v-9.5"/>',
+    'recycle':
+        '<path d="M8 5.5 10.3 9 6.5 9.2l-2.3 4a2 2 0 0 0 1.7 3H8"/><path d="M14.5 6.5 13 4h-2.5"/><path d="M16.5 9.5 18.8 13l2-.6"/><path d="M14 18.5h3.8a2 2 0 0 0 1.7-3l-1-1.7"/><path d="M11 18.5 14 21l.2-3.6"/>',
+    'chat':
+        '<path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V6a1 1 0 0 1 1-1Z"/>',
+    'coconut':
+        '<circle cx="12" cy="13" r="7"/><path d="M9.5 12.5h.01M14.5 12.5h.01M12 15.5h.01"/><path d="M12 6V4"/>',
   };
 
   @override

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -7,17 +8,25 @@ import 'package:go_router/go_router.dart';
 import 'app/flavor_config.dart';
 import 'app/router.dart';
 import 'app/theme.dart';
+import 'core/models/amc_contract.dart';
 import 'core/models/app_user.dart';
 import 'core/models/harvest_job.dart';
 import 'core/models/tree_inventory.dart';
+import 'core/models/yield_estimate.dart';
+import 'core/models/worker_profile.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/homeowner_providers.dart';
+import 'core/providers/worker_providers.dart';
+import 'core/services/homeowner_service.dart';
+import 'core/services/worker_service.dart';
 import 'features/homeowner/screens/amc_screen.dart';
 import 'features/homeowner/screens/book_harvest_screen.dart';
-import 'features/homeowner/screens/home_screen.dart';
+import 'features/homeowner/screens/homeowner_shell.dart';
 import 'features/homeowner/screens/live_job_tracker_screen.dart';
 import 'features/homeowner/screens/payment_screen.dart';
 import 'features/homeowner/screens/yield_report_screen.dart';
+import 'features/worker/screens/home_screen.dart';
+import 'features/worker/screens/worker_setup_screen.dart';
 import 'features/homeowner/screens/profile_setup_screen.dart';
 import 'features/homeowner/screens/tree_inventory_setup_screen.dart';
 
@@ -64,6 +73,9 @@ Future<void> main() async {
     ProviderScope(
       overrides: [
         authStateProvider.overrideWith((ref) => Stream.value(devUser)),
+        // Demo service so write-buttons (book, save profile/trees, subscribe,
+        // pay) succeed without live Firebase in the harness.
+        homeownerServiceProvider.overrideWith((ref) => _DemoHomeownerService()),
         // Seed homeowner data so HomeScreen renders without live Firestore.
         treeInventoryProvider.overrideWith((ref, _) => Stream.value(_sampleTrees)),
         activeJobProvider.overrideWith((ref, _) => Stream.value(_sampleJob)),
@@ -111,6 +123,74 @@ final _sampleCompletedJob = HarvestJob(
   byproductCredit: 440,
 );
 
+/// Demo service for the dev harness: all writes succeed without touching live
+/// Firebase, and Razorpay returns a `demo` order so the Payment flow can be
+/// reviewed. The real app uses the unmodified [HomeownerService].
+class _DemoHomeownerService extends HomeownerService {
+  @override
+  Future<void> saveProfile({
+    required String uid,
+    required String name,
+    required String district,
+    required String address,
+    String? phoneNumber,
+  }) async {}
+
+  @override
+  Future<void> saveTrees({
+    required String uid,
+    required List<TreeDraft> trees,
+  }) async {}
+
+  @override
+  Future<String> createJob({
+    required String uid,
+    required List<CropType> crops,
+    required DateTime scheduledAt,
+    required double estimatedYieldKg,
+    required String district,
+    String notes = '',
+    GeoPoint? location,
+  }) async =>
+      'demo-job';
+
+  @override
+  Future<void> subscribeAmc({
+    required String uid,
+    required AmcPlan plan,
+    DateTime? nextDispatch,
+  }) async {}
+
+  @override
+  Future<YieldEstimate> calculateYieldEstimate({
+    required Map<CropType, int> treeCounts,
+    required String district,
+    required bool ripeOnly,
+  }) async {
+    final factor = ripeOnly ? 0.6 : 1.0;
+    double kg = 0, earning = 0;
+    for (final e in treeCounts.entries) {
+      final cropKg = e.value * e.key.kgPerTree * factor;
+      kg += cropKg;
+      earning += cropKg * e.key.ratePerKg;
+    }
+    return YieldEstimate(
+        estimatedKg: kg,
+        estimatedEarning: earning,
+        marketRate: kg == 0 ? 0 : earning / kg);
+  }
+
+  @override
+  Future<RazorpayOrder> createRazorpayOrder({
+    required String jobId,
+    required double amount,
+  }) async =>
+      RazorpayOrder(
+          keyId: 'demo',
+          orderId: 'demo_order',
+          amountPaise: (amount * 100).round());
+}
+
 /// Standalone harness app routing to the homeowner screens built so far.
 class HomeownerDevApp extends StatelessWidget {
   final String uid;
@@ -137,7 +217,7 @@ class HomeownerDevApp extends StatelessWidget {
         ),
         GoRoute(
           path: AppRoutes.homeownerHome,
-          builder: (_, _) => const HomeownerHomeScreen(),
+          builder: (_, _) => const HomeownerShell(),
         ),
         GoRoute(
           path: AppRoutes.homeownerBook,
