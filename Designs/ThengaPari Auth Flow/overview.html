@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ThengaPari · Auth flow — overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@500;600;700;800&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="auth/tokens.css" />
+<link rel="stylesheet" href="auth/app.css" />
+<style>
+  html, body { margin: 0; height: 100%; }
+  #root { width: 100%; height: 100dvh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="auth/i18n.js"></script>
+<script type="text/babel" src="auth/illustrations.jsx"></script>
+<script type="text/babel" src="auth/screens-a.jsx"></script>
+<script type="text/babel" src="auth/screens-b.jsx"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<script type="text/babel">
+const noop = () => {};
+const EN = TP_I18N.en, ML = TP_I18N.ml;
+const Illos = { IlloIncome, IlloFlow, IlloReport };
+const AB_W = 404, AB_H = 815;
+
+// board() is a PLAIN FUNCTION (not a component) so the element it returns is a
+// real <DCArtboard> at the top level of each <DCSection>'s children — DCSection
+// filters children by `c.type === DCArtboard`, so a wrapper component would be
+// filtered out.
+function board(id, label, screen, dark) {
+  return (
+    <DCArtboard key={id} id={id} label={label} width={AB_W} height={AB_H}>
+      <div style={{ display: 'flex', justifyContent: 'center', padding: 0 }}>
+        <PhoneShell dark={dark}>{screen}</PhoneShell>
+      </div>
+    </DCArtboard>
+  );
+}
+
+const ob = (extra) => <Onboarding t={EN} lang="en" setLang={noop} onDone={noop} onSkip={noop} ctaStyle="primary" painterly={false} Illos={Illos} initialIdx={0} {...extra} />;
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="onboarding" title="1 · Onboarding" subtitle="Three swipeable slides — flat-geometric Kerala illustrations">
+        {board('ob1', 'Slide 1 · Income', ob({ initialIdx: 0 }))}
+        {board('ob2', 'Slide 2 · Same-day', ob({ initialIdx: 1 }))}
+        {board('ob3', 'Slide 3 · Get paid', ob({ initialIdx: 2 }))}
+      </DCSection>
+
+      <DCSection id="welcome" title="2 · Welcome" subtitle="Branded entry — two layout directions">
+        {board('wel-hero', 'A · Hero up top', <Welcome t={EN} lang="en" setLang={noop} onStart={noop} ctaStyle="primary" layout="heroup" />)}
+        {board('wel-bleed', 'B · Full-bleed landscape', <Welcome t={EN} lang="en" setLang={noop} onStart={noop} ctaStyle="accent" layout="fullbleed" />, true)}
+      </DCSection>
+
+      <DCSection id="signin" title="3 · Phone &amp; OTP" subtitle="Number entry, verification, and the wrong-code error state">
+        {board('phone', 'Phone entry', <PhoneEntry t={EN} lang="en" setLang={noop} onBack={noop} onSubmit={noop} ctaStyle="primary" initialDigits="9876543210" />)}
+        {board('otp-default', 'OTP · filled boxes', <OtpVerify t={EN} lang="en" setLang={noop} onBack={noop} onVerify={noop} phone="+91 98765 43210" code="482910" otpStyle="filled" ctaStyle="primary" initialDigits={['4','8','2','','','']} />)}
+        {board('otp-error', 'OTP · wrong-code error', <OtpVerify t={EN} lang="en" setLang={noop} onBack={noop} onVerify={noop} phone="+91 98765 43210" code="482910" otpStyle="filled" ctaStyle="primary" initialDigits={['1','9','4','0','7','7']} initialError={true} />)}
+        {board('otp-underline', 'OTP · underline variant', <OtpVerify t={EN} lang="en" setLang={noop} onBack={noop} onVerify={noop} phone="+91 98765 43210" code="482910" otpStyle="underline" ctaStyle="accent" initialDigits={['4','8','2','9','','']} />)}
+      </DCSection>
+
+      <DCSection id="variants" title="Illustration style &amp; language" subtitle="Levers also available live in the prototype's Tweaks panel">
+        {board('ob-flat', 'Flat-geometric', ob({ painterly: false }))}
+        {board('ob-paint', 'Painterly treatment', ob({ painterly: true }))}
+        {board('ob-ml', 'Malayalam · മലയാളം', <Onboarding t={ML} lang="ml" setLang={noop} onDone={noop} onSkip={noop} ctaStyle="primary" painterly={false} Illos={Illos} initialIdx={0} />)}
+        {board('wel-amber', 'Welcome · amber CTA', <Welcome t={EN} lang="en" setLang={noop} onStart={noop} ctaStyle="accent" layout="heroup" />)}
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

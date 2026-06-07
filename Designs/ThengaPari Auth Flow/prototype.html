@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ThengaPari · Auth flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@500;600;700;800&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="auth/tokens.css" />
+<link rel="stylesheet" href="auth/app.css" />
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    background:
+      radial-gradient(1200px 700px at 50% -10%, var(--green-leaf-50), transparent 60%),
+      linear-gradient(160deg, #EFF3E6 0%, #F6F1E4 55%, #F1ECDE 100%);
+    min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 28px;
+    font-family: var(--font-text);
+    -webkit-font-smoothing: antialiased;
+  }
+  #root { display: flex; align-items: center; justify-content: center; }
+  /* Screen transition wrapper */
+  .tp-stage { position: relative; width: 390px; height: 800px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="auth/i18n.js"></script>
+<script type="text/babel" src="auth/illustrations.jsx"></script>
+<script type="text/babel" src="auth/tweaks-panel.jsx"></script>
+<script type="text/babel" src="auth/screens-a.jsx"></script>
+<script type="text/babel" src="auth/screens-b.jsx"></script>
+
+<script type="text/babel">
+const { useState, useRef } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "cta": "Green",
+  "illo": "Flat",
+  "welcome": "Hero up",
+  "otp": "Boxes",
+  "forceError": false,
+  "jump": "— live —"
+}/*EDITMODE-END*/;
+
+const randCode = () => String(Math.floor(100000 + Math.random() * 900000));
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [step, setStep] = useState('onboarding');
+  const [dir, setDir] = useState('fwd');
+  const [lang, setLang] = useState('en');
+  const [phone, setPhone] = useState('+91 98765 43210');
+  const [code, setCode] = useState(randCode());
+  const animSeq = useRef(0);
+
+  const L = TP_I18N[lang];
+
+  // derive variant props from tweaks
+  const ctaStyle = t.cta === 'Amber' ? 'accent' : 'primary';
+  const painterly = t.illo === 'Painterly';
+  const welcomeLayout = t.welcome === 'Full-bleed' ? 'fullbleed' : 'heroup';
+  const otpStyle = t.otp === 'Underline' ? 'underline' : 'filled';
+
+  const nav = (to, direction = 'fwd') => { animSeq.current++; setDir(direction); setStep(to); };
+
+  // Tweak: jump to a screen for review
+  React.useEffect(() => {
+    const map = { 'Onboarding': 'onboarding', 'Welcome': 'welcome', 'Phone': 'phone', 'OTP': 'otp' };
+    if (t.jump && map[t.jump]) { if (t.jump === 'OTP') setCode(randCode()); nav(map[t.jump]); }
+    // eslint-disable-next-line
+  }, [t.jump]);
+
+  const Illos = { IlloIncome, IlloFlow, IlloReport };
+
+  let screen, dark = false;
+  if (step === 'onboarding') {
+    screen = <Onboarding t={L} lang={lang} setLang={setLang}
+      onDone={() => nav('welcome')} onSkip={() => nav('welcome')}
+      ctaStyle={ctaStyle} painterly={painterly} Illos={Illos} />;
+  } else if (step === 'welcome') {
+    dark = welcomeLayout === 'fullbleed';
+    screen = <Welcome t={L} lang={lang} setLang={setLang}
+      onStart={() => nav('phone')} ctaStyle={ctaStyle} layout={welcomeLayout} />;
+  } else if (step === 'phone') {
+    screen = <PhoneEntry t={L} lang={lang} setLang={setLang}
+      onBack={() => nav('welcome', 'back')}
+      onSubmit={(p) => { setPhone(p); setCode(randCode()); nav('otp'); }}
+      ctaStyle={ctaStyle} />;
+  } else if (step === 'otp') {
+    screen = <OtpVerify t={L} lang={lang} setLang={setLang} phone={phone} code={code}
+      onBack={() => nav('phone', 'back')} onVerify={() => nav('success')}
+      otpStyle={otpStyle} ctaStyle={ctaStyle} forceError={t.forceError} />;
+  } else {
+    screen = <SuccessScreen t={L} ctaStyle={ctaStyle} onRestart={() => { setLang('en'); nav('onboarding', 'back'); }} />;
+  }
+
+  return (
+    <div>
+      <PhoneShell dark={dark}>
+        <div className="tp-stage">
+          <div key={step + '-' + animSeq.current} className={dir === 'back' ? 'tp-enter-back' : 'tp-enter'} style={{ position: 'absolute', inset: 0 }}>
+            {screen}
+          </div>
+        </div>
+      </PhoneShell>
+
+      <TweaksPanel>
+        <TweakSection label="Variations" />
+        <TweakRadio label="CTA colour" value={t.cta} options={['Green', 'Amber']} onChange={(v) => setTweak('cta', v)} />
+        <TweakRadio label="Illustration" value={t.illo} options={['Flat', 'Painterly']} onChange={(v) => setTweak('illo', v)} />
+        <TweakRadio label="Welcome layout" value={t.welcome} options={['Hero up', 'Full-bleed']} onChange={(v) => setTweak('welcome', v)} />
+        <TweakRadio label="OTP boxes" value={t.otp} options={['Boxes', 'Underline']} onChange={(v) => setTweak('otp', v)} />
+        <TweakSection label="Review & demo" />
+        <TweakSelect label="Jump to screen" value={t.jump} options={['— live —', 'Onboarding', 'Welcome', 'Phone', 'OTP']} onChange={(v) => setTweak('jump', v)} />
+        <TweakToggle label="Force wrong-code error" value={t.forceError} onChange={(v) => setTweak('forceError', v)} />
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<svg width="800" height="480" viewBox="0 0 800 480" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kerala landscape: coconut palm, mango tree, house and hills">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FDF3DD"></stop>
+      <stop offset="1" stop-color="#F1F6E9"></stop>
+    </linearGradient>
+    <clipPath id="frame"><rect width="800" height="480" rx="0"></rect></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    
+    <rect width="800" height="480" fill="url(#sky)"></rect>
+
+    
+    <circle cx="638" cy="116" r="58" fill="#FBDFA6"></circle>
+    <circle cx="638" cy="116" r="40" fill="#F4A52A"></circle>
+
+    
+    <path d="M120 96 q10 -10 20 0 q10 -10 20 0" stroke="#4A4840" stroke-width="3" stroke-linecap="round" fill="none"></path>
+    <path d="M180 74 q8 -8 16 0 q8 -8 16 0" stroke="#4A4840" stroke-width="3" stroke-linecap="round" fill="none"></path>
+
+    
+    <path d="M-20 320 Q160 230 360 300 T820 290 L820 480 L-20 480 Z" fill="#BCD6A3"></path>
+    
+    <path d="M-20 360 Q220 280 440 340 T820 330 L820 480 L-20 480 Z" fill="#94B97F"></path>
+
+    
+    <rect y="372" width="800" height="108" fill="#6E9E5E"></rect>
+    <path d="M-20 372 Q200 352 420 372 T820 366 L820 420 L-20 420 Z" fill="#7FAE6A"></path>
+
+    
+    <rect x="171" y="300" width="16" height="86" rx="6" fill="#8B6239"></rect>
+    <path d="M179 360 l-22 -16 M179 340 l24 -16" stroke="#8B6239" stroke-width="9" stroke-linecap="round"></path>
+    <circle cx="179" cy="262" r="58" fill="#2E6B3E"></circle>
+    <circle cx="138" cy="290" r="40" fill="#357A47"></circle>
+    <circle cx="222" cy="288" r="42" fill="#256038"></circle>
+    <circle cx="179" cy="262" r="44" fill="#357A47"></circle>
+    
+    <ellipse cx="150" cy="282" rx="8" ry="11" fill="#F4A52A"></ellipse>
+    <ellipse cx="205" cy="270" rx="8" ry="11" fill="#FBBA4D"></ellipse>
+    <ellipse cx="180" cy="300" rx="8" ry="11" fill="#E89318"></ellipse>
+
+    
+    <rect x="296" y="318" width="132" height="74" rx="4" fill="#FEFCF6"></rect>
+    <rect x="296" y="318" width="132" height="74" rx="4" fill="#000" opacity="0"></rect>
+    
+    <path d="M280 322 L362 270 L444 322 Z" fill="#C8603A"></path>
+    <path d="M280 322 L362 270 L444 322 Z" fill="#000" opacity="0"></path>
+    <rect x="280" y="318" width="164" height="10" rx="3" fill="#A94F2E"></rect>
+    
+    <rect x="346" y="350" width="32" height="42" rx="3" fill="#1E4D2B"></rect>
+    
+    <rect x="312" y="344" width="24" height="22" rx="3" fill="#FBDFA6"></rect>
+    <rect x="388" y="344" width="24" height="22" rx="3" fill="#FBDFA6"></rect>
+
+    
+    <path d="M566 388 C560 320 560 270 582 232 L596 236 C580 272 580 322 582 388 Z" fill="#A9794C"></path>
+    <path d="M566 360 h16 M567 330 h15 M569 300 h14 M572 268 h12" stroke="#8B6239" stroke-width="3" stroke-linecap="round"></path>
+    
+    <circle cx="576" cy="234" r="9" fill="#6E4326"></circle>
+    <circle cx="592" cy="240" r="9" fill="#6E4326"></circle>
+    <circle cx="585" cy="226" r="8" fill="#7A4A2B"></circle>
+    
+    <g fill="#1E4D2B">
+      <path d="M586 226 C548 214 512 220 486 244 C520 240 560 234 586 232 Z"></path>
+      <path d="M586 226 C624 214 660 222 686 246 C652 240 612 234 586 232 Z"></path>
+    </g>
+    <g fill="#2E6B3E">
+      <path d="M586 228 C556 200 528 178 526 146 C548 172 574 200 588 230 Z"></path>
+      <path d="M586 228 C616 200 644 178 646 146 C624 172 598 200 584 230 Z"></path>
+      <path d="M586 230 C566 208 540 196 512 196 C536 214 564 226 586 234 Z"></path>
+      <path d="M586 230 C606 208 632 196 660 196 C636 214 608 226 586 234 Z"></path>
+    </g>
+
+    
+    <circle cx="60" cy="430" r="30" fill="#256038"></circle>
+    <circle cx="100" cy="440" r="26" fill="#2E6B3E"></circle>
+    <circle cx="720" cy="438" r="34" fill="#256038"></circle>
+    <circle cx="760" cy="448" r="28" fill="#2E6B3E"></circle>
+  </g>
+</svg>

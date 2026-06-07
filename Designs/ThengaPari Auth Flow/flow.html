@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ThengaPari · Auth flow map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@500;600;700;800&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="auth/tokens.css" />
+<link rel="stylesheet" href="auth/app.css" />
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    background:
+      radial-gradient(1000px 600px at 30% -10%, var(--green-leaf-50), transparent 60%),
+      linear-gradient(160deg, #EEF2E4 0%, #F5F0E2 60%, #F0EBDC 100%);
+    min-height: 100dvh; font-family: var(--font-text); color: var(--fg1);
+    -webkit-font-smoothing: antialiased;
+    display: flex; flex-direction: column;
+  }
+  .flow-head { padding: 22px 30px 6px; flex: 0 0 auto; }
+  .flow-head h1 { font: var(--t-h2); color: var(--brand-ink); margin: 0 0 4px; letter-spacing: -.01em; }
+  .flow-head p { font: var(--t-body-sm); color: var(--fg2); margin: 0; }
+  .flow-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+  .flow-legend span { display: inline-flex; align-items: center; gap: 8px; font: var(--t-caption); color: var(--fg2); }
+  .flow-legend i { width: 26px; height: 0; border-top: 2.5px solid var(--brand); display: inline-block; }
+  .flow-legend i.dash { border-top-style: dashed; border-color: var(--ink-400); }
+  .flow-legend i.err { border-color: var(--status-error-fg); }
+  .flow-legend i.acc { border-color: var(--amber-saffron-600); }
+
+  .flow-fit { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; overflow: auto; padding: 10px; }
+  .flow-board { position: relative; transform-origin: center center; }
+  .flow-node { position: absolute; overflow: visible; }
+  .flow-node__scale { transform: scale(0.48); transform-origin: top left; width: 390px; height: 800px; pointer-events: none; }
+  .flow-node__title {
+    position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; font: 700 13px/1 var(--font-display); color: var(--brand-ink);
+    background: var(--paper-0); border: 1px solid var(--border); border-radius: var(--r-pill);
+    padding: 6px 14px; box-shadow: var(--shadow-sm);
+  }
+  .flow-node__step {
+    position: absolute; top: -30px; left: -2px;
+    width: 26px; height: 26px; border-radius: 50%; background: var(--brand); color: #fff;
+    font: 700 13px/26px var(--font-text); text-align: center; box-shadow: var(--shadow-sm); z-index: 2;
+  }
+  /* error detail callout */
+  .flow-err {
+    position: absolute; width: 248px; box-sizing: border-box;
+    background: var(--paper-0); border: 1px solid var(--status-error-bg);
+    border-radius: var(--r-lg); padding: 14px 14px 16px; box-shadow: var(--shadow-md);
+  }
+  .flow-err__cap { font: var(--t-overline); text-transform: uppercase; letter-spacing: .08em; color: var(--status-error-fg); margin: 0 0 10px; }
+  .flow-svg { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+  .flow-elabel {
+    font: 600 12.5px/1 var(--font-text); fill: var(--fg1);
+  }
+  .flow-elabel--bg { paint-order: stroke; stroke: #F3EEE0; stroke-width: 7px; stroke-linejoin: round; }
+  .flow-cta {
+    font: 700 12.5px/1 var(--font-text);
+  }
+</style>
+</head>
+<body>
+<div class="flow-head">
+  <h1>Auth flow — how a new user moves through it</h1>
+  <p>Each node is a live screen. Arrows are the transitions a tap triggers.</p>
+  <div class="flow-legend">
+    <span><i></i> Forward (primary button)</span>
+    <span><i class="acc"></i> Verify / send</span>
+    <span><i class="dash"></i> Back / change</span>
+    <span><i class="err"></i> Error path</span>
+  </div>
+</div>
+<div class="flow-fit"><div id="root" class="flow-board"></div></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="auth/i18n.js"></script>
+<script type="text/babel" src="auth/illustrations.jsx"></script>
+<script type="text/babel" src="auth/screens-a.jsx"></script>
+<script type="text/babel" src="auth/screens-b.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+const noop = () => {};
+const EN = TP_I18N.en;
+const Illos = { IlloIncome, IlloFlow, IlloReport };
+
+const BOARD_W = 1660, BOARD_H = 790;
+const NW = 187.2, NH = 384;            // scaled node footprint (390x800 * .48)
+const Y = 230, MIDY = Y + NH / 2;      // node row pushed down to clear the error callout
+const XS = [40, 380, 720, 1060, 1400]; // column lefts
+const cx = i => XS[i] + NW / 2;
+const rt = i => XS[i] + NW;
+
+function Node({ i, step, title, titlePos = 'above', children }) {
+  const titleStyle = titlePos === 'below'
+    ? { top: NH + 8, bottom: 'auto' }
+    : { top: -30 };
+  return (
+    <div className="flow-node" style={{ left: XS[i], top: Y, width: NW, height: NH }}>
+      <span className="flow-node__step">{step}</span>
+      <span className="flow-node__title" style={titleStyle}>{title}</span>
+      <div className="flow-node__scale"><PhoneShell>{children}</PhoneShell></div>
+    </div>
+  );
+}
+
+// ---- arrow helpers ----
+function Edge({ d, kind = 'fwd', dash }) {
+  const stroke = kind === 'err' ? 'var(--status-error-fg)' : kind === 'acc' ? 'var(--amber-saffron-600)' : kind === 'back' ? 'var(--ink-400)' : 'var(--brand)';
+  const marker = kind === 'err' ? 'url(#ah-err)' : kind === 'acc' ? 'url(#ah-acc)' : kind === 'back' ? 'url(#ah-back)' : 'url(#ah-fwd)';
+  return <path d={d} fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray={dash ? '2 7' : 'none'} markerEnd={marker} />;
+}
+function ELabel({ x, y, text, kind }) {
+  const fill = kind === 'err' ? 'var(--status-error-fg)' : kind === 'acc' ? 'var(--amber-saffron-600)' : kind === 'back' ? 'var(--ink-500)' : 'var(--green-forest-700)';
+  return (
+    <text x={x} y={y} textAnchor="middle" className="flow-elabel flow-elabel--bg flow-cta" style={{ fill }}>{text}</text>
+  );
+}
+
+function App() {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const fit = () => {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      setScale(Math.min(1, (vw - 60) / BOARD_W, (vh - 220) / BOARD_H));
+    };
+    fit(); window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
+
+  const otpScreen = (digits, err, style = 'filled', cta = 'primary') => (
+    <OtpVerify t={EN} lang="en" setLang={noop} onBack={noop} onVerify={noop} phone="+91 98765 43210"
+      code="482910" otpStyle={style} ctaStyle={cta} initialDigits={digits} initialError={err} />
+  );
+
+  return (
+    <div style={{ width: BOARD_W, height: BOARD_H, position: 'relative', transform: `scale(${scale})`, transformOrigin: 'center center' }}>
+      {/* ARROWS (under nodes) */}
+      <svg className="flow-svg" width={BOARD_W} height={BOARD_H} viewBox={`0 0 ${BOARD_W} ${BOARD_H}`}>
+        <defs>
+          {['fwd','acc','err','back'].map(k => {
+            const c = k === 'err' ? '#A33523' : k === 'acc' ? '#DD8413' : k === 'back' ? '#908C7E' : '#1E4D2B';
+            return <marker key={k} id={`ah-${k}`} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M1 1 L9 5 L1 9 z" fill={c} /></marker>;
+          })}
+        </defs>
+
+        {/* happy path */}
+        <Edge d={`M${rt(0)} ${MIDY} L${XS[1]-10} ${MIDY}`} kind="fwd" />
+        <Edge d={`M${rt(1)} ${MIDY} L${XS[2]-10} ${MIDY}`} kind="fwd" />
+        <Edge d={`M${rt(2)} ${MIDY} L${XS[3]-10} ${MIDY}`} kind="fwd" />
+        <Edge d={`M${rt(3)} ${MIDY} L${XS[4]-10} ${MIDY}`} kind="acc" />
+        <ELabel x={(rt(0)+XS[1])/2} y={MIDY-14} text="Next ·  Get started" kind="fwd" />
+        <ELabel x={(rt(1)+XS[2])/2} y={MIDY-14} text="Get started" kind="fwd" />
+        <ELabel x={(rt(2)+XS[3])/2} y={MIDY-14} text="Send OTP" kind="fwd" />
+        <ELabel x={(rt(3)+XS[4])/2} y={MIDY-14} text="Verify ✓" kind="acc" />
+
+        {/* skip — onboarding jumps straight to welcome */}
+        <Edge d={`M${cx(0)} ${Y-2} L${cx(0)} 150 L${cx(1)} 150 L${cx(1)} ${Y-2}`} kind="back" dash />
+        <ELabel x={(cx(0)+cx(1))/2} y={142} text="Skip" kind="back" />
+
+        {/* wrong code loop  (otp ⇄ error callout above) */}
+        <Edge d={`M${cx(3)-16} ${Y-2} L${cx(3)-16} 166`} kind="err" />
+        <Edge d={`M${cx(3)+16} 166 L${cx(3)+16} ${Y-2}`} kind="back" />
+        <ELabel x={cx(3)-58} y={200} text="✕ wrong" kind="err" />
+        <ELabel x={cx(3)+60} y={200} text="re-enter" kind="back" />
+
+        {/* resend self-loop on otp right edge */}
+        <Edge d={`M${rt(3)} ${MIDY+26} C ${rt(3)+46} ${MIDY+44} ${rt(3)+46} ${MIDY+78} ${rt(3)} ${MIDY+92}`} kind="back" />
+        <ELabel x={rt(3)+30} y={MIDY+118} text="↻ Resend 0:45" kind="back" />
+
+        {/* change number — otp back to phone (routed below, offset to clear the title pill) */}
+        <Edge d={`M${cx(3)-74} ${Y+NH+2} L${cx(3)-74} 700 L${cx(2)} 700 L${cx(2)} ${Y+NH+2}`} kind="back" dash />
+        <ELabel x={(cx(2)+cx(3)-74)/2} y={714} text="‹  Change number" kind="back" />
+      </svg>
+
+      {/* ERROR CALLOUT (above OTP) */}
+      <div className="flow-err" style={{ left: cx(3) - 124, top: 8 }}>
+        <p className="flow-err__cap">Wrong-code state</p>
+        <div className="tp-otp tp-otp--error">
+          <div className="tp-otp__boxes" style={{ gap: 6 }}>
+            {['1','9','4','0','7','7'].map((d,i)=>(<div key={i} className="tp-otp__box has-digit is-filled" style={{ height: 38, fontSize: 19 }}>{d}</div>))}
+          </div>
+          <div className="tp-otp__msg" style={{ marginTop: 10, marginBottom: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.6" stroke="currentColor" strokeWidth="1.4"/><path d="M8 5v3.4M8 10.7v.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+            {EN.otpError}
+          </div>
+        </div>
+      </div>
+
+      {/* NODES */}
+      <Node i={0} step="1" title="Onboarding">
+        <Onboarding t={EN} lang="en" setLang={noop} onDone={noop} onSkip={noop} ctaStyle="primary" painterly={false} Illos={Illos} initialIdx={0} />
+      </Node>
+      <Node i={1} step="2" title="Welcome">
+        <Welcome t={EN} lang="en" setLang={noop} onStart={noop} ctaStyle="primary" layout="heroup" />
+      </Node>
+      <Node i={2} step="3" title="Phone entry">
+        <PhoneEntry t={EN} lang="en" setLang={noop} onBack={noop} onSubmit={noop} ctaStyle="primary" initialDigits="9876543210" />
+      </Node>
+      <Node i={3} step="4" title="OTP verify" titlePos="below">
+        {otpScreen(['4','8','2','','',''], false)}
+      </Node>
+      <Node i={4} step="✓" title="Signed in">
+        <SuccessScreen t={EN} ctaStyle="primary" onRestart={noop} />
+      </Node>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
