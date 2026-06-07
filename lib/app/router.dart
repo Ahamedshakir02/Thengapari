@@ -19,6 +19,7 @@ import '../features/homeowner/screens/profile_setup_screen.dart';
 import '../features/homeowner/screens/tree_inventory_setup_screen.dart';
 import '../features/site_manager/screens/home_screen.dart';
 import '../features/worker/screens/home_screen.dart';
+import '../features/worker/screens/worker_setup_screen.dart';
 
 /// Route paths, centralised so screens can navigate without magic strings.
 abstract final class AppRoutes {
@@ -35,6 +36,7 @@ abstract final class AppRoutes {
   static const homeownerReport = '/homeowner/report';
   static const homeownerPayment = '/homeowner/payment';
   static const homeownerAmc = '/homeowner/amc';
+  static const workerSetup = '/worker/setup';
   static const workerHome = '/worker/home';
   static const managerHome = '/manager/home';
   static const b2bHome = '/b2b/home';
@@ -98,6 +100,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         return setupRoutes.contains(loc)
             ? null
             : AppRoutes.homeownerProfileSetup;
+      }
+
+      // 3c. Worker who hasn't finished setup (no name/district yet) -> setup.
+      if (user.role == UserRole.worker && !user.isProfileComplete) {
+        return loc == AppRoutes.workerSetup ? null : AppRoutes.workerSetup;
       }
 
       // 4. Signed in with a role -> push out of any pre-home screen.
@@ -165,6 +172,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.homeownerAmc,
         builder: (_, _) => const AmcScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.workerSetup,
+        builder: (_, _) => const WorkerSetupScreen(),
       ),
       GoRoute(
         path: AppRoutes.workerHome,
