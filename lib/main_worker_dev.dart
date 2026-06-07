@@ -13,6 +13,9 @@ import 'core/providers/auth_provider.dart';
 import 'core/providers/worker_providers.dart';
 import 'core/services/worker_service.dart';
 import 'features/worker/screens/home_screen.dart';
+import 'features/worker/screens/job_complete_screen.dart';
+import 'features/worker/screens/job_ping_screen.dart';
+import 'features/worker/screens/navigate_screen.dart';
 import 'features/worker/screens/worker_setup_screen.dart';
 
 /// Worker dev entrypoint:
@@ -130,6 +133,18 @@ class WorkerDevApp extends StatelessWidget {
           path: AppRoutes.workerHome,
           builder: (_, _) => const WorkerHomeScreen(),
         ),
+        GoRoute(
+          path: AppRoutes.workerPing,
+          builder: (_, _) => const JobPingScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.workerNavigate,
+          builder: (_, _) => const NavigateScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.workerComplete,
+          builder: (_, _) => const JobCompleteScreen(),
+        ),
       ],
     );
 
@@ -196,6 +211,26 @@ class _DevMenu extends StatelessWidget {
             label: '2 · Home dashboard',
             subtitle: 'Online toggle, stats, reliability, jobs, weekly chart',
             onTap: () => context.go(AppRoutes.workerHome),
+          ),
+          _MenuItem(
+            label: '2 · Home → tabs (Jobs · Wallet · You)',
+            subtitle: 'Bottom-nav tabs live inside the home shell',
+            onTap: () => context.go(AppRoutes.workerHome),
+          ),
+          _MenuItem(
+            label: '3 · Job ping (full-screen)',
+            subtitle: 'Radar, 45s countdown, accept → navigate',
+            onTap: () => context.go(AppRoutes.workerPing),
+          ),
+          _MenuItem(
+            label: '4 · Navigate to grove',
+            subtitle: 'Map, ETA banner, I\'ve arrived → complete',
+            onTap: () => context.go(AppRoutes.workerNavigate),
+          ),
+          _MenuItem(
+            label: '5 · Job complete',
+            subtitle: 'Payout, summary, rate manager',
+            onTap: () => context.go(AppRoutes.workerComplete),
           ),
         ],
       ),
