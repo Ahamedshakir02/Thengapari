@@ -4,31 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/design_tokens.dart';
+import '../../../app/router.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/worker_providers.dart';
+import '../theme/worker_theme.dart';
+import 'jobs_screen.dart';
+import 'profile_screen.dart';
+import 'wallet_screen.dart';
 
-/// Worker palette (dark teal) — mirrors the `--w-*` tokens in the worker
-/// design system (Designs/ThengaPari Worker App).
-class _W {
-  static const bg = Color(0xFF08332F); // teal-900 canvas
-  static const bg2 = Color(0xFF0A3C36);
-  static const bgDeep = Color(0xFF062925);
-  static const glowTop = Color(0xFF0F5C52);
-  static const surface = Color(0xFF0E5249); // teal-700 cards
-  static const surface2 = Color(0xFF0C463F);
-  static const teal500 = Color(0xFF15786B);
-  static const teal300 = Color(0xFF6FB6AB);
-  static const teal100 = Color(0xFFD6ECE7);
-  static const line = Color(0x22D6ECE7); // rgba(214,236,231,.13)
-  static const lineStrong = Color(0x42D6ECE7); // rgba(214,236,231,.26)
-  static const fg1 = Color(0xFFFFFFFF);
-  static const fg2 = Color(0xFFBDDDD5);
-  static const fg3 = Color(0xFF7FB4AB);
-  static const accent = Color(0xFFF4A52A);
-  static const accent2 = Color(0xFFFBBA4D);
-  static const accentPress = Color(0xFFDD8413);
-  static const good = Color(0xFF57C98B);
-}
+import 'package:go_router/go_router.dart';
 
 /// Worker daily command center. Online toggle, today's stats, reliability
 /// score, confirmed jobs, and the weekly earnings chart. Matches
@@ -57,14 +41,14 @@ class _WorkerHomeScreenState extends ConsumerState<WorkerHomeScreen> {
     });
 
     return Scaffold(
-      backgroundColor: _W.bg,
+      backgroundColor: WColors.bg,
       body: IndexedStack(
         index: _tab,
         children: [
           _HomeTab(uid: uid, name: user?.firstName ?? 'there'),
-          const _Placeholder(label: 'Jobs', icon: Icons.work_outline),
-          const _Placeholder(label: 'Wallet', icon: Icons.account_balance_wallet_outlined),
-          const _Placeholder(label: 'You', icon: Icons.person_outline),
+          const WorkerJobsTab(),
+          const WorkerWalletTab(),
+          const WorkerProfileTab(),
         ],
       ),
       bottomNavigationBar: _WorkerBottomNav(
@@ -146,7 +130,32 @@ class _HomeTab extends ConsumerWidget {
             ],
           const SizedBox(height: 22),
           _WeeklyCard(week: week),
+          const SizedBox(height: 20),
+          _demoPingButton(context),
         ],
+      ),
+    );
+  }
+
+  Widget _demoPingButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push(AppRoutes.workerPing),
+      child: Container(
+        height: 46,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadii.pill),
+          border: Border.all(color: WColors.lineStrong),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.bolt, size: 15, color: WColors.accent2),
+            const SizedBox(width: 8),
+            Text('Demo · trigger a job ping',
+                style: AppText.bodySm().copyWith(color: WColors.fg3)),
+          ],
+        ),
       ),
     );
   }
@@ -162,15 +171,15 @@ class _HomeTab extends ConsumerWidget {
                 _greeting(name),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppText.displayNum(22, color: _W.fg1),
+                style: AppText.displayNum(22, color: WColors.fg1),
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(Icons.place_outlined, size: 14, color: _W.teal300),
+                  const Icon(Icons.place_outlined, size: 14, color: WColors.teal300),
                   const SizedBox(width: 5),
                   Text('Ollur, Thrissur',
-                      style: AppText.bodySm().copyWith(color: _W.fg2)),
+                      style: AppText.bodySm().copyWith(color: WColors.fg2)),
                 ],
               ),
             ],
@@ -188,13 +197,13 @@ class _HomeTab extends ConsumerWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [_W.glowTop, _W.bg2],
+                  colors: [WColors.glowTop, WColors.bg2],
                 ),
-                border: Border.all(color: _W.lineStrong),
+                border: Border.all(color: WColors.lineStrong),
               ),
               child: Text(
                 (name.isNotEmpty ? name[0] : 'W').toUpperCase(),
-                style: AppText.displayNum(19, color: _W.teal100),
+                style: AppText.displayNum(19, color: WColors.teal100),
               ),
             ),
             Positioned(
@@ -205,8 +214,8 @@ class _HomeTab extends ConsumerWidget {
                 height: 14,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: online ? _W.good : _W.fg3,
-                  border: Border.all(color: _W.bg, width: 3),
+                  color: online ? WColors.good : WColors.fg3,
+                  border: Border.all(color: WColors.bg, width: 3),
                 ),
               ),
             ),
@@ -219,14 +228,14 @@ class _HomeTab extends ConsumerWidget {
   Widget _emptyJobs() => Container(
         padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
         decoration: BoxDecoration(
-          color: _W.surface,
+          color: WColors.surface,
           borderRadius: BorderRadius.circular(AppRadii.lg),
-          border: Border.all(color: _W.line),
+          border: Border.all(color: WColors.line),
         ),
         child: Center(
           child: Text('No confirmed jobs today.\nGo online to receive pings.',
               textAlign: TextAlign.center,
-              style: AppText.bodySm().copyWith(color: _W.fg3)),
+              style: AppText.bodySm().copyWith(color: WColors.fg3)),
         ),
       );
 
@@ -276,16 +285,16 @@ class _BigToggle extends StatelessWidget {
               ? const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [_W.glowTop, _W.surface2],
+                  colors: [WColors.glowTop, WColors.surface2],
                 )
               : null,
-          color: online ? null : _W.surface2,
+          color: online ? null : WColors.surface2,
           border: Border.all(
-              color: online ? const Color(0x4D6FB6AB) : _W.line),
+              color: online ? const Color(0x4D6FB6AB) : WColors.line),
           boxShadow: online
               ? [
                   BoxShadow(
-                      color: _W.teal500.withValues(alpha: 0.4),
+                      color: WColors.teal500.withValues(alpha: 0.4),
                       blurRadius: 30,
                       offset: const Offset(0, 10)),
                 ]
@@ -300,11 +309,11 @@ class _BigToggle extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(online ? "You're online" : "You're offline",
-                      style: AppText.h3().copyWith(color: _W.fg1)),
+                      style: AppText.h3().copyWith(color: WColors.fg1)),
                   const SizedBox(height: 2),
                   Text(online ? 'Receiving job pings' : 'Go online to earn',
                       style: AppText.bodySm().copyWith(
-                          color: online ? _W.teal300 : _W.fg3)),
+                          color: online ? WColors.teal300 : WColors.fg3)),
                 ],
               ),
             ),
@@ -354,7 +363,7 @@ class _PulseDotState extends State<_PulseDot>
                   height: 14 + t * 12,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _W.good.withValues(alpha: (1 - t) * 0.5),
+                    color: WColors.good.withValues(alpha: (1 - t) * 0.5),
                   ),
                 );
               },
@@ -364,7 +373,7 @@ class _PulseDotState extends State<_PulseDot>
             height: 14,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: widget.online ? _W.good : _W.fg3,
+              color: widget.online ? WColors.good : WColors.fg3,
             ),
           ),
         ],
@@ -384,11 +393,11 @@ class _Switch extends StatelessWidget {
       height: 40,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        color: online ? _W.accent : const Color(0x2ED6ECE7),
+        color: online ? WColors.accent : const Color(0x2ED6ECE7),
         boxShadow: online
             ? [
                 BoxShadow(
-                    color: _W.accent.withValues(alpha: 0.5),
+                    color: WColors.accent.withValues(alpha: 0.5),
                     blurRadius: 16,
                     offset: const Offset(0, 4)),
               ]
@@ -415,7 +424,7 @@ class _Switch extends StatelessWidget {
               ],
             ),
             child: online
-                ? const Icon(Icons.bolt, size: 16, color: _W.accentPress)
+                ? const Icon(Icons.bolt, size: 16, color: WColors.accentPress)
                 : null,
           ),
         ),
@@ -453,29 +462,29 @@ class _StatCard extends StatelessWidget {
                 colors: [Color(0x29F4A52A), Color(0x0AF4A52A)],
               )
             : null,
-        color: accent ? null : _W.surface,
-        border: Border.all(color: accent ? const Color(0x47F4A52A) : _W.line),
+        color: accent ? null : WColors.surface,
+        border: Border.all(color: accent ? const Color(0x47F4A52A) : WColors.line),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: accent ? _W.accent2 : _W.teal300),
+              Icon(icon, size: 16, color: accent ? WColors.accent2 : WColors.teal300),
               const SizedBox(width: 7),
               Flexible(
                 child: Text(label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.caption()
-                        .copyWith(color: _W.fg2, fontWeight: FontWeight.w600)),
+                        .copyWith(color: WColors.fg2, fontWeight: FontWeight.w600)),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          Text(value, style: AppText.displayNum(30, color: _W.fg1)),
+          Text(value, style: AppText.displayNum(30, color: WColors.fg1)),
           const SizedBox(height: 7),
-          Text(sub, style: AppText.caption().copyWith(color: _W.fg3)),
+          Text(sub, style: AppText.caption().copyWith(color: WColors.fg3)),
         ],
       ),
     );
@@ -493,9 +502,9 @@ class _ReliabilityCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _W.surface,
+        color: WColors.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(color: _W.line),
+        border: Border.all(color: WColors.line),
       ),
       child: Row(
         children: [
@@ -510,12 +519,12 @@ class _ReliabilityCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text('$score',
-                        style: AppText.displayNum(24, color: _W.fg1)),
+                        style: AppText.displayNum(24, color: WColors.fg1)),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 3),
                       child: Text('%',
                           style: AppText.caption().copyWith(
-                              color: _W.fg3, fontWeight: FontWeight.w600)),
+                              color: WColors.fg3, fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
@@ -530,16 +539,16 @@ class _ReliabilityCard extends StatelessWidget {
                 Row(
                   children: [
                     const Icon(Icons.verified_user_outlined,
-                        size: 17, color: _W.accent2),
+                        size: 17, color: WColors.accent2),
                     const SizedBox(width: 7),
                     Text('Reliability score',
                         style: AppText.title()
-                            .copyWith(fontSize: 16, color: _W.fg1)),
+                            .copyWith(fontSize: 16, color: WColors.fg1)),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Text('Top 8% of climbers in Thrissur',
-                    style: AppText.bodySm().copyWith(color: _W.fg2)),
+                    style: AppText.bodySm().copyWith(color: WColors.fg2)),
                 const SizedBox(height: 10),
                 Row(
                   children: [
@@ -561,11 +570,11 @@ class _ReliabilityCard extends StatelessWidget {
         children: [
           Text(value,
               style: AppText.caption().copyWith(
-                  color: _W.teal100,
+                  color: WColors.teal100,
                   fontWeight: FontWeight.w700,
                   fontSize: 13)),
           const SizedBox(width: 4),
-          Text(label, style: AppText.caption().copyWith(color: _W.fg3)),
+          Text(label, style: AppText.caption().copyWith(color: WColors.fg3)),
         ],
       );
 }
@@ -586,9 +595,9 @@ class _RingPainter extends CustomPainter {
     canvas.drawCircle(center, radius, track);
 
     final color = value >= 0.8
-        ? _W.accent
+        ? WColors.accent
         : value >= 0.6
-            ? _W.accent2
+            ? WColors.accent2
             : const Color(0xFFF08A6A);
     final arc = Paint()
       ..style = PaintingStyle.stroke
@@ -620,9 +629,9 @@ class _JobCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
       decoration: BoxDecoration(
-        color: _W.surface,
+        color: WColors.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(color: _W.line),
+        border: Border.all(color: WColors.line),
       ),
       child: Row(
         children: [
@@ -631,14 +640,14 @@ class _JobCard extends StatelessWidget {
             child: Column(
               children: [
                 Text(h,
-                    style: AppText.displayNum(17, color: _W.fg1)),
+                    style: AppText.displayNum(17, color: WColors.fg1)),
                 const SizedBox(height: 3),
-                Text(ampm, style: AppText.caption().copyWith(color: _W.fg3)),
+                Text(ampm, style: AppText.caption().copyWith(color: WColors.fg3)),
               ],
             ),
           ),
           Container(
-              width: 1, height: 40, color: _W.line, margin: const EdgeInsets.symmetric(horizontal: 14)),
+              width: 1, height: 40, color: WColors.line, margin: const EdgeInsets.symmetric(horizontal: 14)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -646,17 +655,17 @@ class _JobCard extends StatelessWidget {
                 Text(job.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppText.title().copyWith(fontSize: 16, color: _W.fg1)),
+                    style: AppText.title().copyWith(fontSize: 16, color: WColors.fg1)),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.place_outlined, size: 13, color: _W.fg3),
+                    const Icon(Icons.place_outlined, size: 13, color: WColors.fg3),
                     const SizedBox(width: 5),
                     Flexible(
                       child: Text('${job.place} · ${job.distance}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppText.bodySm().copyWith(color: _W.fg2)),
+                          style: AppText.bodySm().copyWith(color: WColors.fg2)),
                     ),
                   ],
                 ),
@@ -668,11 +677,11 @@ class _JobCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('₹${job.payout.round()}',
-                  style: AppText.displayNum(18, color: _W.fg1)),
+                  style: AppText.displayNum(18, color: WColors.fg1)),
               const SizedBox(height: 6),
               _Tag(
                 text: job.isNext ? 'UP NEXT' : 'SCHEDULED',
-                fg: job.isNext ? _W.accent2 : _W.teal300,
+                fg: job.isNext ? WColors.accent2 : WColors.teal300,
                 bg: job.isNext ? const Color(0x29F4A52A) : const Color(0x246FB6AB),
               ),
             ],
@@ -701,9 +710,9 @@ class _WeeklyCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        color: _W.surface,
+        color: WColors.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(color: _W.line),
+        border: Border.all(color: WColors.line),
       ),
       child: Column(
         children: [
@@ -711,7 +720,7 @@ class _WeeklyCard extends StatelessWidget {
             title: 'This week',
             dense: true,
             trailing: Text('₹${(total / 1000).toStringAsFixed(1)}k',
-                style: AppText.displayNum(17, color: _W.teal100)),
+                style: AppText.displayNum(17, color: WColors.teal100)),
           ),
           SizedBox(
             height: 132,
@@ -761,7 +770,7 @@ class _WeeklyChart extends StatelessWidget {
           style: AppText.caption().copyWith(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: isToday ? _W.accent2 : _W.fg3),
+              color: isToday ? WColors.accent2 : WColors.fg3),
         ),
         const SizedBox(height: 7),
         Container(
@@ -772,13 +781,13 @@ class _WeeklyChart extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: isToday
-                  ? const [_W.accent2, _W.accent]
-                  : const [_W.teal500, _W.glowTop],
+                  ? const [WColors.accent2, WColors.accent]
+                  : const [WColors.teal500, WColors.glowTop],
             ),
             boxShadow: isToday
                 ? [
                     BoxShadow(
-                        color: _W.accent.withValues(alpha: 0.35),
+                        color: WColors.accent.withValues(alpha: 0.35),
                         blurRadius: 14,
                         offset: const Offset(0, 4)),
                   ]
@@ -789,7 +798,7 @@ class _WeeklyChart extends StatelessWidget {
         Text(label,
             style: AppText.caption().copyWith(
                 fontSize: 11,
-                color: isToday ? _W.fg1 : _W.fg3,
+                color: isToday ? WColors.fg1 : WColors.fg3,
                 fontWeight: isToday ? FontWeight.w700 : FontWeight.w500)),
       ],
     );
@@ -815,7 +824,7 @@ class _SectionHead extends StatelessWidget {
             child: Text(title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppText.h3().copyWith(color: _W.fg1)),
+                style: AppText.h3().copyWith(color: WColors.fg1)),
           ),
           if (trailing != null) ...[const SizedBox(width: 12), trailing!],
         ],
@@ -838,7 +847,7 @@ class _Pill extends StatelessWidget {
       ),
       child: Text(text,
           style: AppText.caption().copyWith(
-              color: _W.accent2, fontWeight: FontWeight.w700)),
+              color: WColors.accent2, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -880,8 +889,8 @@ class _WorkerBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: _W.bgDeep,
-        border: Border(top: BorderSide(color: _W.line)),
+        color: WColors.bgDeep,
+        border: Border(top: BorderSide(color: WColors.line)),
       ),
       child: SafeArea(
         top: false,
@@ -902,7 +911,7 @@ class _WorkerBottomNav extends StatelessWidget {
   Widget _navItem(int i) {
     final on = i == index;
     final (off, active, label) = _items[i];
-    final color = on ? _W.accent2 : _W.fg3;
+    final color = on ? WColors.accent2 : WColors.fg3;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => onTap(i),
@@ -927,26 +936,3 @@ class _WorkerBottomNav extends StatelessWidget {
 
 // ─────────────────────────── Placeholder tabs ───────────────────────────
 
-class _Placeholder extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  const _Placeholder({required this.label, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 40, color: _W.fg3),
-            const SizedBox(height: 12),
-            Text(label, style: AppText.h3().copyWith(color: _W.fg1)),
-            const SizedBox(height: 4),
-            Text('Coming next', style: AppText.bodySm().copyWith(color: _W.fg3)),
-          ],
-        ),
-      ),
-    );
-  }
-}

@@ -5,6 +5,44 @@
 
 ---
 
+## 2026-06-07 — Session 6: Worker app — remaining screens + dev login bypass
+
+**Goal:** Finish the Worker app (only home was done): build the Jobs/Wallet/Profile tabs and the Ping → Navigate → Complete active-job flow, matching the worker designs. Also add a dev login bypass so the full app is testable.
+
+### Done
+
+**Shared worker styling** (`features/worker/theme/worker_theme.dart`)
+- Public `WColors` (dark-teal `--w-*` tokens) + reusable atoms: `WScreenHeader`, `WHeaderIconBtn`, `WMiniStat`, `WSectionHead`, `WTag`, `WRupee`, `WWeeklyChart`, and `inrGroup()` Indian-digit formatter. Refactored `home_screen.dart` to use `WColors` and wired its bottom-nav tabs to the real screens + a "Demo · trigger a job ping" button.
+
+**Tabs (live inside the home shell's bottom nav)**
+- `jobs_screen.dart` — `WorkerJobsTab`: week mini-stats, Upcoming/History segmented tabs, day groups (Today/Tomorrow), job cards + history rows with star ratings.
+- `wallet_screen.dart` — `WorkerWalletTab`: balance hero, **withdraw-to-UPI bottom sheet** (amount + quick chips → success stage), secondary stats, weekly chart, linked UPI, payouts list.
+- `profile_screen.dart` — `WorkerProfileTab`: identity card (name/reliability from auth+profile), lifetime earnings, skills with progress bars, KYC docs, settings (language toggle via `localeProvider`, **sign-out** clears `devAuthOverride` + Firebase).
+
+**Active-job flow (full-screen routes)**
+- `job_ping_screen.dart` — `JobPingScreen`: animated **radar `CustomPainter`** (rings, rotating sweep, pulsing job dot), white detail card, 45s countdown that auto-declines on expiry; Accept → Navigate.
+- `navigate_screen.dart` — `NavigateScreen`: painted dark map (plots, roads, amber route, pin, worker marker), ETA banner, "I've arrived" → Complete.
+- `job_complete_screen.dart` — `JobCompleteScreen`: success animation, payout card, job summary, interactive star rating, "Submit & go home".
+
+**Routing & dev login bypass**
+- Added `workerPing` / `workerNavigate` / `workerComplete` routes to `router.dart` + the worker harness, with menu entries for each.
+- `auth_provider.dart`: `devAuthOverrideProvider` (`Notifier<AppUser?>`) — when set, `authStateProvider` emits it instead of the Firebase stream. `LoginScreen` now has a `kDebugMode`-gated **DEV BYPASS** row (Homeowner/Worker/Site Manager/B2B) and is wrapped in a scroll view. Production untouched.
+- Cleaned stale unused worker imports from the homeowner harness.
+
+### Verification
+- `flutter analyze` on the worker feature + harnesses → No issues found.
+- Full app built + ran on Pixel 7 (dev flavor). Phone OTP needs SHA-1 added in Firebase (server-side done; `google-services.json` not yet re-downloaded — not required for phone auth). Worker screens reviewable via dev bypass or `main_worker_dev.dart`.
+
+### Notes / deviations
+- Tab/flow content is demo/static (mirrors the design's hardcoded data); wiring to live Firestore (`/jobs`, `/job_pings`, `/workers/{uid}/earnings`) + FCM ping + Razorpay payout is a later step.
+- Maps are painted approximations (no Google Maps key needed for review). Worker screens are English-only for now (no per-screen EN/മല toggle yet, except the profile language setting).
+
+### Next up
+- Wire worker screens to live data + the real ping/accept/complete Cloud Functions (needs Blaze).
+- Optional: bilingual labels across worker screens.
+
+---
+
 ## 2026-06-07 — Session 5: Worker app start (setup + home dashboard)
 
 **Goal:** Begin the Worker app (dark-teal theme). Build first-time setup, then the home dashboard, on a dedicated worker dev harness. One screen at a time, pausing for on-device hot-reload.

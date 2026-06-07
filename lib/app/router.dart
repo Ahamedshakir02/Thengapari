@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../core/models/app_user.dart';
 import '../core/providers/auth_provider.dart';
+import '../core/providers/onboarding_provider.dart';
 import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/onboarding_screen.dart';
 import '../features/auth/screens/otp_verify_screen.dart';
 import '../features/auth/screens/role_gate_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
@@ -19,11 +21,15 @@ import '../features/homeowner/screens/profile_setup_screen.dart';
 import '../features/homeowner/screens/tree_inventory_setup_screen.dart';
 import '../features/site_manager/screens/home_screen.dart';
 import '../features/worker/screens/home_screen.dart';
+import '../features/worker/screens/job_complete_screen.dart';
+import '../features/worker/screens/job_ping_screen.dart';
+import '../features/worker/screens/navigate_screen.dart';
 import '../features/worker/screens/worker_setup_screen.dart';
 
 /// Route paths, centralised so screens can navigate without magic strings.
 abstract final class AppRoutes {
   static const splash = '/splash';
+  static const onboarding = '/onboarding';
   static const login = '/login';
   static const otp = '/otp';
   static const selectRole = '/select-role';
@@ -38,6 +44,9 @@ abstract final class AppRoutes {
   static const homeownerAmc = '/homeowner/amc';
   static const workerSetup = '/worker/setup';
   static const workerHome = '/worker/home';
+  static const workerPing = '/worker/ping';
+  static const workerNavigate = '/worker/navigate';
+  static const workerComplete = '/worker/complete';
   static const managerHome = '/manager/home';
   static const b2bHome = '/b2b/home';
 
@@ -64,9 +73,19 @@ final routerProvider = Provider<GoRouter>((ref) {
     fireImmediately: true,
   );
 
+  // Bridge the onboarding flag too, so finishing onboarding re-runs redirects.
+  final onboardingListenable =
+      ValueNotifier<bool>(ref.read(onboardingSeenProvider));
+  ref.onDispose(onboardingListenable.dispose);
+  ref.listen<bool>(
+    onboardingSeenProvider,
+    (_, next) => onboardingListenable.value = next,
+    fireImmediately: true,
+  );
+
   return GoRouter(
     initialLocation: AppRoutes.splash,
-    refreshListenable: authListenable,
+    refreshListenable: Listenable.merge([authListenable, onboardingListenable]),
     redirect: (context, state) {
       final authState = authListenable.value;
       final loc = state.matchedLocation;
@@ -77,10 +96,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       final user = authState.value;
+      final seenOnboarding = onboardingListenable.value;
       final atAuthScreen = loc == AppRoutes.login || loc == AppRoutes.otp;
 
-      // 2. Signed out -> only login/otp are reachable.
+      // 2. Signed out. First-ever launch shows onboarding once; after that,
+      //    login/otp are reachable.
       if (user == null) {
+        if (!seenOnboarding) {
+          return loc == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+        }
         return atAuthScreen ? null : AppRoutes.login;
       }
 
@@ -111,6 +135,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final home = AppRoutes.homeForRole(user.role!);
       const preHome = {
         AppRoutes.splash,
+        AppRoutes.onboarding,
         AppRoutes.login,
         AppRoutes.otp,
         AppRoutes.selectRole,
@@ -121,6 +146,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.splash,
         builder: (_, _) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (_, _) => const OnboardingScreen(),
       ),
       GoRoute(
         path: AppRoutes.login,
@@ -180,6 +209,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.workerHome,
         builder: (_, _) => const WorkerHomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.workerPing,
+        builder: (_, _) => const JobPingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.workerNavigate,
+        builder: (_, _) => const NavigateScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.workerComplete,
+        builder: (_, _) => const JobCompleteScreen(),
       ),
       GoRoute(
         path: AppRoutes.managerHome,

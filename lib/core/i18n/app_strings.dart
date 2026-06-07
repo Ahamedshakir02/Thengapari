@@ -36,6 +36,52 @@ const Map<String, List<String>> _strings = {
   'nav_schedule': ['Schedule', 'ഷെഡ്യൂൾ'],
   'nav_reports': ['Reports', 'റിപ്പോർട്ട്'],
   'nav_profile': ['Profile', 'പ്രൊഫൈൽ'],
+
+  // ===== Auth flow (onboarding / welcome / phone / OTP) — from i18n.js =====
+  'auth_brand': ['ThengaPari', 'ThengaPari'],
+  'auth_skip': ['Skip', 'ഒഴിവാക്കുക'],
+  'auth_next': ['Next', 'അടുത്തത്'],
+  'auth_get_started': ['Get started', 'തുടങ്ങാം'],
+
+  'onb1_h': ['Turn your backyard trees into income',
+      'നിങ്ങളുടെ മുറ്റത്തെ മരങ്ങൾ വരുമാനമാക്കൂ'],
+  'onb1_s': ['List your coconut palms and mango trees — we handle the rest.',
+      'നിങ്ങളുടെ തെങ്ങും മാവും ചേർക്കൂ — ബാക്കിയെല്ലാം ഞങ്ങൾ നോക്കും.'],
+  'onb2_h': ['Same-day harvest, zero coordination',
+      'അന്നുതന്നെ വിളവെടുപ്പ്, ഏകോപനം വേണ്ട'],
+  'onb2_s': ['Book in under a minute. A trained climber arrives and gets it done.',
+      'ഒരു മിനിറ്റിൽ ബുക്ക് ചെയ്യൂ. പരിശീലനം ലഭിച്ച കയറ്റക്കാരൻ എത്തി ജോലി തീർക്കും.'],
+  'onb3_h': ['Get paid, get a clear report',
+      'പണം നേടൂ, വ്യക്തമായ റിപ്പോർട്ടും'],
+  'onb3_s': ['Pay after weighing. Every job ends with a tidy, honest receipt.',
+      'തൂക്കത്തിന് ശേഷം പണം നൽകൂ. ഓരോ ജോലിക്കും വൃത്തിയുള്ള, സത്യസന്ധമായ രസീത്.'],
+
+  'welcome_tagline': ['Your trees, harvested with care — and paid fairly.',
+      'നിങ്ങളുടെ മരങ്ങൾ കരുതലോടെ വിളവെടുക്കാം — ന്യായമായ വിലയും.'],
+  'welcome_ml': ["Kerala's own harvest companion",
+      'കേരളത്തിന്റെ സ്വന്തം വിളവെടുപ്പ് കൂട്ടാളി'],
+  'auth_terms': ['By continuing you agree to our Terms & Privacy Policy.',
+      'തുടരുന്നതിലൂടെ ഞങ്ങളുടെ നിബന്ധനകളും സ്വകാര്യതാ നയവും അംഗീകരിക്കുന്നു.'],
+
+  'phone_head': ['Sign in with your mobile number',
+      'നിങ്ങളുടെ മൊബൈൽ നമ്പർ ഉപയോഗിച്ച് സൈൻ ഇൻ ചെയ്യൂ'],
+  'phone_lead': ["We'll send a one-time code to confirm it's really you.",
+      'നിങ്ങളെ സ്ഥിരീകരിക്കാൻ ഒറ്റത്തവണ കോഡ് അയക്കും.'],
+  'phone_label': ['Mobile number', 'മൊബൈൽ നമ്പർ'],
+  'auth_reassure': ["We'll send a one-time code — standard SMS rates may apply.",
+      'ഒറ്റത്തവണ കോഡ് അയക്കും — സാധാരണ SMS നിരക്ക് ബാധകമാകാം.'],
+  'auth_send_otp': ['Send OTP', 'OTP അയക്കൂ'],
+
+  'otp_head': ['Enter the 6-digit code', '6 അക്ക കോഡ് നൽകൂ'],
+  'otp_sent_to': ['Sent to', 'അയച്ചത്'],
+  'otp_edit': ['Change', 'മാറ്റുക'],
+  'otp_verify': ['Verify', 'സ്ഥിരീകരിക്കൂ'],
+  'otp_resend_in': ['Resend code in', 'വീണ്ടും അയക്കാൻ'],
+  'otp_resend': ['Resend code', 'കോഡ് വീണ്ടും അയക്കൂ'],
+  'otp_error': ["That code didn't match. Please try again.",
+      'കോഡ് ശരിയായില്ല. വീണ്ടും ശ്രമിക്കൂ.'],
+  'otp_resent': ['A fresh code is on its way.',
+      'പുതിയ കോഡ് അയച്ചുകൊണ്ടിരിക്കുന്നു.'],
 };
 
 /// Returns the string for [key] in [lang]; falls back to English, then the key.
