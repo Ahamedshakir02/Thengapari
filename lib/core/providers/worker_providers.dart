@@ -16,15 +16,11 @@ final workerProfileProvider =
 /// Availability toggle state for the Worker home screen. Writes `isOnline` to
 /// `/workers/{uid}` and starts/stops location tracking (location tracking is
 /// wired up in a later step). Kept optimistic so the switch feels instant.
-final workerAvailabilityProvider =
-    StateNotifierProvider<WorkerAvailabilityNotifier, bool>(
-        (ref) => WorkerAvailabilityNotifier(ref));
-
-class WorkerAvailabilityNotifier extends StateNotifier<bool> {
-  WorkerAvailabilityNotifier(this._ref) : super(false);
-
-  final Ref _ref;
+class WorkerAvailabilityNotifier extends Notifier<bool> {
   bool _seeded = false;
+
+  @override
+  bool build() => false;
 
   /// Seed the initial value from the live profile, once.
   void seed(bool online) {
@@ -36,15 +32,19 @@ class WorkerAvailabilityNotifier extends StateNotifier<bool> {
   Future<void> toggle() async {
     final next = !state;
     state = next; // optimistic
-    final uid = _ref.read(authStateProvider).value?.uid;
+    final uid = ref.read(authStateProvider).value?.uid;
     if (uid == null) return;
     try {
-      await _ref.read(workerServiceProvider).setOnline(uid, next);
+      await ref.read(workerServiceProvider).setOnline(uid, next);
     } catch (_) {
       // Keep the optimistic value; a later step surfaces sync errors.
     }
   }
 }
+
+final workerAvailabilityProvider =
+    NotifierProvider<WorkerAvailabilityNotifier, bool>(
+        WorkerAvailabilityNotifier.new);
 
 /// At-a-glance numbers for the two home-screen stat cards.
 class WorkerDayStats {
