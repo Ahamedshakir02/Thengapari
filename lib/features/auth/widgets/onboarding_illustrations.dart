@@ -29,7 +29,6 @@ class OnboardingIllustration extends StatelessWidget {
 // ── Design palette (from illustrations.jsx `C`) ──────────────────────────────
 class _C {
   _C._();
-  static const sky1 = Color(0xFFF1F6E9);
   static const hill1 = Color(0xFFBCD6A3);
   static const hill2 = Color(0xFF94B97F);
   static const grass = Color(0xFF6E9E5E);
