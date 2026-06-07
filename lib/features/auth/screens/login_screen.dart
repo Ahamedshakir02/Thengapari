@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../app/theme.dart';
+import '../../../core/models/app_user.dart';
 import '../../../core/providers/auth_provider.dart';
 import 'otp_verify_screen.dart';
 
@@ -29,6 +31,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void dispose() {
     _phoneController.dispose();
     super.dispose();
+  }
+
+  /// Debug-only: skip phone OTP and enter the app as a [role]. Sets the
+  /// [devAuthOverrideProvider]; the router then redirects to that role's home.
+  void _devLogin(UserRole role) {
+    ref.read(devAuthOverrideProvider.notifier).set(AppUser(
+      uid: 'dev-${role.asFirestoreValue}-uid',
+      phoneNumber: '+910000000000',
+      firstName: switch (role) {
+        UserRole.homeowner => 'Meera',
+        UserRole.worker => 'Ravi',
+        UserRole.siteManager => 'Arjun',
+        UserRole.b2b => 'Anil',
+      },
+      lastName: 'Nair',
+      district: 'Thrissur',
+      role: role,
+    ));
   }
 
   Future<void> _sendOtp() async {
@@ -79,8 +99,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -133,10 +153,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       )
                     : const Text('Send OTP'),
               ),
+              if (kDebugMode) _devBypass(),
             ],
           ),
         ),
       ),
     );
   }
+
+  /// Debug-only login bypass shown while phone auth is disabled in dev.
+  Widget _devBypass() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 32),
+        Row(
+          children: const [
+            Expanded(child: Divider()),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Text('DEV BYPASS',
+                  style: TextStyle(
+                      fontSize: 10,
+                      letterSpacing: 1.2,
+                      color: Color(0xFF888888),
+                      fontWeight: FontWeight.w700)),
+            ),
+            Expanded(child: Divider()),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final role in UserRole.values)
+              OutlinedButton(
+                onPressed: () => _devLogin(role),
+                child: Text(_roleLabel(role)),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _roleLabel(UserRole role) => switch (role) {
+        UserRole.homeowner => 'Homeowner',
+        UserRole.worker => 'Worker',
+        UserRole.siteManager => 'Site Manager',
+        UserRole.b2b => 'B2B',
+      };
 }
