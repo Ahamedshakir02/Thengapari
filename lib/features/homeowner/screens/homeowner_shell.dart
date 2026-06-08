@@ -6,8 +6,10 @@ import '../../../app/design_tokens.dart';
 import '../../../app/router.dart';
 import '../../../core/models/harvest_job.dart';
 import '../../../core/models/tree_inventory.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/homeowner_providers.dart';
+import '../../../core/providers/locale_provider.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/job_status_badge.dart';
 import '../widgets/home_widgets.dart';
@@ -191,6 +193,7 @@ class _ProfileTab extends ConsumerWidget {
         .join(' ');
     final trees = ref.watch(treeInventoryProvider(uid)).maybeWhen(
         data: (t) => t.fold<int>(0, (a, b) => a + b.count), orElse: () => 0);
+    final lang = ref.watch(localeProvider);
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -259,8 +262,11 @@ class _ProfileTab extends ConsumerWidget {
                     onTap: () => context.push(AppRoutes.homeownerPayment)),
                 _item(context, 'recycle', 'AMC subscription', '',
                     onTap: () => context.push(AppRoutes.homeownerAmc)),
-                _item(context, 'globe', 'Language', 'English'),
-                _item(context, 'shield', 'Help & support', ''),
+                _item(context, 'globe', 'Language',
+                    lang == AppLang.ml ? 'മലയാളം' : 'English',
+                    onTap: () => ref.read(localeProvider.notifier).toggle()),
+                _item(context, 'shield', 'Help & support', '',
+                    onTap: () => _showHelp(context)),
               ],
             ),
           ),
@@ -278,6 +284,24 @@ class _ProfileTab extends ConsumerWidget {
               child: Text('Sign out',
                   style: AppText.button().copyWith(color: AppColors.statusErrorFg)),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHelp(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Help & support'),
+        content: const Text(
+            'Call ThengaPari support at 1800-123-4567 (8am–8pm), or email '
+            'help@thengapari.in. We typically reply within a day.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
           ),
         ],
       ),
