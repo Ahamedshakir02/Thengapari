@@ -381,7 +381,25 @@ class WorkerProfileTab extends ConsumerWidget {
           const Divider(color: WColors.line, height: 1),
           _settingRow(Icons.notifications_none, 'Notifications', value: 'On'),
           const Divider(color: WColors.line, height: 1),
-          _settingRow(Icons.help_outline, 'Help & support'),
+          _settingRow(Icons.help_outline, 'Help & support',
+              onTap: () => showDialog<void>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      backgroundColor: WColors.surface,
+                      title: const Text('Help & support',
+                          style: TextStyle(color: WColors.fg1)),
+                      content: const Text(
+                          'Call ThengaPari worker support at 1800-123-4567 '
+                          '(8am–8pm), or email help@thengapari.in.',
+                          style: TextStyle(color: WColors.fg2)),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  )),
           const Divider(color: WColors.line, height: 1),
           _settingRow(Icons.logout, 'Log out', danger: true, onTap: () {
             ref.read(devAuthOverrideProvider.notifier).set(null);
