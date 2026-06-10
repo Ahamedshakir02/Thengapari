@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// StateProvider moved to the legacy export in Riverpod 3.x.
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../models/byproduct.dart';
 import '../models/harvest_job.dart';
