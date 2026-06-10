@@ -179,7 +179,7 @@ class SiteManagerService {
     });
     if (jobStatus != null || extraJobFields.isNotEmpty) {
       await _db.collection('jobs').doc(jobId).update({
-        if (jobStatus != null) 'status': jobStatus,
+        'status': ?jobStatus,
         ...extraJobFields,
       });
     }
