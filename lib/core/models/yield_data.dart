@@ -70,9 +70,10 @@ class YieldData {
 
   /// Live estimated value at market rate (₹).
   static double estimate(int gradeA, int gradeB, int tender) =>
-      gradeA * CropGrade.gradeA.pricePerNut +
-      gradeB * CropGrade.gradeB.pricePerNut +
-      tender * CropGrade.tender.pricePerNut;
+      (gradeA * CropGrade.gradeA.pricePerNut +
+              gradeB * CropGrade.gradeB.pricePerNut +
+              tender * CropGrade.tender.pricePerNut)
+          .toDouble();
 
   factory YieldData.fromFirestore(Map<String, dynamic> data) {
     return YieldData(
