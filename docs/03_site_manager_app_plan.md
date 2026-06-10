@@ -569,3 +569,66 @@ Week 11
 - [ ] Mark complete triggers payouts for both worker and site manager
 - [ ] Photos upload and appear in homeowner's live feed within 5 seconds
 - [ ] App works offline for checklist taps — syncs statusUpdates when reconnected
+
+---
+
+## Implementation Status — Flutter build (complete)
+
+All nine screens are implemented in `lib/features/site_manager/` against the
+locked theme tokens (`lib/app/design_tokens.dart`) and the `Designs/ThengaPari
+Site Manager App/` reference. The Site Manager app uses the light "paper"
+palette with a deep brand-ink (`greenForest900`) header.
+
+### Files
+```
+lib/core/models/
+  site_manager_profile.dart   SiteManagerProfile + CollegeBranch + YearOfStudy
+  job_step.dart               ManagerStepKind (8 canonical steps) + buildJobSteps()
+  yield_data.dart             YieldData + CropGrade (label/price/colour)
+  byproduct.dart              ByproductType + ByproductBuyer (haversine) + ByproductRoute
+  processor_response.dart     ProcessorResponse (broadcast accept)
+lib/core/services/site_manager_service.dart   all Firestore/Functions I/O
+lib/core/providers/site_manager_providers.dart
+  siteManagerServiceProvider, managerTabProvider, siteManagerProfileProvider,
+  todayJobsProvider, jobStepsProvider, yieldDataProvider, pingResponsesProvider,
+  nearbyBuyersProvider
+lib/features/site_manager/widgets/sm_widgets.dart   shared ".kera" widget kit
+lib/features/site_manager/screens/
+  sm_profile_setup_screen.dart      (1) profile + college details + ID upload
+  college_verification_screen.dart  (1) admin-approval pending gate
+  home_screen.dart                  shell: Today / On-site / Earnings / Profile
+  daily_queue_screen.dart           (2) list + map toggle
+  navigation_to_site_screen.dart    (3) 100 m GPS check-in gate (Geolocator)
+  on_site_screen.dart               (4) checklist (jobStepsProvider) + yield donut
+  yield_weigh_screen.dart           (5) keypad + grade counters + live donut
+  broadcast_ping_screen.dart        (6) broadcast → live response stream → assign
+  byproduct_routing_screen.dart     (7) nearest-buyer matching by type + distance
+  harvest_report_screen.dart        (8) preview, sign-off, generate PDF, complete
+  training_screen.dart              (9) modules + badges + certificate
+lib/main_manager_dev.dart           dev harness (in-memory demo service)
+```
+
+### Run the dev harness
+```
+flutter run --flavor dev -t lib/main_manager_dev.dart
+```
+The harness signs in anonymously and overrides `siteManagerServiceProvider` with
+an in-memory demo service, so the full flow (checklist → weigh → broadcast →
+byproducts → report) is interactive without live Firestore. The real app uses
+the unmodified `SiteManagerService` and the role-based router gate
+(`siteManager && !isProfileComplete` → profile setup; verification gate is
+reachable during onboarding and from the Profile tab).
+
+### Cross-app contract verified
+Checklist steps write to `/jobs/{jobId}/statusUpdates` with **both** the spec
+fields (`type`, `timestamp`, `siteManagerId`, `location`) **and** the fields the
+Homeowner live tracker reads (`title`, `createdAt`) — see
+`SiteManagerService.completeStep`. `saveYield` writes
+`/jobs/{jobId}/yieldData/current` and mirrors `actualYieldKg` / `gradeA` /
+`gradeB` / `tender` onto the parent job for the Homeowner LiveWeightCard.
+
+### Deferred to Cloud Functions / later (needs Blaze)
+`broadcastProcessorPing`, `generateHarvestReport`, `markJobComplete` are wired as
+`cloud_functions` callables but not deployed (project is on Spark). Photo upload
+to Firebase Storage and Google Maps tiles are stubbed with painted placeholders
+for review. The 100 m check-in includes a dev "simulate arrival" affordance.
