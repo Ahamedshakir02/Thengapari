@@ -351,7 +351,7 @@ class _QueueJobCard extends StatelessWidget {
     return job.address ?? "Homeowner's property";
   }
 
-  static String _distance(HarvestJob job) => job.district ?? '—';
+  static String _distance(HarvestJob job) => job.address ?? '—';
 
   static String _cap(String s) =>
       s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
