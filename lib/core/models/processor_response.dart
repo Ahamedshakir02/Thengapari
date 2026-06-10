@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 /// A processor (husker/buyer) who accepted a broadcast ping — one
 /// `/job_pings/{pingId}` document with `status == 'accepted'`. Streamed live
 /// onto the BroadcastPingScreen response list.
