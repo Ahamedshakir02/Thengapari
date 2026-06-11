@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/design_tokens.dart';
-import '../../../app/router.dart';
-import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/homeowner_providers.dart';
-import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_text_field.dart';
+import 'package:core/app/design_tokens.dart';
+import 'package:homeowner/router.dart';
+import 'package:core/core/providers/auth_provider.dart';
+import 'package:core/core/providers/homeowner_providers.dart';
+import 'package:core/core/widgets/app_button.dart';
+import 'package:core/core/widgets/app_text_field.dart';
 
 /// The 14 districts of Kerala.
 const _keralaDistricts = <String>[

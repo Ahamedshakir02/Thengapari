@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/design_tokens.dart';
-import '../../../app/router.dart';
-import '../../../core/i18n/app_strings.dart';
-import '../../../core/models/tree_inventory.dart';
-import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/homeowner_providers.dart';
-import '../../../core/providers/locale_provider.dart';
-import '../../../core/widgets/app_icon.dart';
+import 'package:core/app/design_tokens.dart';
+import 'package:homeowner/router.dart';
+import 'package:core/core/i18n/app_strings.dart';
+import 'package:core/core/models/tree_inventory.dart';
+import 'package:core/core/providers/auth_provider.dart';
+import 'package:core/core/providers/homeowner_providers.dart';
+import 'package:core/core/providers/locale_provider.dart';
+import 'package:core/core/widgets/app_icon.dart';
 import '../widgets/home_widgets.dart';
 
 /// Homeowner dashboard, matched to `app-screens-home.jsx` / `app.css`:

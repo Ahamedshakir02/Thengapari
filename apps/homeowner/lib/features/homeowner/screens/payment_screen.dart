@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
-import '../../../app/design_tokens.dart';
-import '../../../core/models/harvest_job.dart';
-import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/homeowner_providers.dart';
-import '../../../core/widgets/app_icon.dart';
+import 'package:core/app/design_tokens.dart';
+import 'package:core/core/models/harvest_job.dart';
+import 'package:core/core/providers/auth_provider.dart';
+import 'package:core/core/providers/homeowner_providers.dart';
+import 'package:core/core/widgets/app_icon.dart';
 
 /// Pay the service fee after a harvest. Itemised invoice, UPI options, and
 /// Razorpay checkout (order created server-side via `createRazorpayOrder`).

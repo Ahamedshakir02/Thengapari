@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/design_tokens.dart';
-import '../../../app/router.dart';
-import '../../../core/models/tree_inventory.dart';
-import '../../../core/models/yield_estimate.dart';
-import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/homeowner_providers.dart';
-import '../../../core/widgets/app_icon.dart';
+import 'package:core/app/design_tokens.dart';
+import 'package:homeowner/router.dart';
+import 'package:core/core/models/tree_inventory.dart';
+import 'package:core/core/models/yield_estimate.dart';
+import 'package:core/core/providers/auth_provider.dart';
+import 'package:core/core/providers/homeowner_providers.dart';
+import 'package:core/core/widgets/app_icon.dart';
 
 /// Book a harvest — pick crops, a date, ripe/all, see the live estimate, and
 /// confirm (calls `calculateYieldEstimate` + creates the `/jobs` doc). Matches

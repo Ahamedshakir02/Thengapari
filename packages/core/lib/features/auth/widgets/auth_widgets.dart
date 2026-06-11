@@ -64,7 +64,7 @@ class BrandMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
-      'assets/images/logo-mark.svg',
+      'packages/core/assets/images/logo-mark.svg',
       width: size,
       height: size,
     );

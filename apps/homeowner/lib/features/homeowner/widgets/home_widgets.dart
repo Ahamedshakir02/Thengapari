@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../app/design_tokens.dart';
-import '../../../core/i18n/app_strings.dart';
-import '../../../core/models/tree_inventory.dart';
-import '../../../core/providers/locale_provider.dart';
-import '../../../core/widgets/app_icon.dart';
+import 'package:core/app/design_tokens.dart';
+import 'package:core/core/i18n/app_strings.dart';
+import 'package:core/core/models/tree_inventory.dart';
+import 'package:core/core/providers/locale_provider.dart';
+import 'package:core/core/widgets/app_icon.dart';
 
 const _gut = AppSpace.gutter;
 
@@ -42,7 +42,7 @@ class HomeHero extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             SvgPicture.asset(
-              'assets/images/illustration-kerala-landscape.svg',
+              'packages/core/assets/images/illustration-kerala-landscape.svg',
               fit: BoxFit.cover,
               alignment: const Alignment(0, 0.24), // object-position 50% 62%
             ),
@@ -136,7 +136,7 @@ class _BrandChip extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(7),
-            child: SvgPicture.asset('assets/images/logo-mark.svg',
+            child: SvgPicture.asset('packages/core/assets/images/logo-mark.svg',
                 width: 26, height: 26),
           ),
           const SizedBox(width: 8),

@@ -32,6 +32,7 @@ export 'core/models/standing_order.dart';
 export 'core/models/tree_inventory.dart';
 export 'core/models/worker_profile.dart';
 export 'core/models/yield_data.dart';
+export 'core/models/yield_estimate.dart';
 
 // ── Services ──
 export 'core/services/auth_service.dart';

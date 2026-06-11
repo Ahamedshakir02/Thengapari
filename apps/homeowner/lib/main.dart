@@ -1,122 +1,154 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:core/core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'app.dart';
+
+/// Homeowner app entrypoint.
+///
+/// Boots Firebase + Hive, signs in anonymously, and (for review) overrides the
+/// homeowner data providers + service with seeded demo data so the app runs
+/// without live Firestore. Swap the demo overrides for the real providers to
+/// run against the live backend.
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  FlavorConfig(Flavor.dev);
+  await Firebase.initializeApp();
+  await Hive.initFlutter();
+  await Hive.openBox(OnboardingService.boxName);
+
+  String uid = 'dev-homeowner-uid';
+  try {
+    final cred = await FirebaseAuth.instance.signInAnonymously();
+    uid = cred.user?.uid ?? uid;
+  } catch (_) {/* anon auth disabled — demo data renders regardless */}
+
+  final devUser = AppUser(
+    uid: uid,
+    phoneNumber: '+910000000000',
+    firstName: 'Meera',
+    lastName: 'Nair',
+    district: 'Thrissur',
+    role: UserRole.homeowner,
+  );
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        authStateProvider.overrideWith((ref) => Stream.value(devUser)),
+        homeownerServiceProvider.overrideWith((ref) => _DemoHomeownerService()),
+        treeInventoryProvider.overrideWith((ref, _) => Stream.value(_sampleTrees)),
+        activeJobProvider.overrideWith((ref, _) => Stream.value(_sampleJob)),
+        latestCompletedJobProvider
+            .overrideWith((ref, _) => Stream.value(_sampleCompletedJob)),
+        monthlyEarningsProvider.overrideWith((ref, _) async => 4280),
+        weeklyEarningsProvider.overrideWith(
+            (ref, _) async => const [2100, 2800, 1900, 3200, 4100, 4280]),
+      ],
+      child: const HomeownerApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+final _sampleTrees = <TreeInventory>[
+  const TreeInventory(id: '1', type: CropType.coconut, count: 24, avgAgeYears: 12),
+  const TreeInventory(id: '2', type: CropType.mango, count: 8, avgAgeYears: 10),
+  const TreeInventory(id: '3', type: CropType.pepper, count: 2, avgAgeYears: 4),
+  const TreeInventory(id: '4', type: CropType.jackfruit, count: 3, avgAgeYears: 15),
+];
 
-  // This widget is the root of your application.
+const _sampleJob = HarvestJob(
+  id: 'demo-job',
+  homeownerId: 'dev-homeowner-uid',
+  siteManagerId: 'sm-1',
+  cropTypes: ['coconut', 'mango'],
+  status: 'in_progress',
+  district: '2.1 km away',
+  estimatedYieldKg: 23,
+  actualYieldKg: 14.2,
+);
+
+final _sampleCompletedJob = HarvestJob(
+  id: 'demo-done',
+  homeownerId: 'dev-homeowner-uid',
+  siteManagerId: 'sm-1',
+  cropTypes: const ['coconut'],
+  status: 'complete',
+  completedAt: DateTime(2026, 6, 4),
+  gradeA: 14,
+  gradeB: 7,
+  tender: 3,
+  earningsAmount: 4180,
+  feeAmount: 340,
+  byproductCredit: 440,
+);
+
+/// Demo service: all writes succeed without touching live Firebase.
+class _DemoHomeownerService extends HomeownerService {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  Future<void> saveProfile({
+    required String uid,
+    required String name,
+    required String district,
+    required String address,
+    String? phoneNumber,
+  }) async {}
 
   @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+  Future<void> saveTrees({
+    required String uid,
+    required List<TreeDraft> trees,
+  }) async {}
+
+  @override
+  Future<String> createJob({
+    required String uid,
+    required List<CropType> crops,
+    required DateTime scheduledAt,
+    required double estimatedYieldKg,
+    required String district,
+    String notes = '',
+    GeoPoint? location,
+  }) async =>
+      'demo-job';
+
+  @override
+  Future<void> subscribeAmc({
+    required String uid,
+    required AmcPlan plan,
+    DateTime? nextDispatch,
+  }) async {}
+
+  @override
+  Future<YieldEstimate> calculateYieldEstimate({
+    required Map<CropType, int> treeCounts,
+    required String district,
+    required bool ripeOnly,
+  }) async {
+    final factor = ripeOnly ? 0.6 : 1.0;
+    double kg = 0, earning = 0;
+    for (final e in treeCounts.entries) {
+      final cropKg = e.value * e.key.kgPerTree * factor;
+      kg += cropKg;
+      earning += cropKg * e.key.ratePerKg;
+    }
+    return YieldEstimate(
+        estimatedKg: kg,
+        estimatedEarning: earning,
+        marketRate: kg == 0 ? 0 : earning / kg);
   }
+
+  @override
+  Future<RazorpayOrder> createRazorpayOrder({
+    required String jobId,
+    required double amount,
+  }) async =>
+      RazorpayOrder(
+          keyId: 'demo',
+          orderId: 'demo_order',
+          amountPaise: (amount * 100).round());
 }
