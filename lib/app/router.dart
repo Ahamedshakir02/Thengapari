@@ -19,7 +19,16 @@ import '../features/homeowner/screens/payment_screen.dart';
 import '../features/homeowner/screens/yield_report_screen.dart';
 import '../features/homeowner/screens/profile_setup_screen.dart';
 import '../features/homeowner/screens/tree_inventory_setup_screen.dart';
+import '../core/models/b2b_order.dart';
 import '../core/models/harvest_job.dart';
+import '../core/models/inventory_listing.dart';
+import '../features/b2b/screens/business_profile_setup_screen.dart';
+import '../features/b2b/screens/gst_verification_screen.dart';
+import '../features/b2b/screens/invoice_view_screen.dart';
+import '../features/b2b/screens/listing_detail_screen.dart';
+import '../features/b2b/screens/order_tracking_screen.dart';
+import '../features/b2b/screens/prebook_screen.dart';
+import '../features/b2b/screens/standing_order_screen.dart';
 import '../features/site_manager/screens/broadcast_ping_screen.dart';
 import '../features/site_manager/screens/byproduct_routing_screen.dart';
 import '../features/site_manager/screens/college_verification_screen.dart';
@@ -63,7 +72,14 @@ abstract final class AppRoutes {
   static const managerBroadcast = '/manager/broadcast';
   static const managerByproduct = '/manager/byproduct';
   static const managerReport = '/manager/report';
+  static const b2bProfileSetup = '/b2b/profile-setup';
+  static const b2bVerification = '/b2b/verification';
   static const b2bHome = '/b2b/home';
+  static const b2bListing = '/b2b/listing';
+  static const b2bPrebook = '/b2b/prebook';
+  static const b2bTracking = '/b2b/tracking';
+  static const b2bStanding = '/b2b/standing';
+  static const b2bInvoice = '/b2b/invoice';
 
   /// Home route for a given role.
   static String homeForRole(UserRole role) => switch (role) {
@@ -156,6 +172,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         return setupRoutes.contains(loc)
             ? null
             : AppRoutes.managerProfileSetup;
+      }
+
+      // 3e. B2B buyer who hasn't finished setup -> business profile setup.
+      //     The GST verification-pending gate is reachable during onboarding.
+      if (user.role == UserRole.b2b && !user.isProfileComplete) {
+        const setupRoutes = {
+          AppRoutes.b2bProfileSetup,
+          AppRoutes.b2bVerification,
+        };
+        return setupRoutes.contains(loc) ? null : AppRoutes.b2bProfileSetup;
       }
 
       // 4. Signed in with a role -> push out of any pre-home screen.
@@ -286,8 +312,39 @@ final routerProvider = Provider<GoRouter>((ref) {
             HarvestReportScreen(job: state.extra as HarvestJob),
       ),
       GoRoute(
+        path: AppRoutes.b2bProfileSetup,
+        builder: (_, _) => const BusinessProfileSetupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bVerification,
+        builder: (_, _) => const GSTVerificationScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.b2bHome,
         builder: (_, _) => const B2BHomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bListing,
+        builder: (_, state) =>
+            ListingDetailScreen(listing: state.extra as InventoryListing),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bPrebook,
+        builder: (_, state) => PreBookScreen(args: state.extra as PreBookArgs),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bTracking,
+        builder: (_, state) =>
+            OrderTrackingScreen(order: state.extra as B2BOrder),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bStanding,
+        builder: (_, _) => const StandingOrderSetupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bInvoice,
+        builder: (_, state) =>
+            InvoiceViewScreen(order: state.extra as B2BOrder),
       ),
     ],
   );
