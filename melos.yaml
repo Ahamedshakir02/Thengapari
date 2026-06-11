@@ -1,0 +1,17 @@
+name: thengapari
+
+packages:
+  - packages/**
+  - apps/**
+
+# Members use Dart pub workspaces (`resolution: workspace`), so `melos bootstrap`
+# resolves everything against the single root lockfile.
+
+scripts:
+  analyze:
+    description: Analyze every package in the workspace.
+    exec: flutter analyze .
+
+  test:
+    description: Run tests across all packages.
+    exec: flutter test
