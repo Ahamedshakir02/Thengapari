@@ -18,9 +18,34 @@
 │  │ Pay & report │  │ Earn money   │  │ File rpt   │  │ crops  │ │
 │  └──────────────┘  └──────────────┘  └────────────┘  └────────┘ │
 │                                                                   │
-│  Role assigned at first login → GoRouter serves correct app      │
+│  Role chosen at INSTALL — each app is its role (no role-gate)    │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## Repository layout (Melos monorepo)
+
+The four apps are **separate, independently-runnable Flutter apps** sharing one
+`core` package and one Firebase backend:
+
+```
+pubspec.yaml          workspace root (members use `resolution: workspace`)
+melos.yaml            `dart run melos list` / `melos run analyze`
+packages/core/        shared: models, services, providers, theme, widgets,
+                      painters, auth screens   → import 'package:core/core.dart'
+apps/homeowner/       lib/{main,app,router}.dart + features/homeowner/ ; android/ios
+apps/worker/          (applicationId com.thengapari.worker, etc.)
+apps/site_manager/
+apps/b2b/
+functions/            TypeScript Cloud Functions (shared backend)
+firestore.rules · firestore.indexes.json · firebase.json
+```
+
+- Run an app: `cd apps/<role> && flutter run`. Each `main.dart` seeds demo data
+  so it runs without live Firestore.
+- Cross-app field names are centralized in `core` models (`HarvestJob.createData`,
+  `JobStatusUpdate.writeData`, `YieldData.writeData`, `InventoryListing.toFirestore`).
+- A live build needs `flutterfire configure` inside each app (its own
+  `google-services.json`, all pointing at the same Firebase project).
 
 ---
 
