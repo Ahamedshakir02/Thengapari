@@ -3,9 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../app/router.dart';
 import '../../../app/theme.dart';
 import '../../../core/models/app_user.dart';
 import '../../../core/providers/auth_provider.dart';
@@ -76,14 +74,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         codeSent: (verificationId, resendToken) {
           if (!mounted) return;
           setState(() => _sending = false);
-          context.push(
-            AppRoutes.otp,
-            extra: OtpArgs(
+          // Push the OTP screen directly so this shared auth screen doesn't
+          // depend on any single app's route table.
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => OtpVerifyScreen(
               verificationId: verificationId,
               phoneNumber: fullNumber,
               resendToken: resendToken,
             ),
-          );
+          ));
         },
       );
     } on FirebaseAuthException catch (e) {
