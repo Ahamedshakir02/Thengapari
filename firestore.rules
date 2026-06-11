@@ -1,0 +1,139 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    function jobData(jobId) {
+      return get(/databases/$(database)/documents/jobs/$(jobId)).data;
+    }
+
+    // ── Shared user profile ──
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // ── Role profiles ──
+    match /homeowners/{uid} {
+      allow read, write: if isOwner(uid);
+      match /{sub=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+    match /workers/{uid} {
+      allow read, create, update: if isOwner(uid);
+      match /earnings/{recordId} {
+        allow read: if isOwner(uid);
+        allow write: if false; // Cloud Functions only
+      }
+    }
+    match /site_managers/{uid} {
+      allow read, create, update: if isOwner(uid);
+    }
+    match /b2b_buyers/{uid} {
+      allow read, create, update: if isOwner(uid);
+      match /savings/{recordId} {
+        allow read: if isOwner(uid);
+        allow write: if false; // Cloud Functions only
+      }
+    }
+
+    // ── Central job document ──
+    match /jobs/{jobId} {
+      allow read: if signedIn() && (
+        request.auth.uid in [resource.data.homeownerId, resource.data.siteManagerId]
+        || request.auth.uid in resource.data.get('workerIds', [])
+      );
+      allow create: if isOwner(request.resource.data.homeownerId);
+      allow update: if request.auth.uid == resource.data.siteManagerId
+                    || request.auth.uid == resource.data.homeownerId;
+
+      // Checklist events — homeowner + site manager read; site manager writes.
+      match /statusUpdates/{updateId} {
+        allow read: if signedIn() && request.auth.uid in [
+          jobData(jobId).homeownerId, jobData(jobId).siteManagerId
+        ];
+        allow create: if request.auth.uid == jobData(jobId).siteManagerId;
+      }
+      match /yieldData/{docId} {
+        allow read: if signedIn() && request.auth.uid in [
+          jobData(jobId).homeownerId, jobData(jobId).siteManagerId
+        ];
+        allow write: if request.auth.uid == jobData(jobId).siteManagerId;
+      }
+      match /workerInstructions/{noteId} {
+        allow read: if signedIn();
+        allow create: if request.auth.uid == jobData(jobId).siteManagerId;
+      }
+    }
+
+    // ── Job pings — only the targeted worker reads + responds ──
+    match /job_pings/{pingId} {
+      allow read: if isOwner(resource.data.workerId);
+      allow update: if isOwner(resource.data.workerId)
+                    && request.resource.data.status in ['accepted', 'declined'];
+      // creation + sibling cancellation happen in Cloud Functions (admin).
+    }
+
+    // ── B2B live inventory — everyone reads, functions write ──
+    match /inventory/{listingId} {
+      allow read: if signedIn();
+      allow write: if false; // updateInventoryOnHarvest / createB2BOrder only
+    }
+
+    // ── B2B orders — buyer reads own; created + mutated by functions only ──
+    match /b2b_orders/{orderId} {
+      allow read: if isOwner(resource.data.buyerId);
+      allow write: if false; // createB2BOrder / confirmDelivery (atomic)
+      match /tracking/{eventId} {
+        allow read: if isOwner(jobBuyer(orderId));
+        allow write: if false;
+      }
+    }
+    function jobBuyer(orderId) {
+      return get(/databases/$(database)/documents/b2b_orders/$(orderId)).data.buyerId;
+    }
+
+    // ── Standing orders — buyer manages their own ──
+    match /standing_orders/{orderId} {
+      allow read: if isOwner(resource.data.buyerId);
+      allow create: if isOwner(request.resource.data.buyerId);
+      allow update, delete: if isOwner(resource.data.buyerId);
+    }
+
+    // ── Byproduct routing ──
+    match /byproduct_routes/{routeId} {
+      allow read: if signedIn();
+      allow create: if signedIn(); // written by the assigned site manager
+      allow update, delete: if false;
+    }
+    match /byproduct_buyers/{uid} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ── Ops-managed reference data ──
+    match /market_prices/{cropType} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+    match /training_modules/{moduleId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ── AMC subscriptions ──
+    match /amc_contracts/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // ── Payout ledger — Cloud Functions only ──
+    match /payouts/{payoutId} {
+      allow read, write: if false;
+    }
+  }
+}

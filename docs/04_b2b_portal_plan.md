@@ -619,3 +619,61 @@ Week 13
 - [ ] Order tracking map updates when driver location changes
 - [ ] FCM new_stock notification filtered to matching cropPreferences only
 - [ ] App tested with 100+ inventory listings for performance (no jank in ListView)
+
+---
+
+## Implementation Status — Flutter build (complete)
+
+All eight screens are implemented in `lib/features/b2b/` against the locked
+theme tokens (deep-blue header, green savings band, amber CTAs) and the
+`Designs/ThengaPari B2B Portal App/` reference.
+
+### Files
+```
+lib/core/models/
+  inventory_listing.dart   InventoryListing + B2BCrop (tint/unit/glyph)
+  b2b_buyer_profile.dart   B2BBuyerProfile + BusinessType + GST regex
+  b2b_order.dart           B2BOrder + B2BOrderStatus + TrackingEvent
+  standing_order.dart      StandingOrder + StandingFrequency
+  b2b_savings.dart         SavingsSummary
+lib/core/services/b2b_service.dart      all Firestore/Functions I/O
+lib/core/providers/b2b_providers.dart   InventoryFilter, liveInventoryProvider, …
+lib/features/b2b/widgets/b2b_widgets.dart   blue theme kit + painted CropGlyph
+lib/features/b2b/screens/
+  business_profile_setup_screen.dart  (1) + gst_verification_screen.dart (1)
+  home_screen.dart                    shell: Market / Orders / Savings
+  inventory_screen.dart               (2) live stream + filters (lazy list)
+  listing_detail_screen.dart          (3) freshness + price-comparison bars
+  prebook_screen.dart                 (4) + success
+  orders_screen.dart                  (5) active/history + stepper
+  order_tracking_screen.dart          (5) map + timeline + confirm
+  dashboard_screen.dart               (6) savings + fl_chart spend trend
+  standing_order_screen.dart          (7)
+  invoice_view_screen.dart            (8) GST breakdown
+lib/main_b2b_dev.dart                  dev harness (120 seeded lots)
+```
+
+### Run the dev harness
+```
+flutter run --flavor dev -t lib/main_b2b_dev.dart
+```
+Seeds 120 inventory lots (the perf check — the market uses a lazy
+`ListView.builder`), plus orders, savings, and standing orders. GST validation
+uses the 15-char GSTIN regex in `B2BBuyerProfile.gstPattern`. The role gate
+(`b2b && !isProfileComplete`) routes to business setup; the GST verification
+screen allows read-only browse until `verified == true`.
+
+### Cross-app link
+Inventory listings are created by the `updateInventoryOnHarvest` Cloud Function
+when a Site Manager marks a job complete (reads `yieldData` + `market_prices`,
+writes `/inventory/{id}`, FCMs buyers with matching `cropPreferences`). The B2B
+`liveInventoryProvider` streams `/inventory` in real-time, so a completed
+harvest surfaces here automatically. `createB2BOrder` decrements
+`quantityRemaining` inside a transaction so two buyers can't over-order a lot.
+
+### Deferred to Cloud Functions / later (needs Blaze)
+`createB2BOrder`, `confirmDelivery`, `generateInvoice`, `updateInventoryOnHarvest`
+are wired as callables/triggers (implemented in `functions/`, not deployed —
+project is on Spark). Razorpay pay-now and Google Maps delivery tiles are
+stubbed/painted for review. The PDF invoice viewer renders an in-app GST
+breakdown rather than syncfusion_pdfviewer.

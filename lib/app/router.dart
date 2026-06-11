@@ -19,7 +19,24 @@ import '../features/homeowner/screens/payment_screen.dart';
 import '../features/homeowner/screens/yield_report_screen.dart';
 import '../features/homeowner/screens/profile_setup_screen.dart';
 import '../features/homeowner/screens/tree_inventory_setup_screen.dart';
+import '../core/models/b2b_order.dart';
+import '../core/models/harvest_job.dart';
+import '../core/models/inventory_listing.dart';
+import '../features/b2b/screens/business_profile_setup_screen.dart';
+import '../features/b2b/screens/gst_verification_screen.dart';
+import '../features/b2b/screens/invoice_view_screen.dart';
+import '../features/b2b/screens/listing_detail_screen.dart';
+import '../features/b2b/screens/order_tracking_screen.dart';
+import '../features/b2b/screens/prebook_screen.dart';
+import '../features/b2b/screens/standing_order_screen.dart';
+import '../features/site_manager/screens/broadcast_ping_screen.dart';
+import '../features/site_manager/screens/byproduct_routing_screen.dart';
+import '../features/site_manager/screens/college_verification_screen.dart';
+import '../features/site_manager/screens/harvest_report_screen.dart';
 import '../features/site_manager/screens/home_screen.dart';
+import '../features/site_manager/screens/sm_profile_setup_screen.dart';
+import '../features/site_manager/screens/training_screen.dart';
+import '../features/site_manager/screens/yield_weigh_screen.dart';
 import '../features/worker/screens/home_screen.dart';
 import '../features/worker/screens/job_complete_screen.dart';
 import '../features/worker/screens/job_ping_screen.dart';
@@ -47,8 +64,22 @@ abstract final class AppRoutes {
   static const workerPing = '/worker/ping';
   static const workerNavigate = '/worker/navigate';
   static const workerComplete = '/worker/complete';
+  static const managerProfileSetup = '/manager/profile-setup';
+  static const managerVerification = '/manager/verification';
   static const managerHome = '/manager/home';
+  static const managerTraining = '/manager/training';
+  static const managerWeigh = '/manager/weigh';
+  static const managerBroadcast = '/manager/broadcast';
+  static const managerByproduct = '/manager/byproduct';
+  static const managerReport = '/manager/report';
+  static const b2bProfileSetup = '/b2b/profile-setup';
+  static const b2bVerification = '/b2b/verification';
   static const b2bHome = '/b2b/home';
+  static const b2bListing = '/b2b/listing';
+  static const b2bPrebook = '/b2b/prebook';
+  static const b2bTracking = '/b2b/tracking';
+  static const b2bStanding = '/b2b/standing';
+  static const b2bInvoice = '/b2b/invoice';
 
   /// Home route for a given role.
   static String homeForRole(UserRole role) => switch (role) {
@@ -129,6 +160,28 @@ final routerProvider = Provider<GoRouter>((ref) {
       // 3c. Worker who hasn't finished setup (no name/district yet) -> setup.
       if (user.role == UserRole.worker && !user.isProfileComplete) {
         return loc == AppRoutes.workerSetup ? null : AppRoutes.workerSetup;
+      }
+
+      // 3d. Site manager who hasn't finished setup -> profile setup. The
+      //     verification-pending gate is freely reachable during onboarding.
+      if (user.role == UserRole.siteManager && !user.isProfileComplete) {
+        const setupRoutes = {
+          AppRoutes.managerProfileSetup,
+          AppRoutes.managerVerification,
+        };
+        return setupRoutes.contains(loc)
+            ? null
+            : AppRoutes.managerProfileSetup;
+      }
+
+      // 3e. B2B buyer who hasn't finished setup -> business profile setup.
+      //     The GST verification-pending gate is reachable during onboarding.
+      if (user.role == UserRole.b2b && !user.isProfileComplete) {
+        const setupRoutes = {
+          AppRoutes.b2bProfileSetup,
+          AppRoutes.b2bVerification,
+        };
+        return setupRoutes.contains(loc) ? null : AppRoutes.b2bProfileSetup;
       }
 
       // 4. Signed in with a role -> push out of any pre-home screen.
@@ -223,12 +276,75 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const JobCompleteScreen(),
       ),
       GoRoute(
+        path: AppRoutes.managerProfileSetup,
+        builder: (_, _) => const SiteManagerProfileSetupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.managerVerification,
+        builder: (_, _) => const CollegeVerificationScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.managerHome,
         builder: (_, _) => const SiteManagerHomeScreen(),
       ),
       GoRoute(
+        path: AppRoutes.managerTraining,
+        builder: (_, _) => const TrainingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.managerWeigh,
+        builder: (_, state) =>
+            YieldWeighScreen(job: state.extra as HarvestJob),
+      ),
+      GoRoute(
+        path: AppRoutes.managerBroadcast,
+        builder: (_, state) =>
+            BroadcastPingScreen(job: state.extra as HarvestJob),
+      ),
+      GoRoute(
+        path: AppRoutes.managerByproduct,
+        builder: (_, state) =>
+            ByproductRoutingScreen(job: state.extra as HarvestJob),
+      ),
+      GoRoute(
+        path: AppRoutes.managerReport,
+        builder: (_, state) =>
+            HarvestReportScreen(job: state.extra as HarvestJob),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bProfileSetup,
+        builder: (_, _) => const BusinessProfileSetupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bVerification,
+        builder: (_, _) => const GSTVerificationScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.b2bHome,
         builder: (_, _) => const B2BHomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bListing,
+        builder: (_, state) =>
+            ListingDetailScreen(listing: state.extra as InventoryListing),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bPrebook,
+        builder: (_, state) => PreBookScreen(args: state.extra as PreBookArgs),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bTracking,
+        builder: (_, state) =>
+            OrderTrackingScreen(order: state.extra as B2BOrder),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bStanding,
+        builder: (_, _) => const StandingOrderSetupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.b2bInvoice,
+        builder: (_, state) =>
+            InvoiceViewScreen(order: state.extra as B2BOrder),
       ),
     ],
   );

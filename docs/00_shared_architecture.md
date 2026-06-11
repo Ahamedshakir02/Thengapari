@@ -151,6 +151,15 @@ Every harvest event creates one `/jobs/{jobId}` document. All four apps read fro
 | `reportUrl` | Cloud Function (generateReport) | Homeowner app |
 | `paymentStatus` | Cloud Function (razorpayWebhook) | Homeowner app |
 
+**`/jobs/{jobId}/statusUpdates` field contract (cross-app):** the Site Manager
+app writes each checklist event with `type` + `step` (the step id, e.g.
+`arrived`), `siteManagerId`, `timestamp`, and optional `note` / `location` /
+`photoUrl`. It ALSO writes `title` (the human label) and `createdAt`, because
+the Homeowner live tracker reads `title`/`step` + `createdAt` (see
+`JobStatusUpdate.fromFirestore` and `statusUpdatesProvider`). Keep all of these
+when writing status events so the Homeowner timeline keeps advancing in
+real-time.
+
 ---
 
 ## Cross-App Event Flow: One Complete Harvest

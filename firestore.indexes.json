@@ -1,0 +1,45 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "siteManagerId", "order": "ASCENDING"},
+        {"fieldPath": "scheduledAt", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "job_pings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "jobId", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "inventory",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "cropType", "order": "ASCENDING"},
+        {"fieldPath": "available", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "standing_orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "active", "order": "ASCENDING"},
+        {"fieldPath": "nextDue", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "amc_contracts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "active", "order": "ASCENDING"},
+        {"fieldPath": "nextDispatch", "order": "ASCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
