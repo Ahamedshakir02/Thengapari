@@ -132,6 +132,35 @@ class InventoryListing {
     return 'Harvested ${h ~/ 24}d ago';
   }
 
+  /// Write payload for `/inventory/{id}`. NOTE: in production the live writer
+  /// is the `updateInventoryOnHarvest` Cloud Function (functions/inventory.ts);
+  /// keep these field names in sync with that function. Provided here for Dart
+  /// round-tripping / tests / future admin tooling.
+  Map<String, Object?> toFirestore() {
+    return {
+      'cropType': cropType.firestoreValue,
+      'grade': grade,
+      'quantity': quantity,
+      'quantityRemaining': quantityRemaining,
+      'unitPrice': unitPrice,
+      'wholesaleMarketPrice': wholesaleMarketPrice,
+      'savingsPercent': savingsPercent,
+      'harvestedAt': harvestedAt == null ? null : Timestamp.fromDate(harvestedAt!),
+      'location': location,
+      'ward': ward,
+      'available': available,
+      'jobId': jobId,
+      'variety': variety,
+      'condition': condition,
+      'distanceKm': distanceKm,
+      'farmName': farmName,
+      'farmRating': farmRating,
+      'farmHarvests': farmHarvests,
+      'farmSince': farmSince,
+      'farmPlot': farmPlot,
+    };
+  }
+
   factory InventoryListing.fromFirestore(String id, Map<String, dynamic> data) {
     return InventoryListing(
       id: id,

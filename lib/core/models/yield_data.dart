@@ -75,6 +75,45 @@ class YieldData {
               tender * CropGrade.tender.pricePerNut)
           .toDouble();
 
+  /// Canonical write payload for `/jobs/{id}/yieldData/current` (merge).
+  /// Single source of truth — used by `SiteManagerService.saveYield`.
+  static Map<String, Object?> writeData({
+    required double totalKg,
+    required int gradeA,
+    required int gradeB,
+    required int tender,
+    required String loggedBy,
+    String? scalePhotoUrl,
+  }) {
+    return {
+      'totalKg': totalKg,
+      'gradeA': gradeA,
+      'gradeB': gradeB,
+      'tender': tender,
+      'estimatedValue': estimate(gradeA, gradeB, tender),
+      'scalePhotoUrl': ?scalePhotoUrl,
+      'loggedAt': FieldValue.serverTimestamp(),
+      'loggedBy': loggedBy,
+    };
+  }
+
+  /// The summary fields mirrored onto the parent `/jobs/{id}` doc for the
+  /// Homeowner live weight card and the B2B inventory projection.
+  static Map<String, Object?> jobSummary({
+    required double totalKg,
+    required int gradeA,
+    required int gradeB,
+    required int tender,
+  }) {
+    return {
+      'actualYieldKg': totalKg,
+      'currentYieldKg': totalKg,
+      'gradeA': gradeA,
+      'gradeB': gradeB,
+      'tender': tender,
+    };
+  }
+
   factory YieldData.fromFirestore(Map<String, dynamic> data) {
     return YieldData(
       totalKg: (data['totalKg'] as num?)?.toDouble() ?? 0,

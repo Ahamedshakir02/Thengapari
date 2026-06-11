@@ -190,19 +190,15 @@ class HomeownerService {
     GeoPoint? location,
   }) async {
     final doc = _db.collection('jobs').doc();
-    await doc.set({
-      'homeownerId': uid,
-      'cropTypes': crops.map((c) => c.firestoreValue).toList(),
-      'status': 'pending',
-      'scheduledAt': Timestamp.fromDate(scheduledAt),
-      'estimatedYieldKg': estimatedYieldKg,
-      'district': district,
-      'notes': notes,
-      'location': ?location,
-      'workerIds': <String>[],
-      'paymentStatus': 'unpaid',
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    await doc.set(HarvestJob.createData(
+      homeownerId: uid,
+      cropTypes: crops.map((c) => c.firestoreValue).toList(),
+      scheduledAt: scheduledAt,
+      estimatedYieldKg: estimatedYieldKg,
+      district: district,
+      notes: notes,
+      location: location,
+    ));
     return doc.id;
   }
 

@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../models/byproduct.dart';
 import '../models/harvest_job.dart';
+import '../models/job_status_update.dart';
 import '../models/job_step.dart';
 import '../models/processor_response.dart';
 import '../models/site_manager_profile.dart';
@@ -165,18 +166,17 @@ class SiteManagerService {
     String? jobStatus,
     Map<String, Object?> extraJobFields = const {},
   }) async {
-    await _db.collection('jobs/$jobId/statusUpdates').add({
-      'type': kind.id,
-      'step': kind.id,
-      // `title` + `createdAt` are what the Homeowner live tracker reads.
-      'title': kind.label,
-      'note': ?note,
-      'photoUrl': ?photoUrl,
-      'location': ?location,
-      'siteManagerId': uid,
-      'createdAt': FieldValue.serverTimestamp(),
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+    // Field names are owned by JobStatusUpdate (single source of truth shared
+    // with the Homeowner reader) — see core/models/job_status_update.dart.
+    await _db.collection('jobs/$jobId/statusUpdates').add(
+          JobStatusUpdate.writeData(
+            kind: kind,
+            siteManagerId: uid,
+            note: note,
+            photoUrl: photoUrl,
+            location: location,
+          ),
+        );
     if (jobStatus != null || extraJobFields.isNotEmpty) {
       await _db.collection('jobs').doc(jobId).update({
         'status': ?jobStatus,
@@ -207,26 +207,27 @@ class SiteManagerService {
     required int tender,
     String? scalePhotoUrl,
   }) async {
-    final estimatedValue =
-        YieldData.estimate(gradeA, gradeB, tender).toDouble();
-    await _db.doc('jobs/$jobId/yieldData/current').set({
-      'totalKg': totalKg,
-      'gradeA': gradeA,
-      'gradeB': gradeB,
-      'tender': tender,
-      'estimatedValue': estimatedValue,
-      'scalePhotoUrl': ?scalePhotoUrl,
-      'loggedAt': FieldValue.serverTimestamp(),
-      'loggedBy': uid,
-    }, SetOptions(merge: true));
+    // Payload + parent-job summary field names are owned by YieldData.
+    await _db.doc('jobs/$jobId/yieldData/current').set(
+          YieldData.writeData(
+            totalKg: totalKg,
+            gradeA: gradeA,
+            gradeB: gradeB,
+            tender: tender,
+            loggedBy: uid,
+            scalePhotoUrl: scalePhotoUrl,
+          ),
+          SetOptions(merge: true),
+        );
 
-    await _db.collection('jobs').doc(jobId).update({
-      'actualYieldKg': totalKg,
-      'currentYieldKg': totalKg,
-      'gradeA': gradeA,
-      'gradeB': gradeB,
-      'tender': tender,
-    });
+    await _db.collection('jobs').doc(jobId).update(
+          YieldData.jobSummary(
+            totalKg: totalKg,
+            gradeA: gradeA,
+            gradeB: gradeB,
+            tender: tender,
+          ),
+        );
   }
 
   // ───────────────────────────── Broadcast ping ────────────────────────────

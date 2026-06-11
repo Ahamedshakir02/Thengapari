@@ -91,6 +91,33 @@ class HarvestJob {
     );
   }
 
+  /// Canonical creation payload for a new `/jobs/{id}` doc (status `pending`;
+  /// `onJobCreate` then assigns a site manager). Single source of truth for the
+  /// job field names — used by `HomeownerService.createJob`.
+  static Map<String, Object?> createData({
+    required String homeownerId,
+    required List<String> cropTypes,
+    required DateTime scheduledAt,
+    required double estimatedYieldKg,
+    required String district,
+    String notes = '',
+    GeoPoint? location,
+  }) {
+    return {
+      'homeownerId': homeownerId,
+      'cropTypes': cropTypes,
+      'status': 'pending',
+      'scheduledAt': Timestamp.fromDate(scheduledAt),
+      'estimatedYieldKg': estimatedYieldKg,
+      'district': district,
+      'notes': notes,
+      'location': ?location,
+      'workerIds': <String>[],
+      'paymentStatus': 'unpaid',
+      'createdAt': FieldValue.serverTimestamp(),
+    };
+  }
+
   /// Still ongoing — neither finished nor cancelled.
   bool get isActive => status != 'complete' && status != 'cancelled';
 
