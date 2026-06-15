@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="b2b"
+        android:label="ThengaPari B2B"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

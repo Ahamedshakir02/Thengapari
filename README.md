@@ -1,115 +1,87 @@
 # ThengaPari
 
-A hyperlocal agri-harvest marketplace for Kerala, built as a **single Flutter
-codebase** serving four role-based apps: **Homeowner**, **Worker**, **Site
-Manager**, and **B2B buyer**. The role is assigned at first login and GoRouter
-serves the matching app. Backed by Firebase (Auth, Firestore, Storage,
-Messaging, Crashlytics, Analytics), payments via Razorpay, and state managed
-with Riverpod.
+A hyperlocal agri-harvest marketplace for Kerala, built as a **Melos monorepo**:
+one shared `core` package plus four standalone, independently-runnable Flutter
+apps — **Homeowner**, **Worker**, **Site Manager**, and **B2B buyer**. Each app
+*is* its role (chosen at install — no role-gate). All four share one Firebase
+backend (Auth, Firestore, Storage, Messaging) with TypeScript Cloud Functions,
+payments via Razorpay, and state managed with Riverpod.
 
-> The Android `applicationId` / iOS bundle id stay `com.agrimarketplace.agri_platform`
-> because the Firebase `google-services.json` is registered to it. The
-> user-facing name everywhere is **ThengaPari**.
+## Layout
+
+```
+pubspec.yaml            workspace root (Dart pub workspace) + melos
+melos.yaml
+packages/
+  core/                 shared code → import 'package:core/core.dart'
+                        models · services · providers · theme · widgets ·
+                        painters · shared auth screens · assets
+apps/
+  homeowner/            com.thengapari.homeowner
+  worker/               com.thengapari.worker
+  site_manager/         com.thengapari.site_manager
+  b2b/                  com.thengapari.b2b
+    lib/                main.dart · app.dart · router.dart · features/<role>/
+    android/ ios/       per-app platform projects
+functions/              TypeScript Cloud Functions (shared backend)
+firestore.rules · firestore.indexes.json · firebase.json
+docs/                   plans (00 = source of truth) + per-app specs
+Designs/                design system (CSS tokens, JSX mockups, SVG assets)
+```
 
 ## Prerequisites
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (Dart `^3.11.5`)
-- An Android emulator / device (the app is Android-first)
-- Per-flavor Firebase config in place (see [Firebase setup](#firebase-setup))
-- Network access on first run — fonts (Baloo Chettan 2 / Noto Sans) are fetched
-  once via `google_fonts`, then cached
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (Dart `^3.12.1`)
+- An Android emulator / device (Android-first)
+- Network on first run — fonts (Baloo Chettan 2 / Noto Sans) fetch once via
+  `google_fonts`, then cache
 
-Verify your toolchain:
-
-```bash
-flutter doctor
-```
-
-## Setup
+## Setup (workspace)
 
 ```bash
-flutter pub get
+flutter pub get            # resolves the whole workspace against one lockfile
+dart run melos list        # lists the 5 packages
 ```
 
-> Models are currently hand-written, so **no code generation is required** to
-> run the app. (`freezed` / `json_serializable` are present for later use.)
+## Running an app
 
-## Firebase setup
-
-The app boots Firebase per environment (flavor). Each flavor reads its own
-`android/app/src/<flavor>/google-services.json`:
-
-| Flavor    | Android config location                          | Status         |
-| --------- | ------------------------------------------------- | -------------- |
-| `dev`     | `android/app/src/dev/google-services.json`        | real config    |
-| `staging` | `android/app/src/staging/google-services.json`    | placeholder    |
-| `prod`    | `android/app/src/prod/google-services.json`       | placeholder    |
-
-To exercise real auth / Firestore writes in `dev`, enable in the Firebase
-console: **Authentication → Phone** (+ India SMS region) and, for the dev
-harness, **Authentication → Anonymous**.
-
-## Running
-
-The project has three flavors, each with its own entrypoint:
+Each app runs standalone. Its `main.dart` seeds demo data, so it renders the
+full UI **without** live Firestore:
 
 ```bash
-flutter run --flavor dev     -t lib/main_dev.dart      # development
-flutter run --flavor staging -t lib/main_staging.dart  # staging
-flutter run --flavor prod    -t lib/main_prod.dart     # production
+cd apps/homeowner   && flutter run
+cd apps/worker      && flutter run
+cd apps/site_manager && flutter run
+cd apps/b2b         && flutter run
 ```
 
-> **Dev harness:** `lib/main_dev.dart` currently launches a developer harness —
-> a menu that jumps straight to each Homeowner screen with seeded sample data
-> (no phone-OTP needed), so screens can be hot-reloaded and reviewed in
-> isolation. The real role-routed app shell is `bootstrap(Flavor.dev)`
-> (`lib/bootstrap.dart`); `main_staging.dart` / `main_prod.dart` use it.
+## Firebase setup (for a live build)
 
-## Building release artifacts
+Each app needs its own Firebase config, all pointing at the **same** project:
 
 ```bash
-flutter build apk       --flavor prod -t lib/main_prod.dart
-flutter build appbundle --flavor prod -t lib/main_prod.dart
+cd apps/<role>
+flutterfire configure      # select the shared Firebase project + this app's applicationId
+flutter run
 ```
 
-## Testing & analysis
+This registers the app and writes `google-services.json` / `firebase_options.dart`.
+Until then the demo data renders (Firebase init is guarded). To exercise real
+auth, enable **Authentication → Phone** in the Firebase console.
+
+> **Cloud Functions** (`functions/`) require the **Blaze** plan to deploy.
+> Razorpay key/secret live only in function secrets — never on the client.
+> See `functions/README.md` for the deploy steps.
+
+## Analysis & tests
 
 ```bash
-flutter test       # routing/widget tests
-flutter analyze    # static analysis (see analysis_options.yaml)
+flutter analyze apps packages  # analyze every app + the core package
 ```
 
-## Project structure
-
-```
-lib/
-  app/            theme.dart · design_tokens.dart · router.dart · app.dart · flavor_config.dart
-  core/
-    models/       app_user, tree_inventory, harvest_job, crop_*, yield_estimate, job_status_update
-    services/     auth_service, homeowner_service
-    providers/    auth_provider, homeowner_providers
-    widgets/      shared widgets + painters/ (Kerala landscape, radar, donut, charts) + app_icon
-  features/
-    auth/         splash · login · otp_verify · role_gate
-    homeowner/    screens/ (profile setup, tree setup, home, book harvest, live tracker) + widgets/
-    worker/ site_manager/ b2b/   (home stubs — built in later phases)
-    dev/          widget_gallery_screen.dart
-  main.dart · main_dev.dart · main_staging.dart · main_prod.dart · bootstrap.dart
-
-assets/images/    illustration-kerala-landscape.svg · logo-mark.svg · logo-mark-light.svg
-docs/             plans + PROJECT_LOG.md (running work log)
-Designs/          source design system (CSS tokens, JSX mockups, SVG assets)
-```
-
-The Flutter UI follows the design system in `Designs/` (warm-paper background,
-forest-green brand, amber accent, Baloo Chettan 2 / Noto Sans) ported into
-`lib/app/design_tokens.dart`.
-
-## Learn more
-
-- [Flutter documentation](https://docs.flutter.dev/)
-- [Riverpod](https://riverpod.dev/)
-- [FlutterFire (Firebase for Flutter)](https://firebase.flutter.dev/)
+> The `melos run analyze` script also works, but only if Melos is activated
+> globally and on PATH (`dart pub global activate melos`). `dart run melos list`
+> / `dart run melos bootstrap` work without that.
 
 ## License
 

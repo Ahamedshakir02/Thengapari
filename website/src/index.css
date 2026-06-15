@@ -1,0 +1,8 @@
+/* Design-system tokens first (CSS variables the whole site + Tailwind theme use). */
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Bespoke component styles (.nav, .hero, .pcard, .tile, .flow, …) are imported
+   separately in main.jsx AFTER Tailwind so their rules win over preflight. */

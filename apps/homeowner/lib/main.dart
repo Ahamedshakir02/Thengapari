@@ -17,7 +17,9 @@ import 'app.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlavorConfig(Flavor.dev);
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (_) {/* Firebase not configured yet — demo data still renders */}
   await Hive.initFlutter();
   await Hive.openBox(OnboardingService.boxName);
 

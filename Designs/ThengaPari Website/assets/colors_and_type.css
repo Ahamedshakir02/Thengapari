@@ -1,0 +1,134 @@
+/* ============================================================
+   ThengaPari — Design System Foundations
+   Colors + Typography tokens
+   ------------------------------------------------------------
+   Brand: hyperlocal coconut & crop-harvesting marketplace, Kerala
+   Vibe: warm, human, rooted in Kerala's agrarian identity.
+   NOT corporate blue-gray SaaS.
+   ============================================================ */
+
+/* --- Web-font substitutes (flagged: awaiting real font files) ---
+   Display : Baloo Chettan 2  — rounded, friendly, native Malayalam
+   Text/UI : Noto Sans + Noto Sans Malayalam — legible bilingual
+   Load these in HTML <head>:
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@500;600;700;800&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+*/
+
+:root {
+  /* ========== PRIMARY — earthy greens (homeowner / master brand) ========== */
+  --green-forest-900: #15331F;  /* deepest — headings on light, brand ink */
+  --green-forest-800: #1A4226;
+  --green-forest-700: #1E4D2B;  /* PRIMARY — buttons, brand green */
+  --green-600:        #2E6B3E;  /* hover / complete status */
+  --green-sage-500:   #6E9E5E;  /* sage — secondary fills, scheduled status */
+  --green-sage-400:   #94B97F;
+  --green-leaf-300:   #BCD6A3;
+  --green-leaf-200:   #CFE0BC;  /* pale leaf — tints, chips */
+  --green-leaf-100:   #E6EFD9;
+  --green-leaf-50:    #F1F6E9;  /* lightest wash */
+
+  /* ========== ACCENT — warm amber / saffron ========== */
+  --amber-saffron-600: #DD8413; /* pressed accent */
+  --amber-500:         #F4A52A; /* ACCENT — CTAs, highlights, in-progress */
+  --amber-400:         #FBBA4D;
+  --amber-200:         #FBDFA6;
+  --amber-100:         #FCEBCB; /* amber tint bg */
+
+  /* ========== WORKER APP — dark teal ========== */
+  --teal-900: #08332F;
+  --teal-700: #0E5249;  /* worker primary surface / brand */
+  --teal-500: #15786B;
+  --teal-300: #6FB6AB;
+  --teal-100: #D6ECE7;
+
+  /* ========== B2B APP — deep (warm) blue ========== */
+  --blue-900: #12273F;
+  --blue-700: #1C3D5E;  /* B2B primary / brand */
+  --blue-500: #2A5F8F;
+  --blue-300: #7FA6C6;
+  --blue-100: #DCE7F0;
+
+  /* ========== WARM NEUTRALS (never cool gray) ========== */
+  --ink-900:  #2B2A24;  /* primary text — warm near-black */
+  --ink-700:  #4A4840;  /* secondary text */
+  --ink-500:  #6E6B60;  /* tertiary / captions */
+  --ink-400:  #908C7E;  /* placeholder / disabled */
+  --mist-300: #C9C5B6;  /* borders, dividers */
+  --mist-200: #E2DECF;  /* subtle borders, track */
+  --paper-100:#FBF8F1;  /* APP BACKGROUND — warm paper */
+  --paper-50: #FEFCF6;  /* raised surface tint */
+  --paper-0:  #FFFFFF;  /* cards */
+
+  /* ========== SEMANTIC — status ========== */
+  --status-inprogress-fg: #B86A06;  --status-inprogress-bg: #FCEBCB;  /* amber */
+  --status-complete-fg:   #2E6B3E;  --status-complete-bg:   #DCEBCB;  /* deep green */
+  --status-scheduled-fg:  #4C7A3C;  --status-scheduled-bg:  #ECF3E0;  /* sage green */
+  --status-error-fg:      #A33523;  --status-error-bg:      #F8DED6;  /* terracotta, not pure red */
+
+  /* ========== SEMANTIC ROLES (light theme default) ========== */
+  --bg:            var(--paper-100);
+  --surface:       var(--paper-0);
+  --surface-sunk:  var(--green-leaf-50);
+  --fg1:           var(--ink-900);   /* primary text */
+  --fg2:           var(--ink-700);   /* secondary text */
+  --fg3:           var(--ink-500);   /* tertiary text */
+  --border:        var(--mist-200);
+  --border-strong: var(--mist-300);
+  --brand:         var(--green-forest-700);
+  --brand-ink:     var(--green-forest-900);
+  --accent:        var(--amber-500);
+  --on-brand:      #FFFFFF;
+  --on-accent:     var(--green-forest-900);
+
+  /* ========== RADII — generous, friendly ========== */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;   /* inputs, small cards */
+  --r-lg: 20px;   /* cards */
+  --r-xl: 28px;   /* sheets, hero cards */
+  --r-pill: 999px;
+
+  /* ========== SPACING — 4px base ========== */
+  --s-1: 4px;   --s-2: 8px;   --s-3: 12px;  --s-4: 16px;
+  --s-5: 20px;  --s-6: 24px;  --s-8: 32px;  --s-10: 40px;
+  --s-12: 48px; --s-16: 64px;
+
+  /* ========== SHADOWS — soft, warm-tinted, low ========== */
+  --shadow-sm: 0 1px 2px rgba(31,77,43,.06), 0 1px 3px rgba(31,77,43,.05);
+  --shadow-md: 0 4px 12px rgba(31,77,43,.08), 0 2px 4px rgba(31,77,43,.05);
+  --shadow-lg: 0 12px 28px rgba(31,77,43,.12), 0 4px 8px rgba(31,77,43,.06);
+  --shadow-accent: 0 6px 18px rgba(244,165,42,.30);
+
+  /* ========== TYPE FAMILIES ========== */
+  --font-display: "Baloo Chettan 2", "Noto Sans Malayalam", system-ui, sans-serif;
+  --font-text:    "Noto Sans", "Noto Sans Malayalam", system-ui, -apple-system, sans-serif;
+  --font-mono:    "Noto Sans Mono", ui-monospace, "SF Mono", monospace;
+
+  /* ========== TYPE SCALE (mobile-first; min body 16px) ========== */
+  --t-display: 700 40px/46px var(--font-display);   /* hero numbers/words */
+  --t-h1:      700 32px/40px var(--font-display);
+  --t-h2:      600 24px/32px var(--font-display);
+  --t-h3:      600 20px/28px var(--font-display);
+  --t-title:   600 18px/26px var(--font-text);      /* card titles */
+  --t-body-lg: 400 17px/26px var(--font-text);
+  --t-body:    400 16px/24px var(--font-text);      /* default */
+  --t-body-sm: 400 14px/20px var(--font-text);
+  --t-caption: 500 12px/16px var(--font-text);
+  --t-overline:600 12px/16px var(--font-text);      /* + letter-spacing .08em uppercase */
+  --t-button:  600 16px/20px var(--font-text);
+}
+
+/* ============================================================
+   SEMANTIC TYPE CLASSES
+   ============================================================ */
+.tp-display { font: var(--t-display); color: var(--fg1); letter-spacing: -.01em; }
+.tp-h1 { font: var(--t-h1); color: var(--fg1); letter-spacing: -.01em; }
+.tp-h2 { font: var(--t-h2); color: var(--fg1); letter-spacing: -.005em; }
+.tp-h3 { font: var(--t-h3); color: var(--fg1); }
+.tp-title { font: var(--t-title); color: var(--fg1); }
+.tp-body-lg { font: var(--t-body-lg); color: var(--fg2); }
+.tp-body { font: var(--t-body); color: var(--fg2); }
+.tp-body-sm { font: var(--t-body-sm); color: var(--fg2); }
+.tp-caption { font: var(--t-caption); color: var(--fg3); }
+.tp-overline { font: var(--t-overline); color: var(--fg3); text-transform: uppercase; letter-spacing: .08em; }
