@@ -44,8 +44,9 @@ pubspec.yaml     workspace root (members declare `resolution: workspace`)
 - Data models: freezed.
 - Run an app:  cd apps/<role> && flutter run   (each app's main.dart seeds demo
   data so it runs without live Firestore). Workspace: `flutter pub get` at root;
-  `dart run melos list` / `dart run melos run analyze`. A live build needs
-  `flutterfire configure` inside each app (its own google-services.json).
+  `dart run melos list`. Analyze with `flutter analyze apps packages` (the
+  `melos run analyze` script needs Melos globally activated + on PATH). A live
+  build needs `flutterfire configure` inside each app (its own google-services.json).
 
 ## Workflow rules
 - Build ONE app per session. Don't mix two apps in one session.
