@@ -2,27 +2,35 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/app/design_tokens.dart';
+import 'package:core/core/models/job_ping.dart';
+import 'package:core/core/providers/auth_provider.dart';
+import 'package:core/core/providers/worker_providers.dart';
 import 'package:worker/router.dart';
 import '../theme/worker_theme.dart';
 
 /// Full-screen job-ping takeover — the most time-critical worker screen.
-/// Animated radar, job detail card, and a 45-second countdown that
-/// auto-declines on expiry. Matches `Designs/ThengaPari Worker App/screen-ping.jsx`.
-class JobPingScreen extends StatefulWidget {
+/// Animated radar, job detail card, and a live countdown to the ping's
+/// `expiresAt` that auto-declines on expiry. Accept goes through the atomic
+/// `acceptPing` Cloud Function so exactly one worker wins the job.
+/// Matches `Designs/ThengaPari Worker App/screen-ping.jsx`.
+class JobPingScreen extends ConsumerStatefulWidget {
   const JobPingScreen({super.key});
 
   @override
-  State<JobPingScreen> createState() => _JobPingScreenState();
+  ConsumerState<JobPingScreen> createState() => _JobPingScreenState();
 }
 
-class _JobPingScreenState extends State<JobPingScreen>
+class _JobPingScreenState extends ConsumerState<JobPingScreen>
     with TickerProviderStateMixin {
   static const _duration = 45;
   int _left = _duration;
   Timer? _timer;
+  bool _accepting = false;
+  JobPing? _ping; // last non-null live ping shown on this screen
 
   late final AnimationController _sweep = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 3600))
@@ -35,11 +43,12 @@ class _JobPingScreenState extends State<JobPingScreen>
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_left <= 1) {
+      final left = _ping != null ? _ping!.secondsLeft : _left - 1;
+      if (left <= 0) {
         _timer?.cancel();
         _expire();
       } else {
-        setState(() => _left--);
+        setState(() => _left = left);
       }
     });
   }
@@ -59,16 +68,63 @@ class _JobPingScreenState extends State<JobPingScreen>
 
   void _decline() {
     _timer?.cancel();
+    final ping = _ping;
+    if (ping != null) {
+      // Fire-and-forget: rules let the targeted worker mark it declined.
+      ref.read(workerServiceProvider).declinePing(ping.id).catchError((_) {});
+    }
     if (context.canPop()) context.pop();
   }
 
-  void _accept() {
-    _timer?.cancel();
-    context.pushReplacement(AppRoutes.workerNavigate);
+  Future<void> _accept() async {
+    if (_accepting) return;
+    final ping = _ping;
+    if (ping == null) {
+      // Demo preview (no live ping) — walk the flow without a backend call.
+      _timer?.cancel();
+      context.pushReplacement(AppRoutes.workerNavigate);
+      return;
+    }
+    setState(() => _accepting = true);
+    try {
+      await ref.read(workerServiceProvider).acceptPing(ping.id);
+      _timer?.cancel();
+      if (!mounted) return;
+      context.pushReplacement(AppRoutes.workerNavigate, extra: ping);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _accepting = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('This job was already taken or has expired.')));
+      if (context.canPop()) context.pop();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final uid = ref.watch(authStateProvider).value?.uid ?? '';
+    final live = ref.watch(workerPendingPingProvider(uid)).value;
+    if (live != null) _ping = live;
+    // Live ping resolved elsewhere (cancelled / sibling accepted) → leave.
+    if (_ping != null && live == null && !_accepting) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _expire());
+    }
+
+    final ping = _ping;
+    final distanceLabel = ping?.distanceKm != null
+        ? '${ping!.distanceKm} KM AWAY'
+        : '1.8 KM AWAY';
+    final headline = ping?.headline ?? 'Coconut husking needed';
+    final payout = ping?.payout != null ? ping!.payout!.round() : 380;
+    final yieldCount = ping?.yieldKg != null ? ping!.yieldKg!.round() : 24;
+    final perUnit =
+        yieldCount > 0 ? (payout / yieldCount).round() : 16;
+    final etaLabel = ping?.etaMin != null ? '~${ping!.etaMin} min' : '~1.5 h';
+    final distFact =
+        ping?.distanceKm != null ? '${ping!.distanceKm} km' : '1.8 km';
+    final place = ping?.place ?? 'Ollur, Thrissur';
+    final cropLabel = ping?.cropType ?? 'coconut';
+
     final ratio = _left / _duration;
     final urgent = _left <= 10;
     final cdColor = ratio > 0.5
@@ -94,16 +150,24 @@ class _JobPingScreenState extends State<JobPingScreen>
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(18, 14, 18, 0),
                   children: [
-                    _pingHeader(),
+                    _pingHeader(distanceLabel),
                     const SizedBox(height: 6),
                     _radar(),
                     const SizedBox(height: 8),
                     Center(
-                      child: Text('Coconut husking needed',
+                      child: Text(headline,
                           style: AppText.displayNum(26, color: Colors.white)),
                     ),
                     const SizedBox(height: 16),
-                    _detailCard(),
+                    _detailCard(
+                      payout: payout,
+                      perUnit: perUnit,
+                      cropLabel: cropLabel,
+                      etaLabel: etaLabel,
+                      distFact: distFact,
+                      yieldCount: yieldCount,
+                      place: place,
+                    ),
                     const SizedBox(height: 16),
                     _countdown(ratio, cdColor, urgent),
                     const SizedBox(height: 10),
@@ -118,7 +182,7 @@ class _JobPingScreenState extends State<JobPingScreen>
     );
   }
 
-  Widget _pingHeader() {
+  Widget _pingHeader(String distanceLabel) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -132,7 +196,7 @@ class _JobPingScreenState extends State<JobPingScreen>
           ),
         ),
         const SizedBox(width: 9),
-        Text('NEW JOB PING · 1.8 KM AWAY',
+        Text('NEW JOB PING · $distanceLabel',
             style: AppText.overline().copyWith(
                 color: WColors.accent2, letterSpacing: 2, fontSize: 12.5)),
       ],
@@ -152,7 +216,15 @@ class _JobPingScreenState extends State<JobPingScreen>
     );
   }
 
-  Widget _detailCard() {
+  Widget _detailCard({
+    required int payout,
+    required int perUnit,
+    required String cropLabel,
+    required String etaLabel,
+    required String distFact,
+    required int yieldCount,
+    required String place,
+  }) {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       decoration: BoxDecoration(
@@ -173,7 +245,7 @@ class _JobPingScreenState extends State<JobPingScreen>
                         style: AppText.overline()
                             .copyWith(color: AppColors.ink500, fontSize: 11)),
                     const SizedBox(height: 2),
-                    Text('₹380',
+                    Text('₹$payout',
                         style: AppText.displayNum(42,
                             color: AppColors.amberSaffron600,
                             weight: FontWeight.w800)),
@@ -185,7 +257,7 @@ class _JobPingScreenState extends State<JobPingScreen>
                 decoration: BoxDecoration(
                     color: AppColors.statusCompleteBg,
                     borderRadius: BorderRadius.circular(999)),
-                child: Text('≈ ₹16 / coconut',
+                child: Text('≈ ₹$perUnit / $cropLabel',
                     style: AppText.bodySm().copyWith(
                         color: AppColors.green600, fontWeight: FontWeight.w600)),
               ),
@@ -194,11 +266,11 @@ class _JobPingScreenState extends State<JobPingScreen>
           _cardDivider(),
           Row(
             children: [
-              _fact(Icons.schedule, '~1.5 h', 'Duration'),
+              _fact(Icons.schedule, etaLabel, 'ETA'),
               _factDivider(),
-              _fact(Icons.navigation_outlined, '1.8 km', 'Distance'),
+              _fact(Icons.navigation_outlined, distFact, 'Distance'),
               _factDivider(),
-              _fact(Icons.spa_outlined, '24', 'Crop'),
+              _fact(Icons.spa_outlined, '$yieldCount', 'Crop'),
             ],
           ),
           _cardDivider(),
@@ -210,27 +282,32 @@ class _JobPingScreenState extends State<JobPingScreen>
                 alignment: Alignment.center,
                 decoration: const BoxDecoration(
                     shape: BoxShape.circle, color: AppColors.greenLeaf100),
-                child: Text('A',
-                    style: AppText.displayNum(18, color: AppColors.greenForest700)),
+                child: const Icon(Icons.place_outlined,
+                    size: 20, color: AppColors.greenForest700),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Arjun K.',
+                    Text(place,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: AppText.title()
                             .copyWith(fontSize: 16, color: AppColors.ink900)),
                     const SizedBox(height: 1),
                     Row(
                       children: [
-                        const Icon(Icons.star_rounded, size: 13, color: AppColors.amber500),
+                        const Icon(Icons.star_rounded,
+                            size: 13, color: AppColors.amber500),
                         const SizedBox(width: 4),
                         Text('4.9',
                             style: AppText.bodySm().copyWith(
-                                color: AppColors.ink700, fontWeight: FontWeight.w600)),
-                        Text(' · Site manager',
-                            style: AppText.caption().copyWith(color: AppColors.ink500)),
+                                color: AppColors.ink700,
+                                fontWeight: FontWeight.w600)),
+                        Text(' · Site manager on site',
+                            style: AppText.caption()
+                                .copyWith(color: AppColors.ink500)),
                       ],
                     ),
                   ],
@@ -353,15 +430,23 @@ class _JobPingScreenState extends State<JobPingScreen>
                         offset: const Offset(0, 8)),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.check, size: 20, color: WColors.teal500),
-                    const SizedBox(width: 9),
-                    Text('Accept job',
-                        style: AppText.button().copyWith(color: WColors.bg, fontSize: 18)),
-                  ],
-                ),
+                child: _accepting
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2.5, color: WColors.teal500),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.check, size: 20, color: WColors.teal500),
+                          const SizedBox(width: 9),
+                          Text('Accept job',
+                              style: AppText.button()
+                                  .copyWith(color: WColors.bg, fontSize: 18)),
+                        ],
+                      ),
               ),
             ),
           ),

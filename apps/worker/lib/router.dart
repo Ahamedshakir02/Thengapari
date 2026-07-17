@@ -67,10 +67,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           path: AppRoutes.workerHome, builder: (_, _) => const WorkerHomeScreen()),
       GoRoute(path: AppRoutes.workerPing, builder: (_, _) => const JobPingScreen()),
       GoRoute(
-          path: AppRoutes.workerNavigate, builder: (_, _) => const NavigateScreen()),
+          path: AppRoutes.workerNavigate,
+          builder: (_, state) =>
+              NavigateScreen(ping: state.extra as JobPing?)),
       GoRoute(
           path: AppRoutes.workerComplete,
-          builder: (_, _) => const JobCompleteScreen()),
+          builder: (_, state) =>
+              JobCompleteScreen(ping: state.extra as JobPing?)),
     ],
   );
 });

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,6 +38,14 @@ class _WorkerHomeScreenState extends ConsumerState<WorkerHomeScreen> {
       final p = next.value;
       if (p != null) {
         ref.read(workerAvailabilityProvider.notifier).seed(p.isOnline);
+      }
+    });
+
+    // Full-screen takeover the moment a live job ping lands for this worker.
+    ref.listen(workerPendingPingProvider(uid), (prev, next) {
+      final ping = next.value;
+      if (ping != null && prev?.value?.id != ping.id) {
+        context.push(AppRoutes.workerPing);
       }
     });
 
@@ -130,8 +139,10 @@ class _HomeTab extends ConsumerWidget {
             ],
           const SizedBox(height: 22),
           _WeeklyCard(week: week),
-          const SizedBox(height: 20),
-          _demoPingButton(context),
+          if (kDebugMode) ...[
+            const SizedBox(height: 20),
+            _demoPingButton(context),
+          ],
         ],
       ),
     );

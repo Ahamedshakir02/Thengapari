@@ -1,15 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/app/design_tokens.dart';
+import 'package:core/core/models/job_ping.dart';
+import 'package:core/core/providers/worker_providers.dart';
 import 'package:worker/router.dart';
 import '../theme/worker_theme.dart';
 
 /// Turn-by-turn navigation to the job site — stylised dark map, ETA banner, and
 /// an "I've arrived" check-in. Matches `Designs/ThengaPari Worker App/screen-navigate.jsx`.
 /// The map is a painted approximation (no Google Maps key needed for review).
-class NavigateScreen extends StatelessWidget {
-  const NavigateScreen({super.key});
+/// While this screen is up, the worker's live position streams to
+/// `/jobs/{jobId}/tracking` so the homeowner map can follow the approach.
+class NavigateScreen extends ConsumerStatefulWidget {
+  final JobPing? ping;
+  const NavigateScreen({super.key, this.ping});
+
+  @override
+  ConsumerState<NavigateScreen> createState() => _NavigateScreenState();
+}
+
+class _NavigateScreenState extends ConsumerState<NavigateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final jobId = widget.ping?.jobId;
+    if (jobId != null && jobId.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback(
+          (_) => ref.read(workerTrackingProvider.notifier).start(jobId));
+    }
+  }
+
+  void _arrived() {
+    ref.read(workerTrackingProvider.notifier).stop();
+    context.pushReplacement(AppRoutes.workerComplete, extra: widget.ping);
+  }
+
+  String _arriveBy() {
+    final eta = DateTime.now().add(Duration(minutes: widget.ping?.etaMin ?? 12));
+    final hour12 = eta.hour % 12 == 0 ? 12 : eta.hour % 12;
+    final mm = eta.minute.toString().padLeft(2, '0');
+    return '$hour12:$mm ${eta.hour < 12 ? 'AM' : 'PM'}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,13 +141,13 @@ class NavigateScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text('12',
+                    Text('${widget.ping?.etaMin ?? 12}',
                         style: AppText.displayNum(22, color: Colors.white, weight: FontWeight.w800)),
                     Text(' min',
                         style: AppText.bodySm().copyWith(
                             color: Colors.white.withValues(alpha: 0.8))),
                     const SizedBox(width: 8),
-                    Text('· 1.8 km',
+                    Text('· ${widget.ping?.distanceKm ?? 1.8} km',
                         style: AppText.caption().copyWith(color: WColors.teal300)),
                   ],
                 ),
@@ -124,7 +157,7 @@ class NavigateScreen extends StatelessWidget {
                       text: 'Arrive by ',
                       style: AppText.caption().copyWith(color: WColors.fg3)),
                   TextSpan(
-                      text: '9:42 AM',
+                      text: _arriveBy(),
                       style: AppText.caption().copyWith(
                           color: WColors.teal100, fontWeight: FontWeight.w700)),
                 ])),
@@ -187,7 +220,9 @@ class NavigateScreen extends StatelessWidget {
                       Text('Head to the grove',
                           style: AppText.title().copyWith(fontSize: 16, color: Colors.white)),
                       const SizedBox(height: 2),
-                      Text('Parambil Estate · Ollur, Thrissur',
+                      Text(widget.ping?.place ?? 'Parambil Estate · Ollur, Thrissur',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: AppText.bodySm().copyWith(color: WColors.fg2)),
                     ],
                   ),
@@ -196,7 +231,7 @@ class NavigateScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             GestureDetector(
-              onTap: () => context.pushReplacement(AppRoutes.workerComplete),
+              onTap: _arrived,
               child: Container(
                 height: 62,
                 alignment: Alignment.center,
