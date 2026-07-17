@@ -21,6 +21,14 @@ async function broadcast(input: BroadcastInput): Promise<{pinged: number}> {
   const origin = new GeoPoint(input.location.lat, input.location.lng);
   const radius = input.radiusKm ?? 5;
 
+  // Enrich pings with what the JobPingScreen shows (payout, place) so the
+  // worker can decide without a job read (rules deny that pre-acceptance).
+  const jobSnap = await db.collection("jobs").doc(jobId).get();
+  const job = jobSnap.data() ?? {};
+  const payout =
+    (job.workerPayout as number | undefined) ??
+    (job.earningsAmount ? Math.round((job.earningsAmount as number) * 0.55) : null);
+
   const workers = await db
     .collection("workers")
     .where("isOnline", "==", true)
@@ -42,8 +50,11 @@ async function broadcast(input: BroadcastInput): Promise<{pinged: number}> {
       workerId: w.id,
       workerName: w.data().name ?? "",
       status: "pending",
-      cropType: input.cropType ?? null,
-      yieldKg: input.yieldKg ?? null,
+      requiredSkill,
+      cropType: input.cropType ?? (job.cropTypes?.[0] as string | undefined) ?? null,
+      yieldKg: input.yieldKg ?? (job.estimatedYieldKg as number | undefined) ?? null,
+      payout,
+      place: (job.address as string | undefined) ?? null,
       distanceKm: Math.round(d * 10) / 10,
       etaMin: Math.max(3, Math.round(d * 3)),
       createdAt: FieldValue.serverTimestamp(),

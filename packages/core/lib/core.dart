@@ -9,6 +9,7 @@ library;
 export 'app/design_tokens.dart';
 export 'app/theme.dart';
 export 'app/flavor_config.dart';
+export 'app/firebase_bootstrap.dart';
 
 // ── i18n ──
 export 'core/i18n/app_strings.dart';
@@ -22,7 +23,9 @@ export 'core/models/b2b_savings.dart';
 export 'core/models/byproduct.dart';
 export 'core/models/crop_listing.dart';
 export 'core/models/crop_summary.dart';
+export 'core/models/earning_record.dart';
 export 'core/models/harvest_job.dart';
+export 'core/models/job_ping.dart';
 export 'core/models/inventory_listing.dart';
 export 'core/models/job_status_update.dart';
 export 'core/models/job_step.dart';
