@@ -135,5 +135,17 @@ service cloud.firestore {
     match /payouts/{payoutId} {
       allow read, write: if false;
     }
+
+    // ── Marketing waitlist leads (public website signup) ──
+    // Anonymous create-only, tightly validated. No public reads/edits.
+    match /leads/{leadId} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.keys().hasOnly(['email', 'type', 'createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() < 200
+        && request.resource.data.type in ['homeowner', 'business', 'general']
+        && request.resource.data.createdAt == request.time;
+    }
   }
 }
