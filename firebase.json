@@ -15,5 +15,12 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [{ "source": "**", "destination": "/index.html" }],
     "predeploy": ["npm --prefix website run build"]
+  },
+  "emulators": {
+    "auth": { "port": 9099 },
+    "firestore": { "port": 8080 },
+    "functions": { "port": 5001 },
+    "ui": { "enabled": true, "port": 4000 },
+    "singleProjectMode": true
   }
 }
