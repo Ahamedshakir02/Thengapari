@@ -313,6 +313,15 @@ h1.tp { font: var(--t-h1); letter-spacing: -.015em; line-height: 1.04; }
 .signup-card { background: var(--surface); color: var(--fg1); border-radius: var(--r-xl); padding: var(--s-8); box-shadow: var(--shadow-lg); }
 .signup-card h3 { font: var(--t-h3); font-family: var(--font-display); color: var(--fg1); margin-bottom: var(--s-2); }
 .signup-card .sc-sub { font: var(--t-body-sm); color: var(--fg3); margin-bottom: var(--s-5); }
+/* audience toggle — sets the lead type (homeowner / business / general) */
+.type-toggle { display: flex; gap: var(--s-2); margin-bottom: var(--s-4); }
+.type-opt {
+  flex: 1; font: var(--t-button); font-size: 14px; font-weight: 600; padding: 9px 10px;
+  border-radius: var(--r-md); border: 1.5px solid var(--border-strong); background: var(--bg);
+  color: var(--fg2); transition: color .15s, background .15s, border-color .15s;
+}
+.type-opt:hover { border-color: var(--brand); color: var(--fg1); }
+.type-opt.active { background: var(--brand); color: var(--on-brand); border-color: var(--brand); box-shadow: var(--shadow-sm); }
 .field { display: flex; gap: var(--s-2); }
 .field input {
   flex: 1; min-width: 0; font: var(--t-body); padding: 14px 16px; border-radius: var(--r-md);

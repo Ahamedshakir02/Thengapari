@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://thengapari.in/sitemap.xml

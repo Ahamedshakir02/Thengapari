@@ -1,0 +1,27 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ThengaPari — turn your backyard trees into income">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A4226"/>
+      <stop offset="1" stop-color="#1E4D2B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- hills -->
+  <path d="M0 470 Q 300 420 600 460 T 1200 450 L1200 630 L0 630 Z" fill="#2E6B3E" opacity="0.5"/>
+  <path d="M0 530 Q 320 490 640 520 T 1200 510 L1200 630 L0 630 Z" fill="#15331F" opacity="0.6"/>
+  <!-- logo mark -->
+  <g transform="translate(96,150) scale(1.1)">
+    <path d="M48 40 C48 28 44 18 33 11 C31 24 37 34 48 40 Z" fill="#6E9E5E"/>
+    <path d="M48 40 C48 28 52 18 63 11 C65 24 59 34 48 40 Z" fill="#94B97F"/>
+    <rect x="45.5" y="34" width="5" height="14" rx="2.5" fill="#94B97F"/>
+    <circle cx="48" cy="63" r="27" fill="#F4A52A"/>
+    <circle cx="41" cy="56" r="3.4" fill="#A65B12"/>
+    <circle cx="55" cy="56" r="3.4" fill="#A65B12"/>
+    <circle cx="48" cy="67" r="3.4" fill="#A65B12"/>
+  </g>
+  <text x="232" y="232" font-family="'Baloo Chettan 2', sans-serif" font-size="52" font-weight="800" fill="#FBFDF4">ThengaPari</text>
+  <text x="234" y="270" font-family="sans-serif" font-size="24" font-weight="600" fill="#F4A52A">തേങ്ങാപ്പറി · Kerala</text>
+  <text x="96" y="372" font-family="'Baloo Chettan 2', sans-serif" font-size="64" font-weight="800" fill="#FBFDF4">Turn your backyard trees</text>
+  <text x="96" y="446" font-family="'Baloo Chettan 2', sans-serif" font-size="64" font-weight="800" fill="#FBFDF4">into <tspan fill="#F4A52A">income.</tspan></text>
+  <text x="98" y="510" font-family="sans-serif" font-size="27" fill="#C7D6B4">Harvested, processed and sold — paid to you same-day.</text>
+</svg>

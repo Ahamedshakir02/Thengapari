@@ -1,10 +1,9 @@
 // Firebase: the ONLY dynamic piece of this otherwise-static site.
-// Writes waitlist signups to Firestore /leads/{id}. Config comes from Vite env
-// vars (VITE_FB_*). If they're absent, we DON'T initialize Firebase and fall
-// back to localStorage so the page still works locally / before config is set.
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
-
+// Writes waitlist signups to Firestore /leads/{id}. To keep the initial bundle
+// lean (fast first paint), the Firebase SDK is dynamically imported only on the
+// first form submit — not at page load. Config comes from Vite env vars
+// (VITE_FB_*); if they're absent we skip Firestore and fall back to localStorage
+// so the page still works locally / before config is set.
 const env = import.meta.env;
 
 const firebaseConfig = {
@@ -18,16 +17,28 @@ const firebaseConfig = {
 
 export const isFirebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
 
-let db = null;
-if (isFirebaseConfigured) {
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-} else {
-  // eslint-disable-next-line no-console
-  console.warn(
-    '[ThengaPari] Firebase not configured — waitlist will be stored in localStorage only. ' +
-      'Copy .env.example to .env.local and paste the thengapari-dev web config to enable Firestore.',
-  );
+let dbPromise = null;
+async function getDb() {
+  if (!dbPromise) {
+    dbPromise = (async () => {
+      const [{ initializeApp }, { getFirestore }] = await Promise.all([
+        import('firebase/app'),
+        import('firebase/firestore'),
+      ]);
+      return getFirestore(initializeApp(firebaseConfig));
+    })();
+  }
+  return dbPromise;
+}
+
+function storeLocally(payload) {
+  try {
+    const prior = JSON.parse(localStorage.getItem('tp_waitlist') || '[]');
+    prior.push({ ...payload, createdAt: new Date().toISOString() });
+    localStorage.setItem('tp_waitlist', JSON.stringify(prior));
+  } catch (_) {
+    /* ignore quota / private-mode errors */
+  }
 }
 
 /**
@@ -37,17 +48,17 @@ if (isFirebaseConfigured) {
  */
 export async function submitLead({ email, type }) {
   const payload = { email, type };
-  if (db) {
-    await addDoc(collection(db, 'leads'), { ...payload, createdAt: serverTimestamp() });
-    return { ok: true, stored: 'firestore' };
+  if (!isFirebaseConfigured) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[ThengaPari] Firebase not configured — waitlist stored in localStorage only. ' +
+        'Copy .env.example to .env.local with the thengapari-dev web config to enable Firestore.',
+    );
+    storeLocally(payload);
+    return { ok: true, stored: 'local' };
   }
-  // Fallback: never block the user. Keep the most recent value locally.
-  try {
-    const prior = JSON.parse(localStorage.getItem('tp_waitlist') || '[]');
-    prior.push({ ...payload, createdAt: new Date().toISOString() });
-    localStorage.setItem('tp_waitlist', JSON.stringify(prior));
-  } catch (_) {
-    /* ignore quota / private-mode errors */
-  }
-  return { ok: true, stored: 'local' };
+  const db = await getDb();
+  const { collection, addDoc, serverTimestamp } = await import('firebase/firestore');
+  await addDoc(collection(db, 'leads'), { ...payload, createdAt: serverTimestamp() });
+  return { ok: true, stored: 'firestore' };
 }

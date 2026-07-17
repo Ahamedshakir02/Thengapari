@@ -1,0 +1,12 @@
+{
+  "name": "ThengaPari",
+  "short_name": "ThengaPari",
+  "description": "A hyperlocal coconut & crop-harvesting marketplace in Kerala.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF8F1",
+  "theme_color": "#1E4D2B",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
