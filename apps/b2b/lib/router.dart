@@ -80,22 +80,35 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.b2bHome, builder: (_, _) => const B2BHomeScreen()),
       GoRoute(
           path: AppRoutes.b2bListing,
-          builder: (_, state) =>
-              ListingDetailScreen(listing: state.extra as InventoryListing)),
+          builder: (_, state) {
+            final listing = state.extra as InventoryListing?;
+            if (listing == null) return const B2BHomeScreen();
+            return ListingDetailScreen(listing: listing);
+          }),
       GoRoute(
           path: AppRoutes.b2bPrebook,
-          builder: (_, state) => PreBookScreen(args: state.extra as PreBookArgs)),
+          builder: (_, state) {
+            final args = state.extra as PreBookArgs?;
+            if (args == null) return const B2BHomeScreen();
+            return PreBookScreen(args: args);
+          }),
       GoRoute(
           path: AppRoutes.b2bTracking,
-          builder: (_, state) =>
-              OrderTrackingScreen(order: state.extra as B2BOrder)),
+          builder: (_, state) {
+            final order = state.extra as B2BOrder?;
+            if (order == null) return const B2BHomeScreen();
+            return OrderTrackingScreen(order: order);
+          }),
       GoRoute(
           path: AppRoutes.b2bStanding,
           builder: (_, _) => const StandingOrderSetupScreen()),
       GoRoute(
           path: AppRoutes.b2bInvoice,
-          builder: (_, state) =>
-              InvoiceViewScreen(order: state.extra as B2BOrder)),
+          builder: (_, state) {
+            final order = state.extra as B2BOrder?;
+            if (order == null) return const B2BHomeScreen();
+            return InvoiceViewScreen(order: order);
+          }),
     ],
   );
 });

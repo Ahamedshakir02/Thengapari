@@ -85,19 +85,32 @@ final routerProvider = Provider<GoRouter>((ref) {
           builder: (_, _) => const TrainingScreen()),
       GoRoute(
           path: AppRoutes.managerWeigh,
-          builder: (_, state) => YieldWeighScreen(job: state.extra as HarvestJob)),
+          builder: (_, state) {
+            final job = state.extra as HarvestJob?;
+            if (job == null) return const SiteManagerHomeScreen();
+            return YieldWeighScreen(job: job);
+          }),
       GoRoute(
           path: AppRoutes.managerBroadcast,
-          builder: (_, state) =>
-              BroadcastPingScreen(job: state.extra as HarvestJob)),
+          builder: (_, state) {
+            final job = state.extra as HarvestJob?;
+            if (job == null) return const SiteManagerHomeScreen();
+            return BroadcastPingScreen(job: job);
+          }),
       GoRoute(
           path: AppRoutes.managerByproduct,
-          builder: (_, state) =>
-              ByproductRoutingScreen(job: state.extra as HarvestJob)),
+          builder: (_, state) {
+            final job = state.extra as HarvestJob?;
+            if (job == null) return const SiteManagerHomeScreen();
+            return ByproductRoutingScreen(job: job);
+          }),
       GoRoute(
           path: AppRoutes.managerReport,
-          builder: (_, state) =>
-              HarvestReportScreen(job: state.extra as HarvestJob)),
+          builder: (_, state) {
+            final job = state.extra as HarvestJob?;
+            if (job == null) return const SiteManagerHomeScreen();
+            return HarvestReportScreen(job: job);
+          }),
     ],
   );
 });
