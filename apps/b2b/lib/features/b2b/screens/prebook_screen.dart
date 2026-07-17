@@ -340,7 +340,6 @@ class _PreBookScreenState extends ConsumerState<PreBookScreen> {
   }
 
   Widget _successView() {
-    final d = _dates[_dateIdx];
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -369,7 +368,7 @@ class _PreBookScreenState extends ConsumerState<PreBookScreen> {
                   style: AppText.h2().copyWith(color: AppColors.fg1)),
               const SizedBox(height: 8),
               Text(
-                  '$_qty ${_l.unit} of ${_l.cropType.label} reserved from ${_l.farmName ?? "the farm"}. Arrives ${d.day}/${d.month}, 7–10 AM.',
+                  '$_qty ${_l.unit} of ${_l.cropType.label} reserved from ${_l.farmName ?? "the farm"}. Arrives tomorrow, 7–10 AM.',
                   textAlign: TextAlign.center,
                   style: AppText.body().copyWith(color: AppColors.fg2)),
               const SizedBox(height: 22),
