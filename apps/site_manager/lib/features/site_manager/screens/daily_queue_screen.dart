@@ -1,11 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart' show GeoPoint;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 import 'package:core/app/design_tokens.dart';
 import 'package:core/core/models/harvest_job.dart';
 import 'package:core/core/providers/auth_provider.dart';
 import 'package:core/core/providers/site_manager_providers.dart';
+import 'package:core/core/utils/geo.dart';
 import '../widgets/sm_widgets.dart';
 
 /// Morning overview: every job assigned for today, list or map. Matches
@@ -56,13 +59,13 @@ class _DailyQueueScreenState extends ConsumerState<DailyQueueScreen> {
                       ],
                     ),
                   ),
-                  Container(
+                  // Brand logo mark, as in screen1.jsx's header
+                  // (`assets/logo-mark-light.svg`, 40×40).
+                  SvgPicture.asset(
+                    'assets/images/logo-mark-light.svg',
+                    package: 'core',
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(AppRadii.md)),
-                    child: const Icon(Icons.eco, color: Colors.white, size: 22),
                   ),
                 ],
               ),
@@ -150,10 +153,23 @@ class _DailyQueueScreenState extends ConsumerState<DailyQueueScreen> {
       separatorBuilder: (_, _) => const SizedBox(height: AppSpace.s3),
       itemBuilder: (_, i) => _QueueJobCard(
         job: jobs[i],
+        distanceLabel: _distanceLabel(jobs, i),
         onOpen: () => widget.onOpenJob(jobs[i]),
         onNavigate: () => widget.onNavigate(jobs[i]),
       ),
     );
+  }
+
+  /// Leg distance shown on non-active cards (screen1.jsx `job.dist`, e.g.
+  /// "3.2 km"): haversine from the previous job's site (or [_origin] for the
+  /// first stop). Falls back to '— km' when locations are missing.
+  static const _origin = GeoPoint(10.0, 76.3);
+
+  static String _distanceLabel(List<HarvestJob> jobs, int i) {
+    final loc = jobs[i].location;
+    final prev = i == 0 ? _origin : jobs[i - 1].location;
+    if (loc == null || prev == null) return '— km';
+    return '${haversineKm(prev, loc).toStringAsFixed(1)} km';
   }
 
   Widget _map(List<HarvestJob> jobs) {
@@ -189,10 +205,14 @@ class _DailyQueueScreenState extends ConsumerState<DailyQueueScreen> {
 
 class _QueueJobCard extends StatelessWidget {
   final HarvestJob job;
+  final String distanceLabel;
   final VoidCallback onOpen;
   final VoidCallback onNavigate;
   const _QueueJobCard(
-      {required this.job, required this.onOpen, required this.onNavigate});
+      {required this.job,
+      required this.distanceLabel,
+      required this.onOpen,
+      required this.onNavigate});
 
   bool get _isActive =>
       job.status == 'in_progress' ||
@@ -255,7 +275,7 @@ class _QueueJobCard extends StatelessWidget {
                                     const Icon(Icons.place_outlined,
                                         size: 14, color: AppColors.fg3),
                                     const SizedBox(width: 3),
-                                    Text(_distance(job),
+                                    Text(distanceLabel,
                                         style: AppText.caption()
                                             .copyWith(color: AppColors.fg3)),
                                   ],
@@ -350,8 +370,6 @@ class _QueueJobCard extends StatelessWidget {
     if (job.notes.isNotEmpty) return job.notes;
     return job.address ?? "Homeowner's property";
   }
-
-  static String _distance(HarvestJob job) => job.address ?? '—';
 
   static String _cap(String s) =>
       s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
