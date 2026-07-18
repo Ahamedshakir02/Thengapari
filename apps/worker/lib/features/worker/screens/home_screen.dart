@@ -738,7 +738,7 @@ class _WeeklyCard extends StatelessWidget {
                 style: AppText.mono(17, color: WColors.teal100)),
           ),
           SizedBox(
-            height: 132,
+            height: 140,
             child: _WeeklyChart(week: week),
           ),
         ],

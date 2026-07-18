@@ -41,6 +41,37 @@ biggest gaps (login/OTP didn't match, Welcome screen missing entirely).
   freshness bar removed, straight spend chart with month-anchored labels,
   copy fixes.
 
+### Live E2E verification (on-device, against the emulator suite)
+Worker app, real devices (Pixel 10 Pro AVD + a quick visual pass on a
+physical Pixel 7):
+- Full auth flow LIVE: onboarding → NEW welcome → rebuilt login (flag chip,
+  grouped digits) → real OTP issued by the Auth emulator (code fetched from
+  its REST endpoint) → six-box entry auto-submit → "You're all set!" →
+  signed in as the seeded worker; session survives restarts.
+- Live home: real `/users` + `/workers` + earnings streams (greeting by name,
+  ₹380 today, weekly ₹4.9k with amber today-bar, mono digits, bilingual
+  Both-mode lines, Emerald palette).
+- Server pipeline: `broadcastProcessorPing` → `pinged:1` (correct skill +
+  distance targeting); ping docs carry payout/place/**managerName**;
+  `acceptPing` transaction verified — ping → accepted, all sibling pings →
+  cancelled, job → `worker_assigned` with the worker, and a second accept is
+  rejected with FAILED_PRECONDITION (atomicity hard-rule holds).
+- `firestore.rules` enforce (unauthenticated REST read → 403).
+
+**Two findings for a real-device session:**
+1. FlutterFire remaps `localhost/127.0.0.1` → `10.0.2.2` on EVERY Android
+   target, so `adb reverse` alone can't reach the emulators from a physical
+   phone. Workaround: `--dart-define=FIREBASE_EMULATOR_HOST=127.0.0.1.nip.io`
+   (public DNS → 127.0.0.1, dodges the remap, rides the adb-reverse bridge).
+2. The host's AVD repeatedly crashed under load — twice at the exact moment
+   a ping fired (i.e. very likely while animating the radar takeover), so
+   the ping full-screen takeover moment still needs one look on the Pixel 7:
+   `cd apps/worker && flutter run -d <pixel7> \
+      --dart-define=USE_FIREBASE_EMULATORS=true \
+      --dart-define=FIREBASE_EMULATOR_HOST=127.0.0.1.nip.io`
+   (with `adb reverse tcp:9099 tcp:9099` etc. and the suite + seed running),
+   then `curl -X POST 127.0.0.1:5001/thengapari-dev/us-central1/broadcastProcessorPing …`.
+
 ---
 
 ## 2026-07-17 — Session 10: Apps go LIVE (demo → real Firebase, emulator-suite E2E)

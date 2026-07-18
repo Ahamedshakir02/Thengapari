@@ -238,7 +238,7 @@ class WWeeklyChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final max = week.fold<double>(1, math.max);
     return SizedBox(
-      height: 132,
+      height: 140,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
