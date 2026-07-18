@@ -9,8 +9,16 @@ import 'package:flutter/foundation.dart';
 /// Functions at the local Firebase Emulator Suite instead of production.
 ///
 /// The emulator host defaults to `10.0.2.2` (how the Android emulator reaches
-/// the host machine); override with `--dart-define=FIREBASE_EMULATOR_HOST=…`
-/// for a physical device on the same Wi-Fi.
+/// the host machine); override with `--dart-define=FIREBASE_EMULATOR_HOST=…`.
+///
+/// PHYSICAL-DEVICE CAVEAT: the FlutterFire plugins remap `localhost`/
+/// `127.0.0.1` to `10.0.2.2` on EVERY Android target — including real phones,
+/// where 10.0.2.2 doesn't exist — so `adb reverse` + 127.0.0.1 does NOT work
+/// for Auth/Firestore/Functions on a physical device. For a phone, put the
+/// emulators on the LAN instead: set `"host": "0.0.0.0"` on each emulator in
+/// firebase.json, allow the ports through the Windows firewall, and pass the
+/// PC's Wi-Fi IP via `FIREBASE_EMULATOR_HOST`. The Android emulator needs none
+/// of that (the 10.0.2.2 mapping is exactly right there).
 ///
 /// Run fully live-local (no Blaze plan, no SMS quota, no console switches):
 ///   cd functions && npm run emulators     # in one terminal
