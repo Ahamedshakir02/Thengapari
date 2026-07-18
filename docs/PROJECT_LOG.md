@@ -5,6 +5,110 @@
 
 ---
 
+## 2026-07-18 — Session 11: Design-fidelity pass (audits by subagents, fixes applied)
+
+**Goal:** Verify every screen matches its `Designs/` source and close every gap.
+
+### Audits (5 parallel subagents, one per surface)
+Full comparisons of screens vs `Designs/<App>/…jsx` + design CSS. Verdicts:
+B2B and Homeowner near-faithful with targeted gaps; Site Manager faithful but
+missing the design's monospace numeric face; Worker faithful in layout but on
+the wrong palette variant and missing the bilingual mode; Auth flow had the
+biggest gaps (login/OTP didn't match, Welcome screen missing entirely).
+
+### Fixes applied (all committed; `flutter analyze` = 0 issues)
+- **Core:** `AppText.mono` (Noto Sans Mono, tabular figures) for meter/scale
+  numerics; `AppLang.both` + `trMl()` bilingual mode; banana `CropType`;
+  crop-chip palette corrections + real WhatsApp glyph in `AppIcon`.
+- **Auth (rebuilt):** new `WelcomeScreen` (Kerala landscape + wordmark) wired
+  into all 4 routers between onboarding and login; login rebuilt (India-flag
+  +91 field, design copy via `tr()`, reassurance line, top bar); OTP rebuilt
+  (6 code boxes, auto-submit, resend countdown, success overlay); splash on
+  `greenForest900`; role-gate marked legacy (unused in split apps).
+- **Worker:** Emerald palette (the variant the design actually renders);
+  mono numerics everywhere; Both-mode secondary Malayalam lines (toggle +
+  section heads, default Both, language row cycles 3 ways); ping screen shows
+  the site manager (name denormalised into ping docs by `pings.ts`);
+  complete-screen summary per design; 18px titles; wallet glow; amber ring.
+- **Homeowner:** crop colors, "+12% this season", In-progress pill, design
+  stepper labels + "Live harvest", book/report/confirm copy, Verified-owner
+  pill, weekday chart labels.
+- **Site Manager:** mono meters (timer/weight/keypad/counters/stats), ticking
+  "Live m:ss" spill, tender-coconuts headline, ping-count nav badge + house
+  icon, brand logo in queue header, km distances, pulse CTAs, blinking
+  weight caret, 128/20 donut.
+- **B2B:** Orders tab per design (Upcoming, sage badges, green savings),
+  freshness bar removed, straight spend chart with month-anchored labels,
+  copy fixes.
+
+---
+
+## 2026-07-17 — Session 10: Apps go LIVE (demo → real Firebase, emulator-suite E2E)
+
+**Goal:** Convert all four apps from seeded-demo shells to live Firebase apps
+whose every button/service does the real thing, verifiable end-to-end TODAY
+(no Blaze upgrade, no SMS quota) via the local Firebase Emulator Suite.
+
+### Infrastructure
+- Registered 4 Android apps in `thengapari-dev` (`com.thengapari.{homeowner,
+  worker,site_manager,b2b}`) via the Firebase CLI; downloaded per-app
+  `google-services.json` and wired the google-services gradle plugin.
+- `firebase.json`: auth(9099)/firestore(8080)/functions(5001)/ui(4000)
+  emulators. Emulators need JDK 21 → run with Android Studio's JBR
+  (`JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"`).
+- `functions/scripts/seed-emulator.mjs` (`npm run seed:emulator`): 4 auth
+  users (+9190000000{01..04} → fixed uids) + a full coherent Firestore
+  dataset (users, trees, AMC, worker profile + week of earnings, SM profile,
+  buyer profile, active + completed jobs with statusUpdates/yieldData,
+  inventory ×3, market prices, delivered b2b order + tracking + savings,
+  standing order, byproduct buyers). Hard-wired to emulator hosts — can
+  never touch production.
+- `functions/.secret.local` (gitignored) carries dummy Razorpay secrets so
+  the functions emulator boots.
+
+### Core live wiring (packages/core)
+- New models: `JobPing` (reader for `/job_pings`, canonical writer is
+  `pings.ts`), `EarningRecord` (`/workers/{uid}/earnings`).
+- `WorkerService`: `watchPendingPing`, `acceptPing` (atomic callable),
+  `declinePing`, `watchTodayAssignedJobs`, `watchJob`, `watchEarningsSince`,
+  `syncLocation` (one-shot on go-online), `positionStream` +
+  `writeTrackingPoint` (live breadcrumbs → `/jobs/{id}/tracking`).
+- Worker providers now live: pending-ping stream, day stats + weekly chart
+  from earnings, confirmed jobs from `/jobs` (replaced empty-stream stubs),
+  `workerTrackingProvider` controller.
+- `bootstrapFirebase()` (exported from core): Firebase init + optional
+  emulator hookup via `--dart-define=USE_FIREBASE_EMULATORS=true`
+  (host default 10.0.2.2, override `FIREBASE_EMULATOR_HOST`).
+- `firestore.rules`: `/jobs/{id}/tracking` (parties read, assigned
+  worker/SM create). `firestore.indexes.json`: composite indexes for
+  job_pings(workerId,status,createdAt↓) and jobs(workerIds∋,scheduledAt).
+- `pings.ts` broadcast now embeds `payout`/`place`/`requiredSkill` in each
+  ping doc (rules deny job reads pre-acceptance).
+
+### App entrypoints
+- Each app's `main.dart` is now LIVE (real Firebase + phone auth, zero
+  overrides); old seeded harness preserved as `main_demo.dart`.
+- Worker flow wired for real: home listens for pings → full-screen
+  takeover with live countdown to `expiresAt` → Accept via `acceptPing`
+  (loser gets a graceful "already taken") / Decline writes status →
+  Navigate shows real ETA/place + streams location → Complete shows the
+  real payout + worker's UPI. Demo ping trigger is debug-only.
+
+### How to run live-local
+1. `cd functions && npm run emulators` (JDK 21 via Android Studio JBR)
+2. `npm run seed:emulator` (fresh each emulator start — data is in-memory)
+3. `cd apps/<role> && flutter run --dart-define=USE_FIREBASE_EMULATORS=true`
+4. Log in with a seeded number (e.g. worker +91 90000 00002); OTP codes:
+   `curl http://127.0.0.1:9099/emulator/v1/projects/thengapari-dev/verificationCodes`
+
+### Remaining for production (user actions)
+- Upgrade thengapari-dev to Blaze → `firebase deploy --only functions`.
+- Enable the Phone provider in Firebase console (+ India SMS region).
+- `firebase deploy --only firestore:rules,firestore:indexes` (works on Spark).
+- Real Razorpay test keys as function secrets when payments go live.
+
+---
+
 ## 2026-07-17 — Session 9: Marketing website finished + verified (branch `website`)
 
 **Goal:** Finish the ThengaPari landing site (`website/`, Vite + React) and verify

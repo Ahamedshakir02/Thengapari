@@ -6,6 +6,8 @@ Newest-first change log. Read the INDEX first, then only the entries you need.
 
 | Date | Session | Summary | Files |
 |------|---------|---------|-------|
+| 2026-07-18 | design-fidelity | 5 subagent audits vs Designs/; applied all fixes (auth rebuild + welcome, worker Emerald/mono/Both, HO/SM/B2B gaps); analyze clean | `packages/core/**`, `apps/*/**`, `functions/src/pings.ts` |
+| 2026-07-17 | apps-go-live | Demo→live: per-app google-services, emulator suite+seed, worker ping pipeline (acceptPing/tracking/earnings), live mains (demo kept as main_demo) | `packages/core/**`, `apps/*/lib/**`, `firebase.json`, `firestore.{rules,indexes}`, `functions/**` |
 | 2026-07-17 | apps-status-check | Verified toolchain-side: analyze 0 issues, functions tsc clean; NO tests exist; apps demo-only (no live wiring/google-services.json) | none (assessment only) |
 | 2026-07-17 | website-finish | Verified + committed finished landing site; lazy Firebase, /leads rules, hosting config | `website/*`, `firestore.rules`, `firebase.json`, `docs/PROJECT_LOG.md` |
 
