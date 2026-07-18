@@ -7,8 +7,9 @@ import '../i18n/app_strings.dart';
 class LocaleNotifier extends Notifier<AppLang> {
   @override
   AppLang build() {
-    gAppLang = AppLang.en;
-    return AppLang.en;
+    // Respect the app's seed (e.g. the worker app defaults gAppLang to
+    // AppLang.both in main()); apps that don't seed it start in English.
+    return gAppLang;
   }
 
   void set(AppLang lang) {
@@ -16,7 +17,12 @@ class LocaleNotifier extends Notifier<AppLang> {
     state = lang;
   }
 
-  void toggle() => set(state == AppLang.en ? AppLang.ml : AppLang.en);
+  /// Cycles English → മലയാളം → Both → English.
+  void toggle() => set(switch (state) {
+        AppLang.en => AppLang.ml,
+        AppLang.ml => AppLang.both,
+        AppLang.both => AppLang.en,
+      });
 }
 
 final localeProvider =

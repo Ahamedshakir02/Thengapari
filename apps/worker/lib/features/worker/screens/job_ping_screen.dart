@@ -26,7 +26,9 @@ class JobPingScreen extends ConsumerStatefulWidget {
 
 class _JobPingScreenState extends ConsumerState<JobPingScreen>
     with TickerProviderStateMixin {
-  static const _duration = 45;
+  // Live pings run on their 45s server TTL; the demo preview uses the
+  // design's 38s default (`app.jsx` TWEAK_DEFAULTS.countdown).
+  static const _duration = 38;
   int _left = _duration;
   Timer? _timer;
   bool _accepting = false;
@@ -122,7 +124,7 @@ class _JobPingScreenState extends ConsumerState<JobPingScreen>
     final etaLabel = ping?.etaMin != null ? '~${ping!.etaMin} min' : '~1.5 h';
     final distFact =
         ping?.distanceKm != null ? '${ping!.distanceKm} km' : '1.8 km';
-    final place = ping?.place ?? 'Ollur, Thrissur';
+    final managerName = ping?.managerName ?? 'Arjun K.';
     final cropLabel = ping?.cropType ?? 'coconut';
 
     final ratio = _left / _duration;
@@ -166,7 +168,7 @@ class _JobPingScreenState extends ConsumerState<JobPingScreen>
                       etaLabel: etaLabel,
                       distFact: distFact,
                       yieldCount: yieldCount,
-                      place: place,
+                      managerName: managerName,
                     ),
                     const SizedBox(height: 16),
                     _countdown(ratio, cdColor, urgent),
@@ -204,14 +206,38 @@ class _JobPingScreenState extends ConsumerState<JobPingScreen>
   }
 
   Widget _radar() {
+    final distChip =
+        _ping?.distanceKm != null ? '${_ping!.distanceKm} km' : '1.8 km';
     return SizedBox(
       height: 200,
-      child: AnimatedBuilder(
-        animation: _sweep,
-        builder: (_, _) => CustomPaint(
-          painter: _RadarPainter(_sweep.value, _pulse.value),
-          size: Size.infinite,
-        ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _sweep,
+              builder: (_, _) => CustomPaint(
+                painter: _RadarPainter(_sweep.value, _pulse.value),
+                size: Size.infinite,
+              ),
+            ),
+          ),
+          // Distance chip beside the job dot (design screen-ping.jsx:42-48).
+          Positioned(
+            right: 36,
+            top: 34,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: WColors.bgDeep.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: WColors.lineStrong),
+              ),
+              child: Text(distChip,
+                  style: AppText.mono(11,
+                      color: WColors.accent2, weight: FontWeight.w600)),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -223,7 +249,7 @@ class _JobPingScreenState extends ConsumerState<JobPingScreen>
     required String etaLabel,
     required String distFact,
     required int yieldCount,
-    required String place,
+    required String managerName,
   }) {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
@@ -266,7 +292,7 @@ class _JobPingScreenState extends ConsumerState<JobPingScreen>
           _cardDivider(),
           Row(
             children: [
-              _fact(Icons.schedule, etaLabel, 'ETA'),
+              _fact(Icons.schedule, etaLabel, 'Duration'),
               _factDivider(),
               _fact(Icons.navigation_outlined, distFact, 'Distance'),
               _factDivider(),
@@ -282,19 +308,20 @@ class _JobPingScreenState extends ConsumerState<JobPingScreen>
                 alignment: Alignment.center,
                 decoration: const BoxDecoration(
                     shape: BoxShape.circle, color: AppColors.greenLeaf100),
-                child: const Icon(Icons.place_outlined,
-                    size: 20, color: AppColors.greenForest700),
+                child: Text(
+                    managerName.isNotEmpty ? managerName[0].toUpperCase() : 'A',
+                    style: AppText.displayNum(18,
+                        color: AppColors.greenForest700)),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(place,
+                    Text(managerName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppText.title()
-                            .copyWith(fontSize: 16, color: AppColors.ink900)),
+                        style: AppText.title().copyWith(color: AppColors.ink900)),
                     const SizedBox(height: 1),
                     Row(
                       children: [
@@ -302,10 +329,10 @@ class _JobPingScreenState extends ConsumerState<JobPingScreen>
                             size: 13, color: AppColors.amber500),
                         const SizedBox(width: 4),
                         Text('4.9',
-                            style: AppText.bodySm().copyWith(
+                            style: AppText.mono(13,
                                 color: AppColors.ink700,
-                                fontWeight: FontWeight.w600)),
-                        Text(' · Site manager on site',
+                                weight: FontWeight.w600)),
+                        Text(' · Site manager',
                             style: AppText.caption()
                                 .copyWith(color: AppColors.ink500)),
                       ],
@@ -382,8 +409,8 @@ class _JobPingScreenState extends ConsumerState<JobPingScreen>
           duration: const Duration(milliseconds: 400),
           child: Text.rich(
             TextSpan(children: [
-              TextSpan(text: '$_left', style: AppText.displayNum(38, color: color, weight: FontWeight.w800)),
-              TextSpan(text: 's', style: AppText.displayNum(18, color: color).copyWith(fontWeight: FontWeight.w600)),
+              TextSpan(text: '$_left', style: AppText.mono(38, color: color, weight: FontWeight.w800)),
+              TextSpan(text: 's', style: AppText.mono(18, color: color, weight: FontWeight.w600)),
             ]),
           ),
         ),

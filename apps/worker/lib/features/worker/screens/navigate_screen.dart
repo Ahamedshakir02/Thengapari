@@ -142,7 +142,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text('${widget.ping?.etaMin ?? 12}',
-                        style: AppText.displayNum(22, color: Colors.white, weight: FontWeight.w800)),
+                        style: AppText.mono(22, color: Colors.white, weight: FontWeight.w800)),
                     Text(' min',
                         style: AppText.bodySm().copyWith(
                             color: Colors.white.withValues(alpha: 0.8))),
@@ -218,7 +218,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Head to the grove',
-                          style: AppText.title().copyWith(fontSize: 16, color: Colors.white)),
+                          style: AppText.title().copyWith(color: Colors.white)),
                       const SizedBox(height: 2),
                       Text(widget.ping?.place ?? 'Parambil Estate · Ollur, Thrissur',
                           maxLines: 1,

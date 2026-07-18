@@ -78,7 +78,7 @@ class _WorkerJobsTabState extends State<WorkerJobsTab> {
                 child: WMiniStat(
                   icon: Icons.check_circle_outline,
                   label: 'Jobs this week',
-                  child: Text('9', style: AppText.displayNum(24, color: WColors.fg1)),
+                  child: Text('9', style: AppText.mono(24, color: WColors.fg1)),
                 ),
               ),
             ],
@@ -189,7 +189,7 @@ class _WorkerJobsTabState extends State<WorkerJobsTab> {
             width: 52,
             child: Column(
               children: [
-                Text(j.time, style: AppText.displayNum(17, color: WColors.fg1)),
+                Text(j.time, style: AppText.mono(17, color: WColors.fg1)),
                 const SizedBox(height: 3),
                 Text(j.ampm, style: AppText.caption().copyWith(color: WColors.fg3)),
               ],
@@ -207,7 +207,7 @@ class _WorkerJobsTabState extends State<WorkerJobsTab> {
                 Text(j.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppText.title().copyWith(fontSize: 16, color: WColors.fg1)),
+                    style: AppText.title().copyWith(color: WColors.fg1)),
                 const SizedBox(height: 4),
                 Row(
                   children: [
@@ -270,7 +270,7 @@ class _WorkerJobsTabState extends State<WorkerJobsTab> {
                 Text(j.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppText.title().copyWith(fontSize: 16, color: WColors.fg1)),
+                    style: AppText.title().copyWith(color: WColors.fg1)),
                 const SizedBox(height: 4),
                 Text('${j.place} · ${j.count}',
                     maxLines: 1,

@@ -21,6 +21,10 @@ class JobPing {
   final int? etaMin;
   final double? payout;
   final String? place;
+
+  /// Display name of the site manager who posted the job (denormalised by the
+  /// broadcast function so the ping screen can show it pre-acceptance).
+  final String? managerName;
   final DateTime? createdAt;
   final DateTime? expiresAt;
 
@@ -36,6 +40,7 @@ class JobPing {
     this.etaMin,
     this.payout,
     this.place,
+    this.managerName,
     this.createdAt,
     this.expiresAt,
   });
@@ -53,6 +58,7 @@ class JobPing {
       etaMin: (data['etaMin'] as num?)?.toInt(),
       payout: (data['payout'] as num?)?.toDouble(),
       place: data['place'] as String?,
+      managerName: data['managerName'] as String?,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       expiresAt: (data['expiresAt'] as Timestamp?)?.toDate(),
     );

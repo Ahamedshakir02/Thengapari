@@ -1,7 +1,9 @@
 import '../models/tree_inventory.dart';
 
-/// Supported UI languages.
-enum AppLang { en, ml }
+/// Supported UI languages. [both] renders English as the primary string with a
+/// Malayalam secondary line (the worker app's default, per the worker design's
+/// "Both" language mode).
+enum AppLang { en, ml, both }
 
 /// Global mirror of the active language, kept in sync by the locale notifier.
 /// [AppText] reads this to pick a Malayalam-capable font without needing a
@@ -82,23 +84,42 @@ const Map<String, List<String>> _strings = {
       'കോഡ് ശരിയായില്ല. വീണ്ടും ശ്രമിക്കൂ.'],
   'otp_resent': ['A fresh code is on its way.',
       'പുതിയ കോഡ് അയച്ചുകൊണ്ടിരിക്കുന്നു.'],
+
+  // ===== Worker app (from the worker design's i18n.jsx) =====
+  'online': ["You're online", 'നിങ്ങൾ ഓൺലൈനാണ്'],
+  'online_sub': ['Receiving job pings', 'ജോലികൾ ലഭിക്കുന്നു'],
+  'offline': ["You're offline", 'നിങ്ങൾ ഓഫ്‌ലൈനാണ്'],
+  'offline_sub': ['Go online to earn', 'ഓൺലൈനായി പണം നേടൂ'],
+  'today_jobs': ["Today's confirmed jobs", 'ഇന്ന് ഉറപ്പിച്ച ജോലികൾ'],
+  'weekly': ['This week', 'ഈ ആഴ്ച'],
+  'payouts': ['Recent payouts', 'സമീപകാല പണമിടപാടുകൾ'],
 };
 
 /// Returns the string for [key] in [lang]; falls back to English, then the key.
+/// [AppLang.both] resolves to English — the Malayalam secondary line comes from
+/// [trMl].
 String tr(String key, AppLang lang) {
   final e = _strings[key];
   if (e == null) return key;
   return lang == AppLang.ml ? e[1] : e[0];
 }
 
+/// Returns the Malayalam string for [key] (secondary line in
+/// [AppLang.both] mode); falls back to the key.
+String trMl(String key) {
+  final e = _strings[key];
+  return e == null ? key : e[1];
+}
+
 /// Localised crop name.
 String cropName(CropType type, AppLang lang) {
-  if (lang == AppLang.en) return type.label;
+  if (lang != AppLang.ml) return type.label;
   return switch (type) {
     CropType.coconut => 'തേങ്ങ',
     CropType.mango => 'മാങ്ങ',
     CropType.jackfruit => 'ചക്ക',
     CropType.pepper => 'കുരുമുളക്',
     CropType.areca => 'അടയ്ക്ക',
+    CropType.banana => 'നേന്ത്രപ്പഴം',
   };
 }

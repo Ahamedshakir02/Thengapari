@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/app/design_tokens.dart';
+import 'package:core/core/i18n/app_strings.dart';
 import '../theme/worker_theme.dart';
 
 /// Worker "Wallet" tab — available balance, withdraw-to-UPI sheet flow, weekly
@@ -77,9 +78,10 @@ class WorkerWalletTab extends StatelessWidget {
               children: [
                 WSectionHead(
                   title: 'This week',
+                  ml: trMl('weekly'),
                   dense: true,
                   trailing: Text('₹${(weekTotal / 1000).toStringAsFixed(1)}k',
-                      style: AppText.displayNum(17, color: WColors.teal100)),
+                      style: AppText.mono(17, color: WColors.teal100)),
                 ),
                 const WWeeklyChart(week: _week, todayIndex: 5),
               ],
@@ -88,7 +90,7 @@ class WorkerWalletTab extends StatelessWidget {
           const SizedBox(height: 14),
           _linkedUpi(),
           const SizedBox(height: 22),
-          const WSectionHead(title: 'Recent payouts'),
+          WSectionHead(title: 'Recent payouts', ml: trMl('payouts')),
           _card(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -123,7 +125,27 @@ class WorkerWalletTab extends StatelessWidget {
               offset: const Offset(0, 14)),
         ],
       ),
-      child: Column(
+      child: Stack(
+        children: [
+          // Decorative amber radial glow (design screen-wallet.jsx:128).
+          Positioned(
+            right: -30,
+            top: -30,
+            child: IgnorePointer(
+              child: Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [
+                    WColors.accent.withValues(alpha: 0.22),
+                    WColors.accent.withValues(alpha: 0),
+                  ]),
+                ),
+              ),
+            ),
+          ),
+          Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('AVAILABLE BALANCE',
@@ -162,6 +184,8 @@ class WorkerWalletTab extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+        ],
           ),
         ],
       ),
@@ -236,7 +260,7 @@ class WorkerWalletTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('${t.out ? '−' : '+'}₹${t.amt}',
-                  style: AppText.displayNum(16,
+                  style: AppText.mono(16,
                       color: t.out ? WColors.fg2 : WColors.good)),
               const SizedBox(height: 5),
               Text('ref ${t.ref}',
@@ -344,10 +368,10 @@ class _WithdrawSheetState extends State<_WithdrawSheet> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('₹', style: AppText.displayNum(34, color: WColors.accent2)),
+              Text('₹', style: AppText.mono(34, color: WColors.accent2)),
               const SizedBox(width: 6),
               Text(inrGroup(_amount),
-                  style: AppText.displayNum(40,
+                  style: AppText.mono(40,
                       color: WColors.fg1, weight: FontWeight.w800)),
             ],
           ),
@@ -482,7 +506,7 @@ class _WithdrawSheetState extends State<_WithdrawSheet> {
         Text('Money on the way', style: AppText.h2().copyWith(color: WColors.fg1)),
         const SizedBox(height: 6),
         Text('₹${inrGroup(_amount)}',
-            style: AppText.displayNum(30,
+            style: AppText.mono(30,
                 color: WColors.good, weight: FontWeight.w800)),
         const SizedBox(height: 8),
         Text('Reaching your bank in seconds · ${widget.upi}',

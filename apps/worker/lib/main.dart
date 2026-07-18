@@ -16,6 +16,8 @@ import 'app.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlavorConfig(Flavor.dev);
+  // Worker design default: bilingual English + Malayalam ('Both').
+  gAppLang = AppLang.both;
   await bootstrapFirebase();
   await Hive.initFlutter();
   await Hive.openBox(OnboardingService.boxName);

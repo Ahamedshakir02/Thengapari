@@ -13,6 +13,8 @@ import 'app.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlavorConfig(Flavor.dev);
+  // Worker design default: bilingual English + Malayalam ('Both').
+  gAppLang = AppLang.both;
   try {
     await Firebase.initializeApp();
   } catch (_) {/* Firebase not configured yet — demo data still renders */}

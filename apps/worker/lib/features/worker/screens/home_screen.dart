@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:core/app/design_tokens.dart';
 import 'package:worker/router.dart';
 import 'package:core/core/providers/auth_provider.dart';
+import 'package:core/core/i18n/app_strings.dart';
 import 'package:core/core/providers/worker_providers.dart';
 import '../theme/worker_theme.dart';
 import 'jobs_screen.dart';
@@ -128,6 +129,7 @@ class _HomeTab extends ConsumerWidget {
           const SizedBox(height: 22),
           _SectionHead(
             title: "Today's confirmed jobs",
+            ml: trMl('today_jobs'),
             trailing: _Pill(text: '${jobs.length}'),
           ),
           if (jobs.isEmpty)
@@ -322,7 +324,12 @@ class _BigToggle extends StatelessWidget {
                   Text(online ? "You're online" : "You're offline",
                       style: AppText.h3().copyWith(color: WColors.fg1)),
                   const SizedBox(height: 2),
-                  Text(online ? 'Receiving job pings' : 'Go online to earn',
+                  Text(
+                      gAppLang == AppLang.both
+                          ? trMl(online ? 'online' : 'offline')
+                          : online
+                              ? 'Receiving job pings'
+                              : 'Go online to earn',
                       style: AppText.bodySm().copyWith(
                           color: online ? WColors.teal300 : WColors.fg3)),
                 ],
@@ -493,7 +500,7 @@ class _StatCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text(value, style: AppText.displayNum(30, color: WColors.fg1)),
+          Text(value, style: AppText.mono(30, color: WColors.fg1)),
           const SizedBox(height: 7),
           Text(sub, style: AppText.caption().copyWith(color: WColors.fg3)),
         ],
@@ -530,7 +537,7 @@ class _ReliabilityCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text('$score',
-                        style: AppText.displayNum(24, color: WColors.fg1)),
+                        style: AppText.mono(24, color: WColors.fg1)),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 3),
                       child: Text('%',
@@ -553,8 +560,7 @@ class _ReliabilityCard extends StatelessWidget {
                         size: 17, color: WColors.accent2),
                     const SizedBox(width: 7),
                     Text('Reliability score',
-                        style: AppText.title()
-                            .copyWith(fontSize: 16, color: WColors.fg1)),
+                        style: AppText.title().copyWith(color: WColors.fg1)),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -605,11 +611,8 @@ class _RingPainter extends CustomPainter {
       ..color = const Color(0x24D6ECE7);
     canvas.drawCircle(center, radius, track);
 
-    final color = value >= 0.8
-        ? WColors.accent
-        : value >= 0.6
-            ? WColors.accent2
-            : const Color(0xFFF08A6A);
+    // Design keeps the ring amber at every value (Ring default color).
+    const color = WColors.accent;
     final arc = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
@@ -651,7 +654,7 @@ class _JobCard extends StatelessWidget {
             child: Column(
               children: [
                 Text(h,
-                    style: AppText.displayNum(17, color: WColors.fg1)),
+                    style: AppText.mono(17, color: WColors.fg1)),
                 const SizedBox(height: 3),
                 Text(ampm, style: AppText.caption().copyWith(color: WColors.fg3)),
               ],
@@ -666,7 +669,7 @@ class _JobCard extends StatelessWidget {
                 Text(job.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppText.title().copyWith(fontSize: 16, color: WColors.fg1)),
+                    style: AppText.title().copyWith(color: WColors.fg1)),
                 const SizedBox(height: 4),
                 Row(
                   children: [
@@ -688,7 +691,7 @@ class _JobCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('₹${job.payout.round()}',
-                  style: AppText.displayNum(18, color: WColors.fg1)),
+                  style: AppText.mono(18, color: WColors.fg1)),
               const SizedBox(height: 6),
               _Tag(
                 text: job.isNext ? 'UP NEXT' : 'SCHEDULED',
@@ -729,9 +732,10 @@ class _WeeklyCard extends StatelessWidget {
         children: [
           _SectionHead(
             title: 'This week',
+            ml: trMl('weekly'),
             dense: true,
             trailing: Text('₹${(total / 1000).toStringAsFixed(1)}k',
-                style: AppText.displayNum(17, color: WColors.teal100)),
+                style: AppText.mono(17, color: WColors.teal100)),
           ),
           SizedBox(
             height: 132,
@@ -820,22 +824,35 @@ class _WeeklyChart extends StatelessWidget {
 
 class _SectionHead extends StatelessWidget {
   final String title;
+  final String? ml;
   final Widget? trailing;
   final bool dense;
-  const _SectionHead({required this.title, this.trailing, this.dense = false});
+  const _SectionHead(
+      {required this.title, this.ml, this.trailing, this.dense = false});
 
   @override
   Widget build(BuildContext context) {
+    final showMl = ml != null && gAppLang == AppLang.both;
     return Padding(
       padding: EdgeInsets.only(bottom: dense ? 10 : 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Text(title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppText.h3().copyWith(color: WColors.fg1)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.h3().copyWith(color: WColors.fg1)),
+                if (showMl)
+                  Text(ml!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.caption().copyWith(color: WColors.fg3)),
+              ],
+            ),
           ),
           if (trailing != null) ...[const SizedBox(width: 12), trailing!],
         ],

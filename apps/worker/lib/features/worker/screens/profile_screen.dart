@@ -375,8 +375,12 @@ class WorkerProfileTab extends ConsumerWidget {
       title: 'Settings',
       child: Column(
         children: [
-          _settingRow(Icons.language, 'App language',
-              value: lang == AppLang.ml ? 'മലയാളം' : 'English',
+          _settingRow(Icons.eco_outlined, 'App language',
+              value: switch (lang) {
+                AppLang.en => 'English',
+                AppLang.ml => 'മലയാളം',
+                AppLang.both => 'Both',
+              },
               onTap: () => ref.read(localeProvider.notifier).toggle()),
           const Divider(color: WColors.line, height: 1),
           _settingRow(Icons.notifications_none, 'Notifications', value: 'On'),
@@ -455,7 +459,7 @@ class WorkerProfileTab extends ConsumerWidget {
             children: [
               Icon(icon, size: 17, color: WColors.accent2),
               const SizedBox(width: 8),
-              Text(title, style: AppText.title().copyWith(fontSize: 16, color: WColors.fg1)),
+              Text(title, style: AppText.title().copyWith(color: WColors.fg1)),
             ],
           ),
           child,
