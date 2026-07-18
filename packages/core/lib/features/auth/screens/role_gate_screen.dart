@@ -5,6 +5,12 @@ import '../../../app/theme.dart';
 import '../../../core/models/app_user.dart';
 import '../../../core/providers/auth_provider.dart';
 
+/// LEGACY — from the single-app era. The four split apps are single-role
+/// (role is chosen at install; each app's setup screen writes the role), so
+/// no router references this screen anymore. Kept only for reference; it
+/// still uses the legacy AgriColors palette and should not be revived without
+/// restyling to AppColors.
+///
 /// Shown when a user is signed in but has no role yet (first login). Picking a
 /// role writes it to `/users/{uid}`; the router then routes onward (homeowner
 /// → profile setup, other roles → their home).

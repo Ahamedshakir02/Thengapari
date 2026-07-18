@@ -81,6 +81,7 @@ export 'core/widgets/painters/yield_donut_painter.dart';
 
 // ── Shared auth screens ──
 export 'features/auth/screens/login_screen.dart';
+export 'features/auth/screens/welcome_screen.dart';
 export 'features/auth/screens/onboarding_screen.dart';
 export 'features/auth/screens/otp_verify_screen.dart';
 export 'features/auth/screens/role_gate_screen.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/theme.dart';
+import '../../../app/design_tokens.dart';
 
 /// Shown while [authStateProvider] is resolving. The router redirects away
 /// once auth state is known (to /login, /select-role, or a role home).
@@ -10,7 +10,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: AgriColors.green800,
+      backgroundColor: AppColors.greenForest900,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

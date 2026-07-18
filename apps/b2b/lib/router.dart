@@ -17,6 +17,7 @@ abstract final class AppRoutes {
   static const splash = '/splash';
   static const onboarding = '/onboarding';
   static const login = '/login';
+  static const welcome = '/welcome';
 
   static const b2bProfileSetup = '/b2b/profile-setup';
   static const b2bVerification = '/b2b/verification';
@@ -54,7 +55,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (!onboardingListenable.value) {
           return loc == AppRoutes.onboarding ? null : AppRoutes.onboarding;
         }
-        return loc == AppRoutes.login ? null : AppRoutes.login;
+        const preAuth = {AppRoutes.welcome, AppRoutes.login};
+        return preAuth.contains(loc) ? null : AppRoutes.welcome;
       }
       if (!user.isProfileComplete) {
         const setupRoutes = {
@@ -63,7 +65,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         };
         return setupRoutes.contains(loc) ? null : AppRoutes.b2bProfileSetup;
       }
-      const preHome = {AppRoutes.splash, AppRoutes.onboarding, AppRoutes.login};
+      const preHome = {
+        AppRoutes.splash,
+        AppRoutes.onboarding,
+        AppRoutes.welcome,
+        AppRoutes.login,
+      };
       return preHome.contains(loc) ? AppRoutes.b2bHome : null;
     },
     routes: [
@@ -71,6 +78,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: AppRoutes.onboarding, builder: (_, _) => const OnboardingScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+          path: AppRoutes.welcome, builder: (_, _) => const WelcomeScreen()),
       GoRoute(
           path: AppRoutes.b2bProfileSetup,
           builder: (_, _) => const BusinessProfileSetupScreen()),
