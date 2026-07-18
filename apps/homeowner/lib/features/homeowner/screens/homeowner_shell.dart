@@ -239,6 +239,29 @@ class _ProfileTab extends ConsumerWidget {
                       Text(
                           '${user?.district ?? 'Kerala'} · $trees trees',
                           style: AppText.caption().copyWith(fontSize: 12.5)),
+                      const SizedBox(height: 6),
+                      // Design: green "Verified owner" pill (st-complete).
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.statusCompleteBg,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const AppIcon('shield',
+                                size: 12, color: AppColors.statusCompleteFg),
+                            const SizedBox(width: 5),
+                            Text('Verified owner',
+                                style: AppText.caption().copyWith(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.statusCompleteFg)),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

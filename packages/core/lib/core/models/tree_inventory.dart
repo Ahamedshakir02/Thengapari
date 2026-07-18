@@ -8,7 +8,8 @@ enum CropType {
   mango,
   jackfruit,
   pepper,
-  areca;
+  areca,
+  banana;
 
   String get label => switch (this) {
         CropType.coconut => 'Coconut',
@@ -16,6 +17,7 @@ enum CropType {
         CropType.jackfruit => 'Jackfruit',
         CropType.pepper => 'Pepper',
         CropType.areca => 'Areca nut',
+        CropType.banana => 'Nendran Banana',
       };
 
   String get emoji => switch (this) {
@@ -24,6 +26,7 @@ enum CropType {
         CropType.jackfruit => '🟢',
         CropType.pepper => '🌶️',
         CropType.areca => '🌰',
+        CropType.banana => '🍌',
       };
 
   String get firestoreValue => name; // 'coconut', 'mango', ...
@@ -36,6 +39,7 @@ enum CropType {
         CropType.jackfruit => 60,
         CropType.pepper => 2,
         CropType.areca => 5,
+        CropType.banana => 12, // one ~12 kg bunch per plant (design: ₹240/bunch)
       };
 
   /// Indicative market rate (₹/kg) for the local estimate fallback.
@@ -45,6 +49,7 @@ enum CropType {
         CropType.jackfruit => 25,
         CropType.pepper => 600,
         CropType.areca => 400,
+        CropType.banana => 20,
       };
 
   static CropType? fromString(String? value) {
