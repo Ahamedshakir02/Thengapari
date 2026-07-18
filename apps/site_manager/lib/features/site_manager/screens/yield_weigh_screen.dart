@@ -178,14 +178,31 @@ class _YieldWeighScreenState extends ConsumerState<YieldWeighScreen> {
           ),
           const SizedBox(height: 6),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(_weight,
-                  style: AppText.displayNum(52, color: Colors.white)),
-              const SizedBox(width: 8),
-              Text('kg',
-                  style: AppText.h3().copyWith(color: AppColors.greenSage400)),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Design: `700 52px var(--font-mono)`, letter-spacing -.02em.
+                  Text(_weight,
+                      style: AppText.mono(52, color: Colors.white)
+                          .copyWith(letterSpacing: -1.04)),
+                  const SizedBox(width: 8),
+                  Text('kg',
+                      style:
+                          AppText.h3().copyWith(color: AppColors.greenSage400)),
+                ],
+              ),
+              const Spacer(),
+              // Blinking 2px amber input caret (screen3.jsx:95, blink 1.1s
+              // steps(1)).
+              SmBlink(
+                period: const Duration(milliseconds: 1100),
+                hard: true,
+                child:
+                    Container(width: 2, height: 38, color: AppColors.accent),
+              ),
             ],
           ),
         ],
@@ -213,10 +230,13 @@ class _YieldWeighScreenState extends ConsumerState<YieldWeighScreen> {
                 borderRadius: BorderRadius.circular(AppRadii.md),
                 boxShadow: AppShadows.sm,
               ),
+              // Design `.kp`: `600 24px var(--font-mono)`.
               child: k == 'del'
                   ? const Icon(Icons.backspace_outlined,
                       size: 22, color: AppColors.fg1)
-                  : Text(k, style: AppText.displayNum(24, color: AppColors.fg1)),
+                  : Text(k,
+                      style: AppText.mono(24,
+                          weight: FontWeight.w600, color: AppColors.fg1)),
             ),
           ),
       ],
@@ -271,8 +291,10 @@ class _YieldWeighScreenState extends ConsumerState<YieldWeighScreen> {
                 center: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Design: `700 22px var(--font-mono)`, line-height 1.
                     Text('$_total',
-                        style: AppText.displayNum(22, color: AppColors.fg1)),
+                        style:
+                            AppText.mono(22, color: AppColors.fg1, height: 1)),
                     const SmOverline('nuts'),
                   ],
                 ),

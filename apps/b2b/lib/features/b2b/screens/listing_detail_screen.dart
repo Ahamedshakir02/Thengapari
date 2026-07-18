@@ -73,8 +73,6 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                           SaveBadge(percent: l.savingsPercent),
                         ],
                       ),
-                      const SizedBox(height: 14),
-                      _freshness(l),
                       const SizedBox(height: 16),
                       _infoGrid(l),
                     ],
@@ -155,34 +153,6 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
     );
   }
 
-  Widget _freshness(InventoryListing l) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text('Freshness',
-                style: AppText.caption().copyWith(color: AppColors.fg3)),
-            const Spacer(),
-            Text(l.freshnessLabel,
-                style: AppText.caption().copyWith(
-                    color: AppColors.green600, fontWeight: FontWeight.w700)),
-          ],
-        ),
-        const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(999),
-          child: LinearProgressIndicator(
-            value: l.freshnessFraction,
-            minHeight: 7,
-            backgroundColor: AppColors.surfaceSunk,
-            valueColor: const AlwaysStoppedAnimation(Color(0xFF2E9E55)),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _infoGrid(InventoryListing l) {
     final cells = [
       ('Available', '${l.quantityRemaining} ${l.unit}'),
@@ -220,7 +190,10 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppText.bodySm().copyWith(
-                    color: AppColors.fg1, fontWeight: FontWeight.w600)),
+                    fontSize: 15,
+                    height: 19 / 15,
+                    color: AppColors.fg1,
+                    fontWeight: FontWeight.w600)),
           ],
         ),
       ),

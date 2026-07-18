@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/app/design_tokens.dart';
 import 'package:homeowner/router.dart';
+import 'package:core/core/i18n/app_strings.dart';
 import 'package:core/core/models/tree_inventory.dart';
 import 'package:core/core/models/yield_estimate.dart';
 import 'package:core/core/providers/auth_provider.dart';
 import 'package:core/core/providers/homeowner_providers.dart';
+import 'package:core/core/providers/locale_provider.dart';
 import 'package:core/core/widgets/app_icon.dart';
 
 /// Book a harvest — pick crops, a date, ripe/all, see the live estimate, and
@@ -138,6 +140,7 @@ class _BookHarvestScreenState extends ConsumerState<BookHarvestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(localeProvider);
     final user = ref.watch(authStateProvider).value;
     final uid = user?.uid ?? '';
     final district = user?.district ?? '';
@@ -158,7 +161,7 @@ class _BookHarvestScreenState extends ConsumerState<BookHarvestScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.bg,
-      appBar: AppBar(title: const Text('Book a harvest')),
+      appBar: AppBar(title: Text(tr('book_harvest', lang))),
       body: SafeArea(
         top: false,
         child: Column(
@@ -168,7 +171,7 @@ class _BookHarvestScreenState extends ConsumerState<BookHarvestScreen> {
                 padding: const EdgeInsets.fromLTRB(
                     AppSpace.gutter, 4, AppSpace.gutter, 12),
                 children: [
-                  Text('Pick crop', style: AppText.h3()),
+                  Text('What should we pick?', style: AppText.h3()),
                   const SizedBox(height: 12),
                   GridView.builder(
                     shrinkWrap: true,
@@ -187,7 +190,7 @@ class _BookHarvestScreenState extends ConsumerState<BookHarvestScreen> {
                       return _CropCell(
                         type: c,
                         selected: _selected.contains(c),
-                        sub: cnt > 0 ? '$cnt registered' : 'ripening soon',
+                        sub: cnt > 0 ? '$cnt ready to pick' : 'ripening soon',
                         onTap: () => setState(() {
                           _selected.contains(c)
                               ? _selected.remove(c)
@@ -197,7 +200,7 @@ class _BookHarvestScreenState extends ConsumerState<BookHarvestScreen> {
                     },
                   ),
                   const SizedBox(height: 22),
-                  Text('When', style: AppText.h3()),
+                  Text('When works for you?', style: AppText.h3()),
                   const SizedBox(height: 12),
                   SizedBox(
                     height: 102,
@@ -502,7 +505,7 @@ class _PreviewCard extends StatelessWidget {
                     const SizedBox(width: 7),
                     Expanded(
                       child: Text(
-                        'Final price confirmed after weighing on-site.',
+                        'A site manager confirms the final count on arrival.',
                         style: AppText.caption().copyWith(
                             color: Colors.white.withValues(alpha: 0.78)),
                       ),
@@ -614,9 +617,9 @@ class _ConfirmSheet extends StatelessWidget {
                   size: 36, color: AppColors.statusCompleteFg, strokeWidth: 2.6),
             ),
             const SizedBox(height: 16),
-            Text('Harvest booked!', style: AppText.h2()),
+            Text("You're all set", style: AppText.h2()),
             const SizedBox(height: 8),
-            Text('We’re assigning a site manager near you.',
+            Text('A trusted site manager will arrive and keep you updated at every step.',
                 textAlign: TextAlign.center,
                 style: AppText.body().copyWith(color: AppColors.fg2)),
             const SizedBox(height: 18),
@@ -645,7 +648,7 @@ class _ConfirmSheet extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('View tracker', style: AppText.button()),
+                    Text('View live tracker', style: AppText.button()),
                     const SizedBox(width: 8),
                     AppIcon('arrow-right',
                         size: 18, color: AppColors.onBrand, strokeWidth: 2.2),
@@ -654,7 +657,7 @@ class _ConfirmSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            TextButton(onPressed: onClose, child: const Text('Back to home')),
+            TextButton(onPressed: onClose, child: const Text('Back')),
           ],
         ),
       ),

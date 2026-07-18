@@ -17,6 +17,23 @@
       ]
     },
     {
+      "collectionGroup": "job_pings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "workerId", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"},
+        {"fieldPath": "createdAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "workerIds", "arrayConfig": "CONTAINS"},
+        {"fieldPath": "scheduledAt", "order": "ASCENDING"}
+      ]
+    },
+    {
       "collectionGroup": "inventory",
       "queryScope": "COLLECTION",
       "fields": [

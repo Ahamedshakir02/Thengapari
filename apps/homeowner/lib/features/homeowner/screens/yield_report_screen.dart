@@ -156,7 +156,7 @@ class _Report extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text('$total', style: AppText.displayNum(26)),
-                                Text('total units',
+                                Text('total nuts',
                                     style: AppText.caption()
                                         .copyWith(fontSize: 11.5)),
                               ],
@@ -201,12 +201,12 @@ class _Report extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Byproducts routed',
+                          Text('Husk & fronds routed to coir unit',
                               style: AppText.bodySm().copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.statusInprogressFg)),
                           const SizedBox(height: 2),
-                          Text('12 kg husks → Ravi Coir Factory',
+                          Text('Nothing wasted — you earn a little extra on byproduct.',
                               style: AppText.caption()
                                   .copyWith(color: AppColors.ink700)),
                         ],
@@ -281,7 +281,7 @@ class _Report extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.share, size: 20, color: Colors.white),
+                  const AppIcon('whatsapp', size: 20, color: Colors.white),
                   const SizedBox(width: 9),
                   Text('Share on WhatsApp',
                       style: AppText.button().copyWith(color: Colors.white)),

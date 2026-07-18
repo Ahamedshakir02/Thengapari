@@ -53,7 +53,7 @@ class DashboardScreen extends ConsumerWidget {
         ],
         const B2bSectionHead(
             title: 'Weekly spend trend',
-            action: '↓ 8% vs last month',
+            action: '↓ 8% vs Apr',
             actionColor: AppColors.green600),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -130,7 +130,7 @@ class DashboardScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('₹', style: AppText.displayNum(32, color: Colors.white)),
-                  Text(b2bInr(s.totalSaved == 0 ? 14320 : s.totalSaved),
+                  Text(b2bInr(s.totalSaved == 0 ? 2140 : s.totalSaved),
                       style: AppText.displayNum(52, color: Colors.white)),
                 ],
               ),
@@ -237,6 +237,9 @@ class _SpendChart extends StatelessWidget {
   final List<double> week;
   const _SpendChart({required this.week});
 
+  /// X-axis labels per `screen4.jsx` (`weeks` array).
+  static const _weekLabels = ['Apr W2', 'W3', 'W4', 'May W1', 'W2', 'W3'];
+
   @override
   Widget build(BuildContext context) {
     final data = week.isEmpty
@@ -266,12 +269,18 @@ class _SpendChart extends StatelessWidget {
               showTitles: true,
               reservedSize: 22,
               interval: 1,
-              getTitlesWidget: (v, _) => Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text('W${v.toInt() + 1}',
-                    style: AppText.caption()
-                        .copyWith(color: AppColors.ink400, fontSize: 10)),
-              ),
+              getTitlesWidget: (v, _) {
+                final i = v.toInt();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                      i >= 0 && i < _weekLabels.length
+                          ? _weekLabels[i]
+                          : 'W${i + 1}',
+                      style: AppText.caption()
+                          .copyWith(color: AppColors.ink400, fontSize: 10)),
+                );
+              },
             ),
           ),
         ),
@@ -279,7 +288,7 @@ class _SpendChart extends StatelessWidget {
         lineBarsData: [
           LineChartBarData(
             spots: spots,
-            isCurved: true,
+            isCurved: false,
             color: AppColors.blue500,
             barWidth: 2.4,
             dotData: FlDotData(

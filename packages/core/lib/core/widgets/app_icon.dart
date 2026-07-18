@@ -64,9 +64,15 @@ class AppIcon extends StatelessWidget {
         '<circle cx="12" cy="13" r="7"/><path d="M9.5 12.5h.01M14.5 12.5h.01M12 15.5h.01"/><path d="M12 6V4"/>',
   };
 
+  /// The design's `whatsapp` glyph is FILLED (not stroked) — see app-icons.jsx.
+  static const _whatsappPath =
+      'M12 2a10 10 0 0 0-8.6 15l-1.3 4.8 4.9-1.3A10 10 0 1 0 12 2Zm5.6 14.2c-.2.6-1.4 1.2-1.9 1.2-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3 0-1.5.7-2.2 1-2.5.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.4.6-.3.3c-.2.2-.3.4-.2.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.2.1.4.1.6-.1l.7-.9c.2-.2.4-.2.6-.1l1.9.9c.2.1.4.2.4.3.1.2.1.8-.1 1.4Z';
+
   @override
   Widget build(BuildContext context) {
-    final inner = _paths[name] ?? '';
+    final inner = name == 'whatsapp'
+        ? '<path d="$_whatsappPath" fill="${_hex(color)}" stroke="none"/>'
+        : _paths[name] ?? '';
     final svg =
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
         'fill="none" stroke="${_hex(color)}" stroke-width="$strokeWidth" '
@@ -116,6 +122,8 @@ class CropGlyph extends StatelessWidget {
       CropType.areca =>
         '<ellipse cx="12" cy="13" rx="5" ry="6.5" fill="$c"/>'
             '<path d="M12 6.5c0-1.6.8-2.8 2.4-3.3.2 1.6-.6 2.8-2 3.3Z" fill="$c" opacity=".7"/>',
+      CropType.banana =>
+        '<path d="M6 5c.5 5 4 9 10 9.5 1.2.1 2-.4 2-1.3 0-.6-.5-1-1.4-1.1C11 11.5 8 8.5 7.6 4.8 7.5 4 6 4 6 5Z" fill="$c"/>',
     };
     final svg =
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">$inner</svg>';
@@ -131,15 +139,17 @@ class CropPalette {
         CropType.coconut => const Color(0xFFE6EFD9),
         CropType.mango => const Color(0xFFFCEBCB),
         CropType.jackfruit => const Color(0xFFECF3E0),
-        CropType.pepper => const Color(0xFFF8DED6),
-        CropType.areca => const Color(0xFFFBDFA6),
+        CropType.pepper => const Color(0xFFECF3E0),
+        CropType.banana => const Color(0xFFFCEBCB),
+        CropType.areca => const Color(0xFFE6EFD9),
       };
 
   static Color fg(CropType t) => switch (t) {
-        CropType.coconut => const Color(0xFF2E6B3E),
-        CropType.mango => const Color(0xFFDD8413),
+        CropType.coconut => const Color(0xFF1E4D2B),
+        CropType.mango => const Color(0xFFB86A06),
         CropType.jackfruit => const Color(0xFF4C7A3C),
-        CropType.pepper => const Color(0xFFA33523),
-        CropType.areca => const Color(0xFFB86A06),
+        CropType.pepper => const Color(0xFF4C7A3C),
+        CropType.banana => const Color(0xFFB86A06),
+        CropType.areca => const Color(0xFF1E4D2B),
       };
 }

@@ -226,8 +226,9 @@ class SmSpill extends StatelessWidget {
 
 enum SmButtonKind { brand, accent, ghost, soft }
 
-/// Primary action button (`.btn`). [large] matches `.btn-lg`.
-class SmButton extends StatelessWidget {
+/// Primary action button (`.btn`). [large] matches `.btn-lg`; [pulse] renders
+/// the expanding amber `pulseRing` box-shadow from `app.css` (1.8s ease-out).
+class SmButton extends StatefulWidget {
   final String label;
   final IconData? icon;
   final IconData? trailingIcon;
@@ -249,58 +250,186 @@ class SmButton extends StatelessWidget {
   });
 
   @override
+  State<SmButton> createState() => _SmButtonState();
+}
+
+class _SmButtonState extends State<SmButton>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _pulseCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncPulse();
+  }
+
+  @override
+  void didUpdateWidget(SmButton old) {
+    super.didUpdateWidget(old);
+    if (old.pulse != widget.pulse) _syncPulse();
+  }
+
+  void _syncPulse() {
+    if (widget.pulse) {
+      _pulseCtrl ??= AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 1800));
+      _pulseCtrl!.repeat();
+    } else {
+      _pulseCtrl?.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final (bg, fg, border, shadow) = switch (kind) {
+    final (bg, fg, border, shadow) = switch (widget.kind) {
       SmButtonKind.brand => (AppColors.brand, AppColors.onBrand, null, AppShadows.sm),
       SmButtonKind.accent => (AppColors.accent, AppColors.onAccent, null, AppShadows.accent),
       SmButtonKind.ghost => (AppColors.surface, AppColors.brand, AppColors.borderStrong, null),
       SmButtonKind.soft => (AppColors.greenLeaf100, AppColors.greenForest800, null, null),
     };
-    final disabled = onTap == null || loading;
-    return Opacity(
-      opacity: disabled && !loading ? 0.55 : 1,
-      child: GestureDetector(
-        onTap: disabled ? null : onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          height: large ? 60 : 52,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(large ? AppRadii.lg : AppRadii.md),
-            border: border == null ? null : Border.all(color: border, width: 1.5),
-            boxShadow: shadow,
-          ),
-          child: loading
-              ? SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2.4, color: fg),
-                )
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (icon != null) ...[
-                      Icon(icon, size: large ? 24 : 20, color: fg),
-                      const SizedBox(width: 9),
-                    ],
-                    Text(label,
-                        style: AppText.button().copyWith(
-                            color: fg,
-                            fontSize: large ? 18 : 16,
-                            fontWeight: kind == SmButtonKind.accent
-                                ? FontWeight.w700
-                                : FontWeight.w600)),
-                    if (trailingIcon != null) ...[
-                      const SizedBox(width: 8),
-                      Icon(trailingIcon, size: large ? 22 : 20, color: fg),
-                    ],
-                  ],
-                ),
+    final disabled = widget.onTap == null || widget.loading;
+    final radius =
+        BorderRadius.circular(widget.large ? AppRadii.lg : AppRadii.md);
+    Widget button = GestureDetector(
+      onTap: disabled ? null : widget.onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        height: widget.large ? 60 : 52,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: radius,
+          border: border == null ? null : Border.all(color: border, width: 1.5),
+          boxShadow: shadow,
         ),
+        child: widget.loading
+            ? SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2.4, color: fg),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.icon != null) ...[
+                    Icon(widget.icon, size: widget.large ? 24 : 20, color: fg),
+                    const SizedBox(width: 9),
+                  ],
+                  Text(widget.label,
+                      style: AppText.button().copyWith(
+                          color: fg,
+                          fontSize: widget.large ? 18 : 16,
+                          fontWeight: widget.kind == SmButtonKind.accent
+                              ? FontWeight.w700
+                              : FontWeight.w600)),
+                  if (widget.trailingIcon != null) ...[
+                    const SizedBox(width: 8),
+                    Icon(widget.trailingIcon,
+                        size: widget.large ? 22 : 20, color: fg),
+                  ],
+                ],
+              ),
       ),
     );
+    if (widget.pulse && _pulseCtrl != null) {
+      // `pulseRing`: 0% → 0px spread @ .5 alpha; 70% → 14px spread @ 0 alpha.
+      button = AnimatedBuilder(
+        animation: _pulseCtrl!,
+        builder: (context, child) {
+          final eased = Curves.easeOut
+              .transform((_pulseCtrl!.value / 0.7).clamp(0.0, 1.0));
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      AppColors.accent.withValues(alpha: 0.5 * (1 - eased)),
+                  spreadRadius: 14 * eased,
+                ),
+              ],
+            ),
+            child: child,
+          );
+        },
+        child: button,
+      );
+    }
+    return Opacity(
+      opacity: disabled && !widget.loading ? 0.55 : 1,
+      child: button,
+    );
   }
+}
+
+/// Blinking opacity wrapper — the design's `blink` keyframes
+/// (`0%,100% → opacity 1; 50% → .35`). [hard] snaps like `steps(1)`.
+class SmBlink extends StatefulWidget {
+  final Widget child;
+  final Duration period;
+  final bool hard;
+  const SmBlink({
+    super.key,
+    required this.child,
+    this.period = const Duration(milliseconds: 1400),
+    this.hard = false,
+  });
+
+  @override
+  State<SmBlink> createState() => _SmBlinkState();
+}
+
+class _SmBlinkState extends State<SmBlink>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl =
+      AnimationController(vsync: this, duration: widget.period)..repeat();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, child) {
+        final t = _ctrl.value;
+        final double opacity;
+        if (widget.hard) {
+          opacity = t < 0.5 ? 1 : 0.35;
+        } else {
+          final phase = t < 0.5 ? t / 0.5 : (1 - t) / 0.5;
+          opacity = 1 - 0.65 * Curves.easeInOut.transform(phase);
+        }
+        return Opacity(opacity: opacity, child: child);
+      },
+      child: widget.child,
+    );
+  }
+}
+
+/// Small blinking status dot (`.live-dot`).
+class SmLiveDot extends StatelessWidget {
+  final Color color;
+  final double size;
+  const SmLiveDot({super.key, required this.color, this.size = 8});
+
+  @override
+  Widget build(BuildContext context) => SmBlink(
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+      );
 }
 
 /// List / Map segmented toggle (`.seg`).
@@ -362,13 +491,19 @@ class SmSegmented extends StatelessWidget {
 }
 
 /// Bottom nav (`.bnav`) — Today / On-site / Earnings / Profile.
+/// [onSiteBadge] renders the amber `.bnav-dot` count over the On-site item.
 class SmBottomNav extends StatelessWidget {
   final int index;
   final ValueChanged<int> onTap;
-  const SmBottomNav({super.key, required this.index, required this.onTap});
+  final int onSiteBadge;
+  const SmBottomNav(
+      {super.key,
+      required this.index,
+      required this.onTap,
+      this.onSiteBadge = 0});
 
   static const _items = [
-    (Icons.today_outlined, Icons.today, 'Today'),
+    (Icons.home_outlined, Icons.home, 'Today'),
     (Icons.location_on_outlined, Icons.location_on, 'On-site'),
     (Icons.account_balance_wallet_outlined,
         Icons.account_balance_wallet, 'Earnings'),
@@ -406,15 +541,48 @@ class SmBottomNav extends StatelessWidget {
       onTap: () => onTap(i),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            Icon(on ? active : off, size: 25, color: color),
-            const SizedBox(height: 3),
-            Text(label,
-                style: AppText.caption().copyWith(
-                    color: color,
-                    fontWeight: on ? FontWeight.w700 : FontWeight.w500)),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(on ? active : off, size: 25, color: color),
+                const SizedBox(height: 3),
+                Text(label,
+                    style: AppText.caption().copyWith(
+                        color: color,
+                        fontWeight: on ? FontWeight.w700 : FontWeight.w500)),
+              ],
+            ),
+            // `.bnav-dot` — amber accent count badge over the On-site icon.
+            if (i == 1 && onSiteBadge > 0)
+              Positioned(
+                top: -3,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Transform.translate(
+                    offset: const Offset(8, 0),
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 16),
+                      height: 16,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.accent,
+                        borderRadius: BorderRadius.circular(AppRadii.pill),
+                      ),
+                      child: Text('$onSiteBadge',
+                          style: AppText.caption().copyWith(
+                              fontSize: 10,
+                              height: 1,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.greenForest900)),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -553,8 +721,10 @@ class SmLegendRow extends StatelessWidget {
             child: Text(label,
                 style: AppText.bodySm().copyWith(color: AppColors.fg2)),
           ),
+          // Design tags legend counts `600 15px var(--font-mono)`.
           Text(value,
-              style: AppText.title().copyWith(fontSize: 15, color: AppColors.fg1)),
+              style: AppText.mono(15,
+                  weight: FontWeight.w600, color: AppColors.fg1)),
         ],
       ),
     );
@@ -613,9 +783,10 @@ class SmStepperCounter extends StatelessWidget {
         _btn(Icons.remove, () => onDelta(-1), plus: false),
         SizedBox(
           width: 48,
+          // Design tags counter values `700 24px var(--font-mono)`.
           child: Text('$value',
               textAlign: TextAlign.center,
-              style: AppText.displayNum(24, color: AppColors.fg1)),
+              style: AppText.mono(24, color: AppColors.fg1)),
         ),
         _btn(Icons.add, () => onDelta(1), plus: true),
       ],

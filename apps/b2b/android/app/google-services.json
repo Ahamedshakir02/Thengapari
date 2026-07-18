@@ -1,0 +1,105 @@
+{
+  "project_info": {
+    "project_number": "120551817733",
+    "project_id": "thengapari-dev",
+    "storage_bucket": "thengapari-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120551817733:android:ddca02805c4a9b0d1b126c",
+        "android_client_info": {
+          "package_name": "com.agrimarketplace.agri_platform.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBos1BeM3Q7ihpnshkjWLy_lKHzm-uRJes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120551817733:android:dcfc185677e16d331b126c",
+        "android_client_info": {
+          "package_name": "com.thengapari.b2b"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBos1BeM3Q7ihpnshkjWLy_lKHzm-uRJes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120551817733:android:26f8719f58aa58101b126c",
+        "android_client_info": {
+          "package_name": "com.thengapari.homeowner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBos1BeM3Q7ihpnshkjWLy_lKHzm-uRJes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120551817733:android:fea87b07c9fc1e581b126c",
+        "android_client_info": {
+          "package_name": "com.thengapari.site_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBos1BeM3Q7ihpnshkjWLy_lKHzm-uRJes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120551817733:android:0f183645ec5a8b211b126c",
+        "android_client_info": {
+          "package_name": "com.thengapari.worker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBos1BeM3Q7ihpnshkjWLy_lKHzm-uRJes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

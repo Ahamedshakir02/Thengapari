@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/app/design_tokens.dart';
+import 'package:core/core/models/job_ping.dart';
+import 'package:core/core/providers/auth_provider.dart';
+import 'package:core/core/providers/worker_providers.dart';
 import 'package:worker/router.dart';
 import '../theme/worker_theme.dart';
 
 /// Post-job summary — payout confirmation, job summary, and a site-manager star
 /// rating. Matches `Designs/ThengaPari Worker App/screen-complete.jsx`.
-class JobCompleteScreen extends StatefulWidget {
-  const JobCompleteScreen({super.key});
+class JobCompleteScreen extends ConsumerStatefulWidget {
+  final JobPing? ping;
+  const JobCompleteScreen({super.key, this.ping});
 
   @override
-  State<JobCompleteScreen> createState() => _JobCompleteScreenState();
+  ConsumerState<JobCompleteScreen> createState() => _JobCompleteScreenState();
 }
 
-class _JobCompleteScreenState extends State<JobCompleteScreen> {
+class _JobCompleteScreenState extends ConsumerState<JobCompleteScreen> {
   int _rating = 5;
 
   static const _words = {
@@ -26,6 +31,26 @@ class _JobCompleteScreenState extends State<JobCompleteScreen> {
   };
 
   void _finish() => context.go(AppRoutes.workerHome);
+
+  String _upiVpa() {
+    final uid = ref.watch(authStateProvider).value?.uid ?? '';
+    return ref.watch(workerProfileProvider(uid)).value?.upiVpa ?? 'your UPI';
+  }
+
+  /// Short ward name for the summary card — last comma token of the place.
+  String _ward() {
+    final place = widget.ping?.place;
+    if (place == null || place.isEmpty) return 'Ollur';
+    final parts = place.split(',');
+    return parts.last.trim().isEmpty ? 'Ollur' : parts.last.trim();
+  }
+
+  /// Site manager's first name for the rating prompt.
+  String _managerFirstName() {
+    final name = widget.ping?.managerName;
+    if (name == null || name.trim().isEmpty) return 'Arjun';
+    return name.trim().split(' ').first;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,8 +133,8 @@ class _JobCompleteScreenState extends State<JobCompleteScreen> {
           Text('PAYOUT',
               style: AppText.overline().copyWith(color: AppColors.ink500, fontSize: 11)),
           const SizedBox(height: 6),
-          Text('₹380',
-              style: AppText.displayNum(56,
+          Text('₹${widget.ping?.payout?.round() ?? 380}',
+              style: AppText.mono(56,
                   color: AppColors.greenForest700, weight: FontWeight.w800)),
           const SizedBox(height: 8),
           Container(
@@ -127,7 +152,7 @@ class _JobCompleteScreenState extends State<JobCompleteScreen> {
                       text: 'sent to ',
                       style: AppText.bodySm().copyWith(color: AppColors.ink700)),
                   TextSpan(
-                      text: 'ravi@okaxis',
+                      text: _upiVpa(),
                       style: AppText.bodySm().copyWith(
                           color: AppColors.greenForest800,
                           fontWeight: FontWeight.w700)),
@@ -167,11 +192,17 @@ class _JobCompleteScreenState extends State<JobCompleteScreen> {
         children: [
           Text('JOB SUMMARY',
               style: AppText.overline().copyWith(color: WColors.fg3, fontSize: 11)),
-          _summaryRow(Icons.spa_outlined, 'Coconut husking', '24 nuts'),
+          _summaryRow(
+              Icons.spa_outlined,
+              widget.ping?.headline ?? 'Coconut husking',
+              widget.ping?.yieldKg != null
+                  ? '${widget.ping!.yieldKg!.round()} kg'
+                  : '24 nuts'),
           const Divider(color: WColors.line, height: 1),
           _summaryRow(Icons.schedule, 'Time on site', '1h 28m'),
           const Divider(color: WColors.line, height: 1),
-          _summaryRow(Icons.place_outlined, 'Parambil Estate', 'Ollur'),
+          _summaryRow(Icons.place_outlined,
+              widget.ping?.place ?? 'Parambil Estate', _ward()),
         ],
       ),
     );
@@ -219,11 +250,11 @@ class _JobCompleteScreenState extends State<JobCompleteScreen> {
               ),
               const SizedBox(width: 10),
               Text('Rate the site manager',
-                  style: AppText.title().copyWith(fontSize: 16, color: Colors.white)),
+                  style: AppText.title().copyWith(color: Colors.white)),
             ],
           ),
           const SizedBox(height: 4),
-          Text('How was working with Arjun?',
+          Text('How was working with ${_managerFirstName()}?',
               style: AppText.bodySm().copyWith(color: WColors.fg3)),
           const SizedBox(height: 14),
           Row(

@@ -1,0 +1,10 @@
+# Netlify deploy config. Set "Base directory" to `website` when connecting the repo
+# (or run `netlify deploy` from inside website/).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

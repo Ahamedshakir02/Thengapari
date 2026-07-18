@@ -3,3 +3,6 @@ lib/
 *.log
 .env
 .runtimeconfig.json
+
+# Local emulator secrets (dummy values only)
+.secret.local

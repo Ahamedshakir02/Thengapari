@@ -95,6 +95,48 @@ class BrandRow extends StatelessWidget {
   }
 }
 
+/// Auth form top bar (matches `.tp-form__bar`): circular back button on the
+/// left, [LanguageToggle] on the right. Used by the phone-entry and OTP
+/// screens.
+class AuthTopBar extends StatelessWidget {
+  final VoidCallback onBack;
+  const AuthTopBar({required this.onBack, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 52,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            Material(
+              color: Colors.transparent,
+              shape: const CircleBorder(),
+              child: InkWell(
+                onTap: onBack,
+                customBorder: const CircleBorder(),
+                highlightColor: AppColors.surfaceSunk,
+                child: const SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 22,
+                    color: AppColors.fg1,
+                  ),
+                ),
+              ),
+            ),
+            const Spacer(),
+            const LanguageToggle(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Full-width pill CTA (matches `.tp-btn--primary`): brand green, white label,
 /// soft shadow, optional trailing arrow. Greys out (`.tp-btn--disabled`) when
 /// [onPressed] is null.

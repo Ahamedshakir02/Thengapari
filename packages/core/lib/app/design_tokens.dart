@@ -173,4 +173,17 @@ class AppText {
           {Color? color, FontWeight weight = FontWeight.w700}) =>
       GoogleFonts.balooChettan2(
           fontSize: size, height: 1.05, fontWeight: weight, color: color ?? AppColors.fg1, letterSpacing: -0.2);
+
+  /// Monospace numeric font (`--font-mono`: Noto Sans Mono, tabular figures).
+  /// The design uses it for every meter/scale readout: timers, weights,
+  /// keypads, counters, countdowns, ₹ amounts tagged `.mono`, and ratings.
+  static TextStyle mono(double size,
+          {Color? color, FontWeight weight = FontWeight.w700, double? height}) =>
+      GoogleFonts.notoSansMono(
+        fontSize: size,
+        height: height ?? 1.1,
+        fontWeight: weight,
+        color: color ?? AppColors.fg1,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
 }

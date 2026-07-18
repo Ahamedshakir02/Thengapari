@@ -198,15 +198,19 @@ class SectionHead extends StatelessWidget {
   final String title;
   final String? action;
   final VoidCallback? onAction;
+  final Widget? trailing;
 
-  const SectionHead(this.title, {this.action, this.onAction, super.key});
+  const SectionHead(this.title,
+      {this.action, this.onAction, this.trailing, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(_gut, 0, _gut, 2),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
+        crossAxisAlignment: trailing != null
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
           Expanded(child: Text(title, style: AppText.h3())),
@@ -219,6 +223,43 @@ class SectionHead extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: AppColors.brand)),
             ),
+          ?trailing,
+        ],
+      ),
+    );
+  }
+}
+
+/// `.pill-status` from the design's app.css — dot + label pill
+/// (e.g. `st-inprogress` beside the "Active harvest" section head).
+class StatusPill extends StatelessWidget {
+  final String label;
+  final Color bg;
+  final Color fg;
+
+  const StatusPill(
+      {required this.label, required this.bg, required this.fg, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(9, 6, 11, 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(AppRadii.pill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(color: fg, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(label,
+              style: AppText.caption().copyWith(
+                  fontSize: 12, fontWeight: FontWeight.w700, color: fg)),
         ],
       ),
     );
@@ -361,6 +402,21 @@ class HomeStatCard extends StatelessWidget {
 
 // ─────────────────────────── Weekly bar chart ───────────────────────────
 
+/// Indian-grouped rupee amount without decimals, e.g. 1280 → "1,280".
+String formatRupees(double value) {
+  final s = value.round().toString();
+  if (s.length <= 3) return s;
+  final head = s.substring(0, s.length - 3);
+  final tail = s.substring(s.length - 3);
+  final buf = StringBuffer();
+  for (int i = 0; i < head.length; i++) {
+    buf.write(head[i]);
+    final rem = head.length - 1 - i;
+    if (rem > 0 && rem % 2 == 0) buf.write(',');
+  }
+  return '$buf,$tail';
+}
+
 class WeeklyBarChart extends StatelessWidget {
   /// (label, value) per bar, e.g. ('M', 2100).
   final List<(String, double)> data;
@@ -438,7 +494,7 @@ class _BarCol extends StatelessWidget {
                         left: 0,
                         right: 0,
                         child: Text(
-                          '₹${(value / 1000).toStringAsFixed(1)}k',
+                          '₹${formatRupees(value)}',
                           textAlign: TextAlign.center,
                           style: AppText.caption().copyWith(
                               fontSize: 11,

@@ -69,6 +69,17 @@ service cloud.firestore {
         allow read: if signedIn();
         allow create: if request.auth.uid == jobData(jobId).siteManagerId;
       }
+      // Live-location breadcrumbs (worker/site manager en route → homeowner map).
+      match /tracking/{pointId} {
+        allow read: if signedIn() && (
+          request.auth.uid in [jobData(jobId).homeownerId, jobData(jobId).siteManagerId]
+          || request.auth.uid in jobData(jobId).get('workerIds', [])
+        );
+        allow create: if signedIn() && (
+          request.auth.uid == jobData(jobId).siteManagerId
+          || request.auth.uid in jobData(jobId).get('workerIds', [])
+        );
+      }
     }
 
     // ── Job pings — only the targeted worker reads + responds ──
@@ -134,6 +145,18 @@ service cloud.firestore {
     // ── Payout ledger — Cloud Functions only ──
     match /payouts/{payoutId} {
       allow read, write: if false;
+    }
+
+    // ── Marketing waitlist leads (public website signup) ──
+    // Anonymous create-only, tightly validated. No public reads/edits.
+    match /leads/{leadId} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.keys().hasOnly(['email', 'type', 'createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() < 200
+        && request.resource.data.type in ['homeowner', 'business', 'general']
+        && request.resource.data.createdAt == request.time;
     }
   }
 }

@@ -17,6 +17,7 @@ abstract final class AppRoutes {
   static const splash = '/splash';
   static const onboarding = '/onboarding';
   static const login = '/login';
+  static const welcome = '/welcome';
 
   static const b2bProfileSetup = '/b2b/profile-setup';
   static const b2bVerification = '/b2b/verification';
@@ -54,7 +55,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (!onboardingListenable.value) {
           return loc == AppRoutes.onboarding ? null : AppRoutes.onboarding;
         }
-        return loc == AppRoutes.login ? null : AppRoutes.login;
+        const preAuth = {AppRoutes.welcome, AppRoutes.login};
+        return preAuth.contains(loc) ? null : AppRoutes.welcome;
       }
       if (!user.isProfileComplete) {
         const setupRoutes = {
@@ -63,7 +65,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         };
         return setupRoutes.contains(loc) ? null : AppRoutes.b2bProfileSetup;
       }
-      const preHome = {AppRoutes.splash, AppRoutes.onboarding, AppRoutes.login};
+      const preHome = {
+        AppRoutes.splash,
+        AppRoutes.onboarding,
+        AppRoutes.welcome,
+        AppRoutes.login,
+      };
       return preHome.contains(loc) ? AppRoutes.b2bHome : null;
     },
     routes: [
@@ -71,6 +78,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: AppRoutes.onboarding, builder: (_, _) => const OnboardingScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+          path: AppRoutes.welcome, builder: (_, _) => const WelcomeScreen()),
       GoRoute(
           path: AppRoutes.b2bProfileSetup,
           builder: (_, _) => const BusinessProfileSetupScreen()),
@@ -80,22 +89,35 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.b2bHome, builder: (_, _) => const B2BHomeScreen()),
       GoRoute(
           path: AppRoutes.b2bListing,
-          builder: (_, state) =>
-              ListingDetailScreen(listing: state.extra as InventoryListing)),
+          builder: (_, state) {
+            final listing = state.extra as InventoryListing?;
+            if (listing == null) return const B2BHomeScreen();
+            return ListingDetailScreen(listing: listing);
+          }),
       GoRoute(
           path: AppRoutes.b2bPrebook,
-          builder: (_, state) => PreBookScreen(args: state.extra as PreBookArgs)),
+          builder: (_, state) {
+            final args = state.extra as PreBookArgs?;
+            if (args == null) return const B2BHomeScreen();
+            return PreBookScreen(args: args);
+          }),
       GoRoute(
           path: AppRoutes.b2bTracking,
-          builder: (_, state) =>
-              OrderTrackingScreen(order: state.extra as B2BOrder)),
+          builder: (_, state) {
+            final order = state.extra as B2BOrder?;
+            if (order == null) return const B2BHomeScreen();
+            return OrderTrackingScreen(order: order);
+          }),
       GoRoute(
           path: AppRoutes.b2bStanding,
           builder: (_, _) => const StandingOrderSetupScreen()),
       GoRoute(
           path: AppRoutes.b2bInvoice,
-          builder: (_, state) =>
-              InvoiceViewScreen(order: state.extra as B2BOrder)),
+          builder: (_, state) {
+            final order = state.extra as B2BOrder?;
+            if (order == null) return const B2BHomeScreen();
+            return InvoiceViewScreen(order: order);
+          }),
     ],
   );
 });

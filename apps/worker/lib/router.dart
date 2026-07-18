@@ -14,6 +14,7 @@ abstract final class AppRoutes {
   static const splash = '/splash';
   static const onboarding = '/onboarding';
   static const login = '/login';
+  static const welcome = '/welcome';
 
   static const workerSetup = '/worker/setup';
   static const workerHome = '/worker/home';
@@ -48,12 +49,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (!onboardingListenable.value) {
           return loc == AppRoutes.onboarding ? null : AppRoutes.onboarding;
         }
-        return loc == AppRoutes.login ? null : AppRoutes.login;
+        const preAuth = {AppRoutes.welcome, AppRoutes.login};
+        return preAuth.contains(loc) ? null : AppRoutes.welcome;
       }
       if (!user.isProfileComplete) {
         return loc == AppRoutes.workerSetup ? null : AppRoutes.workerSetup;
       }
-      const preHome = {AppRoutes.splash, AppRoutes.onboarding, AppRoutes.login};
+      const preHome = {
+        AppRoutes.splash,
+        AppRoutes.onboarding,
+        AppRoutes.welcome,
+        AppRoutes.login,
+      };
       return preHome.contains(loc) ? AppRoutes.workerHome : null;
     },
     routes: [
@@ -62,15 +69,20 @@ final routerProvider = Provider<GoRouter>((ref) {
           path: AppRoutes.onboarding, builder: (_, _) => const OnboardingScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
       GoRoute(
+          path: AppRoutes.welcome, builder: (_, _) => const WelcomeScreen()),
+      GoRoute(
           path: AppRoutes.workerSetup, builder: (_, _) => const WorkerSetupScreen()),
       GoRoute(
           path: AppRoutes.workerHome, builder: (_, _) => const WorkerHomeScreen()),
       GoRoute(path: AppRoutes.workerPing, builder: (_, _) => const JobPingScreen()),
       GoRoute(
-          path: AppRoutes.workerNavigate, builder: (_, _) => const NavigateScreen()),
+          path: AppRoutes.workerNavigate,
+          builder: (_, state) =>
+              NavigateScreen(ping: state.extra as JobPing?)),
       GoRoute(
           path: AppRoutes.workerComplete,
-          builder: (_, _) => const JobCompleteScreen()),
+          builder: (_, state) =>
+              JobCompleteScreen(ping: state.extra as JobPing?)),
     ],
   );
 });

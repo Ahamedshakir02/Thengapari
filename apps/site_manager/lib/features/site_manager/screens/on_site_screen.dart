@@ -55,6 +55,7 @@ class _OnSiteScreenState extends ConsumerState<OnSiteScreen> {
                 icon: Icons.podcasts,
                 kind: SmButtonKind.accent,
                 large: true,
+                pulse: pingActive || pingDone,
                 onTap: (pingActive || pingDone)
                     ? () => context.push(AppRoutes.managerBroadcast, extra: job)
                     : null,
@@ -109,9 +110,10 @@ class _OnSiteScreenState extends ConsumerState<OnSiteScreen> {
                 children: [
                   const SmOverline('Elapsed', color: AppColors.greenSage400),
                   const SizedBox(height: 2),
+                  // Design: `700 26px var(--font-mono)` (screen2.jsx).
                   ElapsedTimer(
                     since: _since,
-                    style: AppText.displayNum(26, color: AppColors.accent),
+                    style: AppText.mono(26, color: AppColors.accent),
                   ),
                 ],
               ),
@@ -143,13 +145,15 @@ class _OnSiteScreenState extends ConsumerState<OnSiteScreen> {
                 gradeA: y.gradeA,
                 gradeB: y.gradeB,
                 tender: y.tender,
-                size: 124,
-                thickness: 19,
+                size: 128,
+                thickness: 20,
                 center: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Design: `700 28px var(--font-mono)`, line-height 1.
                     Text(y.totalKg.toStringAsFixed(1),
-                        style: AppText.displayNum(26, color: AppColors.fg1)),
+                        style:
+                            AppText.mono(28, color: AppColors.fg1, height: 1)),
                     const SmOverline('kg total'),
                   ],
                 ),

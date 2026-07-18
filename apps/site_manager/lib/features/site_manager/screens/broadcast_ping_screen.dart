@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +28,20 @@ class _BroadcastPingScreenState extends ConsumerState<BroadcastPingScreen> {
   bool _live = false;
   bool _broadcasting = false;
   String? _assignedId;
+  int _liveSeconds = 0;
+  Timer? _liveTimer;
+
+  @override
+  void dispose() {
+    _liveTimer?.cancel();
+    super.dispose();
+  }
+
+  String get _liveLabel {
+    final m = _liveSeconds ~/ 60;
+    final ss = (_liveSeconds % 60).toString().padLeft(2, '0');
+    return 'Live $m:$ss';
+  }
 
   Future<void> _broadcast() async {
     setState(() => _broadcasting = true);
@@ -46,6 +62,11 @@ class _BroadcastPingScreenState extends ConsumerState<BroadcastPingScreen> {
     setState(() {
       _broadcasting = false;
       _live = true;
+    });
+    _liveTimer?.cancel();
+    _liveSeconds = 0;
+    _liveTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _liveSeconds++);
     });
   }
 
@@ -73,7 +94,7 @@ class _BroadcastPingScreenState extends ConsumerState<BroadcastPingScreen> {
             subtitle:
                 '${_homeowner(job)} · ${(job.actualYieldKg ?? 0).toStringAsFixed(1)} kg ready',
             trailing: _live
-                ? const SmSpill('Live', kind: SmSpillKind.error)
+                ? SmSpill(_liveLabel, kind: SmSpillKind.error)
                 : null,
             onBack: () => context.pop(),
           ),
@@ -126,7 +147,7 @@ class _BroadcastPingScreenState extends ConsumerState<BroadcastPingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Time-sensitive · fresh yield',
+                Text('Time-sensitive · tender coconuts',
                     style: AppText.title().copyWith(
                         fontSize: 16, color: AppColors.statusInprogressFg)),
                 const SizedBox(height: 2),
@@ -149,7 +170,7 @@ class _BroadcastPingScreenState extends ConsumerState<BroadcastPingScreen> {
           children: [
             _avatarStack(),
             const SizedBox(height: 12),
-            Text('18', style: AppText.displayNum(44, color: AppColors.brandInk)),
+            Text('18', style: AppText.mono(44, color: AppColors.brandInk)),
             Text.rich(TextSpan(children: [
               TextSpan(
                   text: 'processors active within ',
@@ -168,6 +189,7 @@ class _BroadcastPingScreenState extends ConsumerState<BroadcastPingScreen> {
         icon: Icons.podcasts,
         kind: SmButtonKind.accent,
         large: true,
+        pulse: true,
         loading: _broadcasting,
         onTap: _broadcast,
       ),
@@ -268,7 +290,15 @@ class _LiveResponses extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: AppSpace.s4),
-        const SmOverline('Incoming responses'),
+        Row(
+          children: [
+            if (assignedId == null) ...[
+              const _BlinkDot(color: AppColors.green600),
+              const SizedBox(width: 6),
+            ],
+            const SmOverline('Incoming responses'),
+          ],
+        ),
         const SizedBox(height: AppSpace.s3),
         if (responses.isEmpty)
           SmCard(
@@ -309,7 +339,7 @@ class _LiveResponses extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Column(
           children: [
-            Text(value, style: AppText.displayNum(24, color: color)),
+            Text(value, style: AppText.mono(24, color: color)),
             SmOverline(label),
           ],
         ),
@@ -372,9 +402,9 @@ class _ResponseCard extends StatelessWidget {
                               size: 14, color: AppColors.accent),
                           const SizedBox(width: 2),
                           Text(response.rating.toStringAsFixed(1),
-                              style: AppText.caption().copyWith(
+                              style: AppText.mono(12,
                                   color: AppColors.fg1,
-                                  fontWeight: FontWeight.w600)),
+                                  weight: FontWeight.w600)),
                         ],
                       ),
                       const SizedBox(height: 1),
@@ -426,5 +456,40 @@ class _ResponseCard extends StatelessWidget {
     final parts = name.trim().split(RegExp(r'\s+'));
     final s = parts.map((p) => p.isEmpty ? '' : p[0]).join();
     return s.length <= 2 ? s.toUpperCase() : s.substring(0, 2).toUpperCase();
+  }
+}
+
+
+/// Small blinking status dot (design's `.blink` live indicator).
+class _BlinkDot extends StatefulWidget {
+  final Color color;
+  const _BlinkDot({required this.color});
+
+  @override
+  State<_BlinkDot> createState() => _BlinkDotState();
+}
+
+class _BlinkDotState extends State<_BlinkDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 900))
+    ..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween(begin: 0.25, end: 1.0).animate(_c),
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: widget.color),
+      ),
+    );
   }
 }

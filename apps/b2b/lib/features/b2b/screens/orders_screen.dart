@@ -28,7 +28,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
 
     return Column(
       children: [
-        const B2bAppBar(eyebrow: 'Your orders', title: 'My pre-books'),
+        const B2bAppBar(eyebrow: 'Upcoming', title: 'My pre-books'),
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 4),
           child: _segmented(active.length, history.length),
@@ -128,12 +128,22 @@ class _OrderCard extends StatelessWidget {
                   children: [
                     Text('${o.cropType.label} · ${o.quantity} ${o.unit}',
                         style: AppText.title().copyWith(color: AppColors.fg1)),
-                    Text('₹${b2bInr(o.totalAmount)} · saved ₹${b2bInr(o.savingsAmount)}',
+                    Text('₹${b2bInr(o.totalAmount)}',
                         style: AppText.bodySm().copyWith(color: AppColors.fg3)),
                   ],
                 ),
               ),
-              _statusTag(o.status),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _statusTag(o.status),
+                  const SizedBox(height: 5),
+                  Text('saved ₹${b2bInr(o.savingsAmount)}',
+                      style: AppText.caption().copyWith(
+                          color: AppColors.green600,
+                          fontWeight: FontWeight.w700)),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -194,7 +204,7 @@ class _OrderCard extends StatelessWidget {
         ? (AppColors.statusCompleteBg, AppColors.statusCompleteFg)
         : s == B2BOrderStatus.cancelled
             ? (AppColors.statusErrorBg, AppColors.statusErrorFg)
-            : (AppColors.blue100, AppColors.blue700);
+            : (AppColors.statusScheduledBg, AppColors.statusScheduledFg);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration:

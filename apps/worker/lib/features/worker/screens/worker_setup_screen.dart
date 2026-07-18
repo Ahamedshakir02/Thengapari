@@ -4,20 +4,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/app/design_tokens.dart';
+
+import '../theme/worker_theme.dart';
 import 'package:worker/router.dart';
 import 'package:core/core/models/worker_profile.dart';
 import 'package:core/core/providers/auth_provider.dart';
 import 'package:core/core/providers/worker_providers.dart';
 
 /// Worker palette (dark teal) — local to the worker feature.
+/// Thin aliases onto the shared worker palette so this screen tracks
+/// [WColors] (Emerald) instead of carrying its own hex values.
 class _W {
-  static const bg = Color(0xFF08332F); // teal-900
-  static const surface = Color(0xFF0E5249); // teal-700
-  static const field = Color(0xFF0B4640);
-  static const border = Color(0xFF15786B); // teal-500
-  static const fg = Colors.white;
-  static const fg2 = Color(0xFF9FE1CB);
-  static const accent = AppColors.amber500;
+  static const bg = WColors.bg;
+  static const surface = WColors.surface;
+  static const field = WColors.surface2;
+  static const border = WColors.teal500;
+  static const fg = WColors.fg1;
+  static const fg2 = WColors.fg2;
+  static const accent = WColors.accent;
 }
 
 const _districts = <String>[

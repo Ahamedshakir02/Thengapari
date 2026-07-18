@@ -16,14 +16,21 @@ import 'package:core/core/widgets/app_icon.dart';
 class LiveJobTrackerScreen extends ConsumerWidget {
   const LiveJobTrackerScreen({super.key});
 
-  static const _steps = ['Assigned', 'En route', 'On-site', 'Harvesting', 'Done'];
+  // Design stepper labels (app-i18n.jsx step_assigned…step_done).
+  static const _steps = [
+    'Assigned',
+    'Arrived',
+    'Harvesting',
+    'Weighing',
+    'Settled',
+  ];
 
   int _activeIndex(String status) => switch (status) {
         'pending' => 0,
         'site_manager_assigned' => 1,
         'worker_assigned' => 1,
         'in_progress' => 2,
-        'harvesting' => 3,
+        'harvesting' => 2,
         'processing' => 3,
         'byproducts_routed' => 4,
         'complete' => 5,
@@ -41,7 +48,7 @@ class LiveJobTrackerScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: AppBar(
-        title: const Text('Live job'),
+        title: const Text('Live harvest'),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 12),
@@ -589,7 +596,7 @@ class _DialPainter extends CustomPainter {
         center,
         radius,
         Paint()
-          ..color = AppColors.surfaceSunk
+          ..color = AppColors.greenLeaf100 // design: var(--green-leaf-100)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 7);
     canvas.drawArc(
@@ -616,7 +623,7 @@ class _SitePhotos extends StatelessWidget {
 
   static const _photos = [
     ([Color(0xFF357A47), Color(0xFF1E4D2B)], 'tree', '8:02'),
-    ([Color(0xFF94B97F), Color(0xFF2E6B3E)], 'leaf', '8:14'),
+    ([Color(0xFF94B97F), Color(0xFF2E6B3E)], 'coconut', '8:14'),
     ([Color(0xFFFBBA4D), Color(0xFFDD8413)], 'scale', '8:31'),
     ([Color(0xFF6E9E5E), Color(0xFF357A47)], 'leaf', '8:40'),
   ];

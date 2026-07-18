@@ -10,7 +10,9 @@
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "seed:emulator": "node scripts/seed-emulator.mjs",
+    "emulators": "npm run build && firebase emulators:start --only auth,firestore,functions"
   },
   "dependencies": {
     "firebase-admin": "^12.6.0",

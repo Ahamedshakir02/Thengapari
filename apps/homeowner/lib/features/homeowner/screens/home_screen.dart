@@ -51,7 +51,14 @@ class HomeownerHomeScreen extends ConsumerWidget {
           _WeeklyEarnings(uid: uid),
           const SizedBox(height: 14),
 
-          SectionHead(tr('active_job', lang)),
+          SectionHead(
+            tr('active_job', lang),
+            trailing: const StatusPill(
+              label: 'In progress',
+              bg: AppColors.statusInprogressBg,
+              fg: AppColors.statusInprogressFg,
+            ),
+          ),
           const SizedBox(height: 8),
           _ActiveJob(uid: uid),
           const SizedBox(height: 18),
@@ -194,7 +201,10 @@ class _WeeklyEarnings extends ConsumerWidget {
           list.any((v) => v > 0) ? list : const <double>[0, 0, 0, 0, 0, 0],
       orElse: () => const <double>[0, 0, 0, 0, 0, 0],
     );
-    final labels = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6'];
+    // Weekday letters, as in the design's WEEK data (app-i18n.jsx).
+    final labels = lang == AppLang.ml
+        ? ['തി', 'ചൊ', 'ബു', 'വ്യ', 'വെ', 'ശ', 'ഞാ']
+        : ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     final data = <(String, double)>[
       for (int i = 0; i < values.length && i < labels.length; i++)
         (labels[i], values[i]),
@@ -241,6 +251,7 @@ class _ActiveJob extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     final job = ref.watch(activeJobProvider(uid));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
@@ -254,8 +265,8 @@ class _ActiveJob extends ConsumerWidget {
             thumbCrop: crop,
             title: j.title,
             meta: j.siteManagerId != null
-                ? 'Site Manager assigned'
-                : 'Finding a site manager…',
+                ? tr('site_manager_assigned', lang)
+                : tr('finding_manager', lang),
             progress: j.progress ?? 0.1,
             etaText: 'Site Manager · ${j.district ?? 'nearby'}',
             managerInitials: 'SM',
@@ -291,11 +302,12 @@ class _JobSkeleton extends StatelessWidget {
   }
 }
 
-class _NoActiveJob extends StatelessWidget {
+class _NoActiveJob extends ConsumerWidget {
   const _NoActiveJob();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(localeProvider);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -318,7 +330,7 @@ class _NoActiveJob extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text('No active harvest. Book one to get started.',
+            child: Text(tr('no_active_harvest', lang),
                 style: AppText.bodySm().copyWith(color: AppColors.fg2)),
           ),
         ],

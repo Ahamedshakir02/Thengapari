@@ -19,6 +19,7 @@ abstract final class AppRoutes {
   static const splash = '/splash';
   static const onboarding = '/onboarding';
   static const login = '/login';
+  static const welcome = '/welcome';
 
   static const homeownerProfileSetup = '/homeowner/profile-setup';
   static const homeownerTreeSetup = '/homeowner/tree-setup';
@@ -68,7 +69,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (!seenOnboarding) {
           return loc == AppRoutes.onboarding ? null : AppRoutes.onboarding;
         }
-        return loc == AppRoutes.login ? null : AppRoutes.login;
+        const preAuth = {AppRoutes.welcome, AppRoutes.login};
+        return preAuth.contains(loc) ? null : AppRoutes.welcome;
       }
 
       // Signed in but profile not finished -> homeowner setup flow.
@@ -85,6 +87,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       const preHome = {
         AppRoutes.splash,
         AppRoutes.onboarding,
+        AppRoutes.welcome,
         AppRoutes.login,
       };
       return preHome.contains(loc) ? AppRoutes.homeownerHome : null;
@@ -94,6 +97,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: AppRoutes.onboarding, builder: (_, _) => const OnboardingScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+          path: AppRoutes.welcome, builder: (_, _) => const WelcomeScreen()),
       GoRoute(
           path: AppRoutes.homeownerProfileSetup,
           builder: (_, _) => const ProfileSetupScreen()),
