@@ -27,7 +27,10 @@ functions/              TypeScript Cloud Functions (shared backend)
 firestore.rules · firestore.indexes.json · firebase.json
 docs/                   plans (00 = source of truth) + per-app specs
 Designs/                design system (CSS tokens, JSX mockups, SVG assets)
+website/                marketing site (Vite + Tailwind) — npm run dev / build
 ```
+
+`STRUCTURE.md` has a fuller tour of the tree.
 
 ## Prerequisites
 
@@ -45,29 +48,45 @@ dart run melos list        # lists the 5 packages
 
 ## Running an app
 
-Each app runs standalone. Its `main.dart` seeds demo data, so it renders the
-full UI **without** live Firestore:
+Each app runs standalone and has two entrypoints:
+
+- **`main.dart` (default)** — LIVE: real Firebase (Android configs for the
+  shared project are checked in), real phone-OTP auth, every screen backed by
+  Firestore.
+- **`main_demo.dart`** — the seeded offline demo harness: renders the full UI
+  with in-memory demo data, no Firebase needed.
 
 ```bash
-cd apps/homeowner   && flutter run
-cd apps/worker      && flutter run
+cd apps/homeowner    && flutter run                          # live
+cd apps/worker       && flutter run -t lib/main_demo.dart    # offline demo
 cd apps/site_manager && flutter run
-cd apps/b2b         && flutter run
+cd apps/b2b          && flutter run
 ```
 
-## Firebase setup (for a live build)
+## Firebase
 
-Each app needs its own Firebase config, all pointing at the **same** project:
+All four apps point at the **same** Firebase project; each has its own
+`applicationId` and `google-services.json` (already committed for Android —
+run `flutterfire configure` inside an app only when re-registering or adding
+iOS).
+
+### Live-local via the Emulator Suite (no Blaze plan, no SMS quota)
 
 ```bash
+cd functions && npm run emulators     # auth + firestore + functions, one terminal
+npm run seed:emulator                 # once, to load demo data
 cd apps/<role>
-flutterfire configure      # select the shared Firebase project + this app's applicationId
-flutter run
+flutter run --dart-define=USE_FIREBASE_EMULATORS=true
 ```
 
-This registers the app and writes `google-services.json` / `firebase_options.dart`.
-Until then the demo data renders (Firebase init is guarded). To exercise real
-auth, enable **Authentication → Phone** in the Firebase console.
+The emulator host defaults to `10.0.2.2` (right for the Android emulator);
+for a physical phone put the emulators on the LAN and pass
+`--dart-define=FIREBASE_EMULATOR_HOST=<PC Wi-Fi IP>` — see the caveat in
+`packages/core/lib/app/firebase_bootstrap.dart` (`adb reverse` does **not**
+work for the FlutterFire plugins).
+
+To exercise real auth against production, enable **Authentication → Phone**
+in the Firebase console.
 
 > **Cloud Functions** (`functions/`) require the **Blaze** plan to deploy.
 > Razorpay key/secret live only in function secrets — never on the client.
